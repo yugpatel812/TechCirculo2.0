@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Announcements</title>
+    <link rel="stylesheet" href="css/announcements.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+        <div class="logo">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+            />
+            <path
+              d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path d="M19 11h2m-1 -1v2" />
+          </svg>
+          <span>TechCirculo</span>
+        </div>
+
+        <nav>
+          <a href="Dashboard.html">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="7" height="9" x="3" y="3" rx="1" />
+              <rect width="7" height="5" x="14" y="3" rx="1" />
+              <rect width="7" height="9" x="14" y="12" rx="1" />
+              <rect width="7" height="5" x="3" y="16" rx="1" />
+            </svg>
+            Dashboard
+          </a>
+          <a href="Community.html">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M14 19a6 6 0 0 0-12 0" />
+              <circle cx="8" cy="9" r="4" />
+              <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+            </svg>
+            Communities
+          </a>
+          <a href="profile.html">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="8" r="4" />
+
+              <path d="M4 20a8 8 0 0 1 16 0" />
+            </svg>
+
+            Profile
+          </a>
+          <a href="annoucements.html" class="active">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
+            Annoucements
+            <span class="badge">0</span>
+          </a>
+        </nav>
+      </aside>
+    <div class="container">
+      
+      <h1>Announcements</h1>
+      <div class="filters">
+        <select id="filterCommunity">
+          <option value="all">All Communities</option>
+          </select>
+        <select id="filterType">
+          <option value="all">All Types</option>
+          <option value="event">Events</option>
+          <option value="update">Updates</option>
+        </select>
+        <select id="filterDate">
+          <option value="latest">Latest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+      <div id="announcementsList" class="announcements"></div>
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="logo">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+                />
+                <path
+                  d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+                />
+                <path d="M19 11h2m-1 -1v2" />
+              </svg>
+              <span>TechCirculo</span>
+            </div>
+            <p>A central point where education and collaboration meet</p>
+          </div>
+  
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <a href="index.html">Features</a>
+            <a href="index.html">Communities</a>
+            <a href="index.html">Testimonials</a>
+          </div>
+  
+          <div class="footer-section">
+            <h4>Contact</h4>
+            <p>Email: support@techcirculo.com</p>
+            <p>Phone: (555) 123-4567</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2025 TechCirculo. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+    
+      
+    <script src="js/announcements.js"></script>
+  </body>
+</html>

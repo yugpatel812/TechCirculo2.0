@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechCirculo Dashboard</title>
+    <link rel="stylesheet" href="css/Dashboard.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+            />
+            <path
+              d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+            />
+            <path d="M19 11h2m-1 -1v2" />
+          </svg>
+          <span>TechCirculo</span>
+        </div>
+
+        <nav>
+          <a href="#" class="active">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="7" height="9" x="3" y="3" rx="1" />
+              <rect width="7" height="5" x="14" y="3" rx="1" />
+              <rect width="7" height="9" x="14" y="12" rx="1" />
+              <rect width="7" height="5" x="3" y="16" rx="1" />
+            </svg>
+            Dashboard
+          </a>
+          <a href="Community.html">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M14 19a6 6 0 0 0-12 0" />
+              <circle cx="8" cy="9" r="4" />
+              <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+            </svg>
+            Communities
+          </a>
+          <a href="profile.html">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2" 
+              stroke-linecap="round" 
+              stroke-linejoin="round">
+              
+              <!-- Circle for Head -->
+              <circle cx="12" cy="8" r="4" />
+
+              <!-- Arc for Shoulders -->
+              <path d="M4 20a8 8 0 0 1 16 0" />
+              
+            </svg>
+
+            Profile
+          </a>
+          <a href="annoucements.html">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+              <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+            </svg>
+            Annoucements
+            <span class="badge">0</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Header -->
+        <header class="header" style="width:1200px">
+          <div class="search">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input type="text" placeholder="Search communities..." />
+          </div>
+        
+          <div class="user-menu">
+            <button class="notifications-btn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+              <span class="badge">0</span>
+            </button>
+        
+            <div class="user-profile">
+              <div class="user-info">
+                  <img id="user-profile-image" src="default-profile.png" alt="User Profile" />
+                  <span id="user-profile-name">User</span>
+              </div>
+               <h5 id="greeting-text">Welcome!</h5>
+              <div class="lo">
+                <a href="index.html" class="logout">Log Out</a>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+
+        
+        <section class="communities">
+          <div class="section-header">
+            <h2>All Communities</h2>
+            <span class="community-count">4 communities</span>
+          </div>
+        
+          <!-- Slider Wrapper -->
+          <div class="slider-container">
+            <div class="slider">
+              <div class="community-card">
+                <div class="community-header">
+                  <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=200&fit=crop" alt="Web Development">
+                  <span class="member-count">2.4k members</span>
+                </div>
+                <div class="community-body">
+                  <h3>Web Development</h3>
+                  <p>Share knowledge and stay updated with the latest web technologies.</p>
+                  <button type="submit" class="joinnow">Join now</button>
+                </div>
+              </div>
+              <div class="community-card">
+                <div class="community-header">
+                  <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=300&h=200&fit=crop" alt="Mobile App Development">
+                  <span class="member-count">1.8k members</span>
+                </div>
+                <div class="community-body">
+                  <h3>Mobile App Development</h3>
+                  <p>Learn and discuss mobile app development strategies.</p>
+                  <button type="submit" class="joinnow">Join now</button>
+                </div>
+              </div>
+              <div class="community-card">
+                <div class="community-header">
+                  <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8aW50ZXJmYWNlfGVufDB8fDB8fHww" alt="UX/UI Design">
+                  <span class="member-count">956 members</span>
+                </div>
+                <div class="community-body">
+                  <h3>UX/UI Design</h3>
+                  <p>Explore the world of user experience and interface design.</p>
+                  <button type="submit" class="joinnow">Join now</button>
+                </div>
+              </div>
+              <div class="community-card">
+                <div class="community-header">
+                  <img src="https://plus.unsplash.com/premium_photo-1661878265739-da90bc1af051?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZGF0YSUyMHNjaWVuY2V8ZW58MHx8MHx8fDA%3D" alt="Data Science">
+                  <span class="member-count">1.2k members</span>
+                </div>
+                <div class="community-body">
+                  <h3>Data Science</h3>
+                  <p>Deep dive into data analysis and machine learning.</p>
+                  <button type="submit" class="joinnow">Join now</button>
+                </div>
+              </div>
+              <div class="community-card">
+                <div class="community-header">
+                  <img src="https://images.unsplash.com/photo-1614064548237-096f735f344f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y3liZXIlMjBzZWN1cml0eXxlbnwwfHwwfHx8MA%3D%3D"alt="Data Science">
+                  <span class="member-count">4.2k members</span>
+                </div>
+                <div class="community-body">
+                  <h3>Cyber Security</h3>
+                  <p>Deep dive into Cyber Security.</p>
+                  <button type="submit" class="joinnow">Join now</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!--Post Section  -->
+        <section class="communities">
+          <div class="section-header">
+            <h2 style="margin-top:20px;">Posts & Events</h2>
+            <span class="post-count">4 posts</span>
+          </div>
+          <div class="post-container">
+    
+                  <div class="post">
+                      <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&auto=format&fit=crop" alt="Community Event">
+                      <h3>Web Development Workshop</h3>
+                      <p>Join us for an exciting workshop on web development. Learn HTML, CSS, and JavaScript.</p>
+                      <div class="actions">
+                          <button class="btn like-btn" onclick="likePost(this)">Like ❤️</button>
+                          <button class="btn share-btn" onclick="sharePost()">Share 🔄</button>
+                          <button class="btn join-btn" onclick="toggleJoin(this)">Join Community</button>
+                      </div>
+                  </div>
+                  <div class="post">
+                    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&auto=format&fit=crop" alt="Cybersecurity Event">
+                    <h3>Cybersecurity Awareness Workshop</h3>
+                    <p>Learn about ethical hacking and cybersecurity measures to protect yourself online.</p>
+                    <div class="actions">
+                        <button class="btn like-btn" onclick="likePost(this)">Like ❤️</button>
+                        <button class="btn share-btn" onclick="sharePost()">Share 🔄</button>
+                        <button class="btn join-btn" onclick="toggleJoin(this)">Join Community</button>
+                        <button class="btn unjoin-btn" onclick="toggleJoin(this)" style="display: none;">Unjoin Community</button>
+                    </div>
+                </div>
+                <div class="post">
+                    <img src="https://plus.unsplash.com/premium_photo-1681400678259-255b10890b08?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YmxvY2tjaGFpbnxlbnwwfHwwfHx8MA%3D%3D" alt="Blockchain Meetup">
+                    <h3>Blockchain Innovations Meetup</h3>
+                    <p>Explore the future of decentralized technologies and blockchain applications.</p>
+                    <div class="actions">
+                        <button class="btn like-btn" onclick="likePost(this)">Like ❤️</button>
+                        <button class="btn share-btn" onclick="sharePost()">Share 🔄</button>
+                        <button class="btn join-btn" onclick="toggleJoin(this)">Join Community</button>
+                        <button class="btn unjoin-btn" onclick="toggleJoin(this)" style="display: none;">Unjoin Community</button>
+                    </div>
+                </div>
+                  
+          </div>     
+        </div>
+
+      </div>
+        </section>
+        
+        <!-- footer section -->
+        <footer class="footer">
+          <div class="footer-content">
+            <div class="footer-section">
+              <div class="logo">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+                  />
+                  <path
+                    d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+                  />
+                  <path d="M19 11h2m-1 -1v2" />
+                </svg>
+                <span>TechCirculo</span>
+              </div>
+              <p>A central point where education and collaboration meet</p>
+            </div>
+    
+            <div class="footer-section">
+              <h4>Quick Links</h4>
+              <a href="index.html">Features</a>
+              <a href="index.html">Communities</a>
+              <a href="index.html">Testimonials</a>
+            </div>
+    
+            <div class="footer-section">
+              <h4>Contact</h4>
+              <p>Email: support@techcirculo.com</p>
+              <p>Phone: (555) 123-4567</p>
+            </div>
+          </div>
+          <div class="footer-bottom">
+            <p>&copy; 2025 TechCirculo. All rights reserved.</p>
+          </div>
+        </footer>
+        
+        
+
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>

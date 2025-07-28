@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Community Section</title>
+    <link rel="stylesheet" href="css/community.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="logo">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+          />
+          <path
+            d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+          />
+          <path d="M19 11h2m-1 -1v2" />
+        </svg>
+        <span>TechCirculo</span>
+      </div>
+
+      <nav>
+        <a href="dashboard.html">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect width="7" height="9" x="3" y="3" rx="1" />
+            <rect width="7" height="5" x="14" y="3" rx="1" />
+            <rect width="7" height="9" x="14" y="12" rx="1" />
+            <rect width="7" height="5" x="3" y="16" rx="1" />
+          </svg>
+          Dashboard
+        </a>
+        <a href="Community.html"  class="active">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M14 19a6 6 0 0 0-12 0" />
+            <circle cx="8" cy="9" r="4" />
+            <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+          </svg>
+          Communities
+        </a>
+        <a href="profile.html">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="8" r="4" />
+
+            <path d="M4 20a8 8 0 0 1 16 0" />
+          </svg>
+          Profile
+        </a>
+        <a href="announcements.html">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+          </svg>
+          Announcements
+          <span class="badge">0</span>
+        </a>
+      </nav>
+
+      <hr />
+
+      <h2>All Communities</h2>
+      <ul id="all-community-list" class="community-list"></ul>
+
+      <h2>Joined Communities</h2>
+      <ul id="joined-community-list" class="community-list"></ul>
+    </aside>
+
+    <main class="content">
+      <h2 id="community-heading">Select a Community</h2>
+      <div class="tabs">
+        <button class="tab-btn active">Posts</button>
+        <button class="tab-btn">Announcements</button>
+        <button class="tab-btn">Members</button>
+      </div>
+
+      <div class="tab-content active" id="posts-section">
+        <ul id="post-list"></ul>
+        <h2 id="create-post-heading" style="display: none">Create a Post</h2>
+        <div id="create-post-section" class="create-post" style="display: none">
+          <input
+            type="text"
+            id="post-title"
+            placeholder="Enter post title"
+            required
+          />
+          <textarea
+            id="post-description"
+            placeholder="Write your post description..."
+            required
+          ></textarea>
+          <button id="submit-post">Post</button>
+        </div>
+      </div>
+
+      <div class="tab-content" id="announcements-section">
+        <ul id="announcement-list"></ul>
+      </div>
+
+      <div class="tab-content" id="members-section">
+        <ul id="members-list"></ul>
+      </div>
+    </main>
+    <script src="js/community.js"></script>
+  </body>
+</html>
