@@ -1,7 +1,7 @@
 // community.js
 
 document.addEventListener("DOMContentLoaded", function () {
-    const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with profile.js
+    const API_BASE_URL = "http://localhost:8084/communities"; // API base URL, consistent with profile.js
 
     // Helper to get auth headers
     function getAuthHeaders() {
@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function addToJoinedCommunities(communityId, communityName) {
         if (!joinedCommunities.some(c => c.id === communityId)) { // Check if already joined based on ID
             try {
+                console.log(`Joining community: ${communityName} (ID: ${communityId})`);
                 const response = await fetch(`${API_BASE_URL}/user/communities/join`, {
                     method: 'POST',
                     headers: getAuthHeaders(),
@@ -160,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function renderAllCommunities() {
         allCommunityList.innerHTML = "<li>Loading all communities...</li>";
         try {
-            const response = await fetch(`${API_BASE_URL}/communities/all`, { headers: getAuthHeaders() });
+            const response = await fetch(`${API_BASE_URL}/all`, { headers: getAuthHeaders() });
             const communities = await response.json();
             allCommunityList.innerHTML = ""; // Clear loading message
             if (response.ok && communities && communities.length > 0) {
