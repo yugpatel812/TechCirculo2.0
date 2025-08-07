@@ -13,5 +13,5 @@ public class CommunityDto {
     private String name;
     private String description;
     private String imageUrl;
-    private Integer memberCount;
+    private Long memberCount;
 }

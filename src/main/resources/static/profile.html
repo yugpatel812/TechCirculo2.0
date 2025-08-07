@@ -1,209 +1,441 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Profile Page</title>
-    <link rel="stylesheet" href="css/profile.css">
-  </head>
-  <body>
-    <aside class="sidebar">
-      <div class="logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"/>
-          <path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"/>
-          <path d="M19 11h2m-1 -1v2"/>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechCirculo - Profile</title>
+  <link rel="stylesheet" href="css/Dashboard.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+      >
+        <path
+                d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+        />
+        <path
+                d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+        />
+        <path d="M19 11h2m-1 -1v2" />
+      </svg>
+      <span>TechCirculo</span>
+    </div>
+
+    <nav>
+      <a href="index.html">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <rect width="7" height="9" x="3" y="3" rx="1" />
+          <rect width="7" height="5" x="14" y="3" rx="1" />
+          <rect width="7" height="9" x="14" y="12" rx="1" />
+          <rect width="7" height="5" x="3" y="16" rx="1" />
         </svg>
-        <span>TechCirculo</span>
+        Dashboard
+      </a>
+      <a href="Community.html">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <path d="M14 19a6 6 0 0 0-12 0" />
+          <circle cx="8" cy="9" r="4" />
+          <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+        </svg>
+        Communities
+      </a>
+      <a href="#" class="active">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 20a8 8 0 0 1 16 0" />
+        </svg>
+        Profile
+      </a>
+      <a href="announcements.html">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+          <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+        </svg>
+        Announcements
+        <span class="badge">0</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="page-title">
+          <h1>Profile</h1>
+          <p>Manage your profile and view your activity</p>
+        </div>
       </div>
-  
-      <nav>
-        <a href="dashboard.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="7" height="9" x="3" y="3" rx="1"/>
-            <rect width="7" height="5" x="14" y="3" rx="1"/>
-            <rect width="7" height="9" x="14" y="12" rx="1"/>
-            <rect width="7" height="5" x="3" y="16" rx="1"/>
+
+      <div class="header-right">
+        <button class="edit-profile-btn" id="edit-personal-info-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
-          Dashboard
-        </a>
-        <a href="Community.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 19a6 6 0 0 0-12 0"/>
-            <circle cx="8" cy="9" r="4"/>
-            <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8"/>
-          </svg>
-          Communities
-        </a>
-        <a href="profile.html" class="active">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20a8 8 0 0 1 16 0"/>
-          </svg>
-          Profile
-        </a>
-        <a href="annoucements.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-          </svg>
-          Announcements
-          <span class="badge">0</span>
-        </a>
-      </nav>
-    </aside>  
-    <main class="container">
-      <!-- Left Column: Profile & Social Links -->
-      <section class="left-column">
-        <article class="personal-info">
-          <h2>Personal Info</h2>
-          <div class="photo-container">
-            <img
-              id="profile-pic"
-              class="profile-pic"
-              src="https://unsplash.com/photos/a-man-in-a-yellow-shirt-smiling-at-the-camera-ZjDbRtR_BcE"
-              alt="Profile Picture"
-              onerror="this.onerror=null; this.src='https://via.placeholder.com/100?text=No+Image';"
-            />
-            <button class="edit-photo-btn" id="edit-photo-btn" aria-label="Edit Profile Photo">
-              Edit Photo
-            </button>
-            <button class="remove-photo-btn" id="remove-photo-btn" aria-label="Remove Profile Photo">
-              Remove Photo
-            </button>
+          Edit Profile
+        </button>
+      </div>
+    </header>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+      <!-- Personal Information Section -->
+      <section class="profile-section personal-info">
+        <div class="section-header">
+          <h2>Personal Information</h2>
+        </div>
+
+        <div class="profile-info-grid">
+          <div class="profile-avatar-section">
+            <div class="avatar-container">
+              <div class="avatar-wrapper">
+                <img
+                        id="profile-pic"
+                        class="profile-avatar"
+                        src="https://via.placeholder.com/120x120?text=GU"
+                        alt="Profile Picture"
+                        onerror="this.onerror=null; this.src='https://via.placeholder.com/120x120?text=GU';"
+                />
+                <div class="avatar-overlay">
+                  <button class="change-photo-btn" id="edit-photo-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                      <circle cx="12" cy="13" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-basic-info">
+              <h3 id="display-name">Guest User</h3>
+              <p id="display-email">guest@university.edu</p>
+              <div class="user-badge">
+                <span class="badge student">Student</span>
+                <span class="badge-text">3rd Year</span>
+              </div>
+            </div>
           </div>
-          
-          <div class="info-item">
-            <strong>Name:</strong> <span id="display-name">Gaurav Mishra</span>
+
+          <div class="profile-details">
+            <div class="detail-row">
+              <div class="detail-item">
+                <label>University</label>
+                <span id="display-university">Tech University</span>
+              </div>
+              <div class="detail-item">
+                <label>Major</label>
+                <span id="display-major">Computer Science</span>
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <div class="detail-item">
+                <label>Location</label>
+                <span id="display-location">San Francisco, CA</span>
+              </div>
+              <div class="detail-item">
+                <label>Member Since</label>
+                <span id="display-member-since">September 2023</span>
+              </div>
+            </div>
+
+            <div class="bio-section">
+              <label>Bio</label>
+              <p id="display-bio">Passionate computer science student interested in web development, AI, and cybersecurity. Always eager to learn and collaborate on exciting projects.</p>
+            </div>
           </div>
-          <div class="info-item">
-            <strong>Email:</strong>
-            <span id="display-email">Gaurav@example.com</span>
-          </div>
-          <div class="info-item">
-            <strong>University Name:</strong>
-            <span id="display-university">Parul University</span>
-          </div>
-          <button
-            class="btn"
-            id="edit-personal-info-btn"
-            aria-label="Edit Personal Information"
-          >
-            Edit Personal Info
-          </button>
-        </article>
-        <article class="social-links">
-          <h2>Social Links</h2>
-          <div id="social-links-display">
-            <a
-              id="linkedin-link"
-              href="https://www.linkedin.com"
-              target="_blank"
-              >LinkedIn</a
-            >
-            <a id="github-link" href="https://github.com" target="_blank"
-              >GitHub</a
-            >
-            <a id="leetcode-link" href="https://leetcode.com" target="_blank"
-              >LeetCode</a
-            >
-            <button
-              class="btn"
-              id="edit-social-links-btn"
-              aria-label="Edit Social Links"
-            >
-              Edit Social Links
-            </button>
-          </div>
-          <div id="social-links-edit">
-            <label for="linkedin-input">LinkedIn:</label>
-            <input
-              type="text"
-              id="linkedin-input"
-              class="input-field"
-              value="https://www.linkedin.com"
-            />
-            <label for="github-input">GitHub:</label>
-            <input
-              type="text"
-              id="github-input"
-              class="input-field"
-              value="https://github.com"
-            />
-            <label for="leetcode-input">LeetCode:</label>
-            <input
-              type="text"
-              id="leetcode-input"
-              class="input-field"
-              value="https://leetcode.com"
-            />
-            <button class="btn" id="save-social-links-btn">Save</button>
-            <button class="btn" id="cancel-social-links-btn">Cancel</button>
-          </div>
-        </article>
+        </div>
       </section>
-      <!-- Right Column: Communities & Posts -->
-      <section class="right-column">
-        <article class="communities">
-          <h2>Communities</h2>
-          <ul id="community-list">
-            <li>Web Development</li>
-            <li>AI/ML</li>
-            <li>Cybersecurity</li>
-          </ul>
-          <button
-            class="btn join-btn"
-            id="join-community-btn"
-            aria-label="Join New Community"
-          >
-            Join New Community
-          </button>
-        </article>
-        <article class="posts">
-          <h2>Your Posts</h2>
-          <div class="tab-content active" id="posts-section">
-            <ul id="post-list">
-              <li>Lorem ipsum dolor sit amet.</li>
-              <li>Consectetur adipiscing elit.</li>
-            </ul>
-          </div>
-        </article>
-      </section>
-    </main>
-    
-    <!-- Right-Side Edit Panel for Personal Info -->
-    <aside id="edit-panel" aria-label="Edit Personal Information">
-      <h2>Edit Personal Info</h2>
-      <img
-        id="edit-profile-photo"
-        src="https://via.placeholder.com/100?text=Profile"
-        alt="Edit Profile Photo"
-      />
-      <button class="btn" id="change-photo-btn" aria-label="Change Photo">
-        Change Photo
+
+      <!-- Two Column Layout -->
+      <div class="profile-columns">
+        <!-- Left Column -->
+        <div class="left-column">
+          <!-- Activity Stats -->
+          <section class="profile-section activity-stats">
+            <div class="section-header">
+              <h2>Activity Stats</h2>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Posts</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">28</div>
+                <div class="stat-label">Comments</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">94</div>
+                <div class="stat-label">Likes</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Communities</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Social Links -->
+          <section class="profile-section social-links-section">
+            <div class="section-header">
+              <h2>Social Links</h2>
+              <button class="edit-btn" id="edit-social-links-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+            </div>
+
+            <div id="social-links-display" class="social-links-list">
+              <a id="github-link" href="https://github.com" target="_blank" class="social-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                  <path d="M9 18c-4.51 2-5-2-7-2"/>
+                </svg>
+                <span>GitHub</span>
+                <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 7h10v10"/>
+                  <path d="M7 17L17 7"/>
+                </svg>
+              </a>
+
+              <a id="linkedin-link" href="https://linkedin.com" target="_blank" class="social-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                  <rect width="4" height="12" x="2" y="9"/>
+                  <circle cx="4" cy="4" r="2"/>
+                </svg>
+                <span>LinkedIn</span>
+                <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 7h10v10"/>
+                  <path d="M7 17L17 7"/>
+                </svg>
+              </a>
+
+              <a id="leetcode-link" href="https://leetcode.com" target="_blank" class="social-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 12l2 2 4-4"/>
+                  <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                  <path d="M3 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                  <path d="M12 21c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                  <path d="M12 3c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"/>
+                </svg>
+                <span>Portfolio</span>
+                <svg class="external-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 7h10v10"/>
+                  <path d="M7 17L17 7"/>
+                </svg>
+              </a>
+            </div>
+
+            <!-- Social Links Edit Form (Hidden by default) -->
+            <div id="social-links-edit" class="social-links-edit" style="display: none;">
+              <div class="input-group">
+                <label for="github-input">GitHub URL</label>
+                <input type="url" id="github-input" class="form-input" placeholder="https://github.com/username" />
+              </div>
+              <div class="input-group">
+                <label for="linkedin-input">LinkedIn URL</label>
+                <input type="url" id="linkedin-input" class="form-input" placeholder="https://linkedin.com/in/username" />
+              </div>
+              <div class="input-group">
+                <label for="leetcode-input">Portfolio URL</label>
+                <input type="url" id="leetcode-input" class="form-input" placeholder="https://yourportfolio.com" />
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" id="save-social-links-btn">Save Changes</button>
+                <button class="btn btn-secondary" id="cancel-social-links-btn">Cancel</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+          <!-- My Communities -->
+          <section class="profile-section communities-section">
+            <div class="section-header">
+              <h2>My Communities</h2>
+              <button class="add-btn" id="join-community-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v14"/>
+                  <path d="M5 12h14"/>
+                </svg>
+                Join New
+              </button>
+            </div>
+
+            <div class="communities-list">
+              <ul id="community-list">
+                <li class="community-item">
+                  <div class="community-info">
+                    <div class="community-name">Web Development</div>
+                    <div class="community-meta">Member • Sept 2023</div>
+                  </div>
+                </li>
+                <li class="community-item">
+                  <div class="community-info">
+                    <div class="community-name">AI/ML Research</div>
+                    <div class="community-meta">Member • Oct 2023</div>
+                  </div>
+                </li>
+                <li class="community-item">
+                  <div class="community-info">
+                    <div class="community-name">Cybersecurity</div>
+                    <div class="community-meta">Member • Nov 2023</div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- Recent Posts -->
+          <section class="profile-section posts-section">
+            <div class="section-header">
+              <h2>Recent Posts</h2>
+            </div>
+
+            <div class="posts-list">
+              <ul id="post-list">
+                <li class="post-item">
+                  <div class="post-title">React Best Practices Discussion</div>
+                  <div class="post-meta">2 hours ago • 5 comments</div>
+                </li>
+                <li class="post-item">
+                  <div class="post-title">CSS Grid vs Flexbox - When to use what?</div>
+                  <div class="post-meta">1 day ago • 12 comments</div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="edit-panel" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Edit Personal Information</h2>
+      <button class="close-btn" id="close-edit-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6L6 18"/>
+          <path d="M6 6l12 12"/>
+        </svg>
       </button>
-      <label for="edit-name">Name:</label>
-      <input type="text" id="edit-name" class="input-field" value="John Doe" />
-      <label for="edit-email">Email:</label>
-      <input
-        type="email"
-        id="edit-email"
-        class="input-field"
-        value="john@example.com"
-      />
-      <label for="edit-university">University Name:</label>
-      <input
-        type="text"
-        id="edit-university"
-        class="input-field"
-        value="University of Example"
-      />
-      <button class="btn" id="save-edit-btn" aria-label="Save Changes">
-        Save
-      </button>
-      <button class="btn" id="close-edit-btn" aria-label="Close Editor">
-        Close
-      </button>
-    </aside>
-    <script src="js/profile.js"></script>
-  </body>
+    </div>
+
+    <div class="modal-body">
+      <div class="edit-avatar-section">
+        <img id="edit-profile-photo" src="https://via.placeholder.com/80x80?text=GU" alt="Edit Profile Photo" />
+        <div class="avatar-actions">
+          <button class="btn btn-secondary" id="change-photo-btn">Change Photo</button>
+          <button class="btn btn-outline" id="remove-photo-btn">Remove</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="edit-name">Full Name</label>
+          <input type="text" id="edit-name" class="form-input" value="Guest User" />
+        </div>
+
+        <div class="input-group">
+          <label for="edit-email">Email Address</label>
+          <input type="email" id="edit-email" class="form-input" value="guest@university.edu" />
+        </div>
+
+        <div class="input-group">
+          <label for="edit-university">University</label>
+          <input type="text" id="edit-university" class="form-input" value="Tech University" />
+        </div>
+
+        <div class="input-group">
+          <label for="edit-major">Major</label>
+          <input type="text" id="edit-major" class="form-input" value="Computer Science" />
+        </div>
+
+        <div class="input-group">
+          <label for="edit-location">Location</label>
+          <input type="text" id="edit-location" class="form-input" value="San Francisco, CA" />
+        </div>
+
+        <div class="input-group full-width">
+          <label for="edit-bio">Bio</label>
+          <textarea id="edit-bio" class="form-input" rows="3" placeholder="Tell us about yourself...">Passionate computer science student interested in web development, AI, and cybersecurity. Always eager to learn and collaborate on exciting projects.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancel-edit-btn">Cancel</button>
+      <button class="btn btn-primary" id="save-edit-btn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/profile.js"></script>
+</body>
 </html>

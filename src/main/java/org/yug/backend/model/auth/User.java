@@ -1,7 +1,8 @@
 package org.yug.backend.model.auth;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.yug.backend.model.Post;
@@ -10,10 +11,12 @@ import org.yug.backend.model.UserAnnouncement;
 import org.yug.backend.model.UserCommunity;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -28,7 +31,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String password; // Store hashed passwords here
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -40,7 +43,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Profile profile;
 
-    // --- Relationships ---
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserCommunity> userCommunities = new HashSet<>();
 
@@ -50,7 +52,6 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserAnnouncement> userAnnouncements = new HashSet<>();
 
-    // Enum for user roles
     public enum UserRole {
         STUDENT, TEACHER, ALUMNI, ADMIN
     }
@@ -62,7 +63,7 @@ public class User {
         this.role = role;
     }
 
-    // Helper methods for relationships (important for Many-to-Many ownership)
+    // Relationship helper methods
     public void addUserCommunity(UserCommunity userCommunity) {
         this.userCommunities.add(userCommunity);
         userCommunity.setUser(this);
@@ -81,5 +82,18 @@ public class User {
     public void addUserAnnouncement(UserAnnouncement userAnnouncement) {
         this.userAnnouncements.add(userAnnouncement);
         userAnnouncement.setUser(this);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
     }
 }

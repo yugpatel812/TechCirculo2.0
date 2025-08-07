@@ -1,21 +1,24 @@
-// src/main/java/org/yug/backend/repository/UserCommunityRepository.java
 package org.yug.backend.repository;
 
-import org.yug.backend.model.auth.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.yug.backend.model.UserCommunity;
- // Import the composite key
+import org.yug.backend.model.UserCommunityId;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserCommunityRepository extends JpaRepository<UserCommunity, User> {
-    List<UserCommunity> findByUser_Id(UUID userId);
-    List<UserCommunity> findByCommunity_Id(UUID communityId);
-    Optional<UserCommunity> findByUser_IdAndCommunity_Id(UUID userId, UUID communityId);
+public interface UserCommunityRepository extends JpaRepository<UserCommunity, UserCommunityId> {
 
-    boolean existsByUser_IdAndCommunity_Id(UUID userId, UUID communityId);
+    // Correct method names matching the entity fields (userId, communityId)
+    List<UserCommunity> findByUserId(UUID userId);
+
+    List<UserCommunity> findByCommunityId(UUID communityId);
+
+    Optional<UserCommunity> findByUserIdAndCommunityId(UUID userId, UUID communityId);
+
+    boolean existsByUserIdAndCommunityId(UUID userId, UUID communityId);
+    long countByCommunityId(UUID communityId);
 }

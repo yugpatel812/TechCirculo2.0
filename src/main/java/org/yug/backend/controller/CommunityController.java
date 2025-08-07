@@ -1,7 +1,9 @@
 // src/main/java/org/yug/backend/controller/CommunityController.java
 package org.yug.backend.controller;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.Valid;
+import lombok.extern.flogger.Flogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +19,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/communities") // Base path for community APIs
 public class CommunityController {
-
     @Autowired
     private CommunityService communityService;
-
+    private static final Logger logger = LoggerFactory.getLogger(CommunityController.class);
     // API: GET /communities/all
     @GetMapping("/all")
     public ResponseEntity<List<CommunityDto>> getAllCommunities() {
+        logger.info("Fetching all communities");
         List<CommunityDto> communities = communityService.getAllCommunities();
         return ResponseEntity.ok(communities);
     }
@@ -33,6 +35,8 @@ public class CommunityController {
     @GetMapping("/user/communities/joined") // Although in community.js it's fetched from a different path
     public ResponseEntity<List<CommunityDto>> getJoinedCommunities(@AuthenticationPrincipal UserDetails userDetails) {
         List<CommunityDto> joinedCommunities = communityService.getJoinedCommunities(userDetails.getUsername());
+        logger.info("Returning {} communities for user {}", joinedCommunities.size(), userDetails.getUsername());
+        joinedCommunities.forEach(c -> logger.info("Community: {}", c));
         return ResponseEntity.ok(joinedCommunities);
     }
 
@@ -41,7 +45,9 @@ public class CommunityController {
     public ResponseEntity<Void> joinCommunity(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody JoinCommunityRequest request) {
+        logger.info("User {} attempting to join community {}", userDetails.getUsername(), request.getCommunityId());
         communityService.joinCommunity(userDetails.getUsername(), request.getCommunityId());
+        logger.info("User {} joined community {}", userDetails.getUsername(), request.getCommunityId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -30,7 +30,7 @@ public class Community {
     private String imageUrl;
 
     @Column(name = "member_count")
-    private Integer memberCount = 0;
+    private Long memberCount = 0L;
 
     // --- Relationships ---
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -52,13 +52,13 @@ public class Community {
     public void addUserCommunity(UserCommunity userCommunity) {
         this.userCommunities.add(userCommunity);
         userCommunity.setCommunity(this);
-        this.memberCount = this.userCommunities.size();
+        this.memberCount = (long)this.userCommunities.size();
     }
 
     public void removeUserCommunity(UserCommunity userCommunity) {
         this.userCommunities.remove(userCommunity);
         userCommunity.setCommunity(null);
-        this.memberCount = this.userCommunities.size();
+        this.memberCount = (long)this.userCommunities.size();
     }
 
     public void addPost(Post post) {

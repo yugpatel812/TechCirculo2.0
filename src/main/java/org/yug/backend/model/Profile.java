@@ -1,14 +1,17 @@
 package org.yug.backend.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.yug.backend.model.auth.User;
 
+import java.util.Objects;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -17,11 +20,11 @@ public class Profile {
 
     @Id
     @Column(name = "user_id")
-    private UUID userId;
+    private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "name")
@@ -44,10 +47,12 @@ public class Profile {
 
     public Profile(User user) {
         this.user = user;
+        this.id = user != null ? user.getId() : null;
     }
 
-    public Profile(User user, String name, String university, String profilePicUrl, String linkedinUrl, String githubUrl, String leetcodeUrl) {
-        this.user = user;
+    public Profile(User user, String name, String university, String profilePicUrl,
+                   String linkedinUrl, String githubUrl, String leetcodeUrl) {
+        this(user);
         this.name = name;
         this.university = university;
         this.profilePicUrl = profilePicUrl;
@@ -56,8 +61,16 @@ public class Profile {
         this.leetcodeUrl = leetcodeUrl;
     }
 
-    public void setUser(User user) {
-        this.user = user;
-        this.userId = (user != null) ? user.getId() : null;
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile profile = (Profile) o;
+        return id != null && id.equals(profile.id);
     }
 }
