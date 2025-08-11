@@ -52,12 +52,17 @@
   --gradient-surface: linear-gradient(135deg, var(--surface-color), var(--background-color));
 }
 
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: linear-gradient(135deg, var(--background-color) 0%, var(--background-secondary) 100%);
   color: var(--text-color);
   line-height: 1.6;
-  overflow-x: hidden;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
@@ -88,11 +93,16 @@ body {
   display: flex;
   min-height: 100vh;
   position: relative;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* Enhanced Sidebar */
 .sidebar {
   width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  max-width: var(--sidebar-width);
   background: var(--surface-color);
   backdrop-filter: blur(20px);
   border-right: 1px solid var(--border-color);
@@ -159,6 +169,7 @@ body {
 .logo svg {
   filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .logo:hover svg {
@@ -274,6 +285,10 @@ body {
   padding: 2rem;
   transition: var(--transition);
   min-height: 100vh;
+  width: calc(100vw - var(--sidebar-width));
+  max-width: calc(100vw - var(--sidebar-width));
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* Enhanced Header */
@@ -291,8 +306,9 @@ body {
   position: sticky;
   top: 2rem;
   z-index: 50;
-  width: calc(100% - 4rem); /* Adjust width to account for padding */
-  box-sizing: border-box; /* Include padding in width calculation */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .header::before {
@@ -301,11 +317,10 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px; /* Increased height for a more prominent line */
+  height: 4px;
   background: var(--gradient-primary);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
-
 
 /* Enhanced Search */
 .search {
@@ -316,15 +331,17 @@ body {
   padding: 12px 16px;
   border-radius: var(--border-radius-md);
   width: 100%;
-  max-width: 400px;
+  max-width: min(400px, 40vw);
   border: 1px solid var(--border-color);
   transition: var(--transition);
   position: relative;
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .search:focus-within {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); /* Increased shadow spread */
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
   background: var(--surface-color);
   transform: translateY(-1px);
 }
@@ -333,8 +350,9 @@ body {
   border: none;
   background: none;
   outline: none;
-  font-size: 0.95rem; /* Slightly larger font */
+  font-size: 0.95rem;
   width: 100%;
+  min-width: 0;
   color: var(--text-color);
   font-weight: 500;
 }
@@ -346,6 +364,7 @@ body {
 .search svg {
   color: var(--text-light);
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .search:focus-within svg {
@@ -358,6 +377,7 @@ body {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-shrink: 0;
 }
 
 .notifications-btn {
@@ -369,6 +389,7 @@ body {
   padding: 10px;
   border-radius: var(--border-radius-md);
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .notifications-btn:hover {
@@ -381,11 +402,13 @@ body {
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 150px;
   padding: 8px 12px;
   border-radius: var(--border-radius-md);
   transition: var(--transition);
   cursor: pointer;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .user-profile:hover {
@@ -398,6 +421,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .user-info img {
@@ -408,6 +432,7 @@ body {
   border: 2px solid var(--border-color);
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
 .user-profile:hover .user-info img {
@@ -419,6 +444,8 @@ body {
 .user-details {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 #user-profile-name {
@@ -426,6 +453,9 @@ body {
   font-size: 0.875rem;
   color: var(--text-color);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #greeting-text {
@@ -434,6 +464,9 @@ body {
   font-weight: 400;
   margin: 0;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lo a {
@@ -447,40 +480,28 @@ body {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
-}
-
-.lo a::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--gradient-primary);
-  transition: left 0.3s ease;
-  z-index: -1;
-}
-
-.lo a:hover::before {
-  left: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .lo a:hover {
-  color: white;
+  color: var(--primary-color);
   border-color: transparent;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+
+
 }
 
 /* Create Post Toggle Button */
 .create-post-toggle {
-  margin-bottom: 2rem;
+  margin-top: 4rem;
   display: flex;
   justify-content: center;
-  /* Added max-width and padding to prevent overflow */
+  width: 100%;
   max-width: 100%;
-  padding: 0 1rem; /* Add horizontal padding for smaller screens */
-  box-sizing: border-box; /* Include padding in width */
+  box-sizing: border-box;
+
 }
 
 .create-post-btn {
@@ -501,11 +522,9 @@ body {
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(20px);
-  /* Ensure button itself doesn't overflow its container */
   max-width: 100%;
-  white-space: nowrap; /* Prevent text wrapping */
-  text-overflow: ellipsis; /* Add ellipsis if text overflows */
-  overflow: hidden; /* Hide overflow */
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .create-post-btn::before {
@@ -535,6 +554,7 @@ body {
 
 .create-post-btn svg:first-child {
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .create-post-btn:hover svg:first-child {
@@ -544,6 +564,7 @@ body {
 .create-post-btn .chevron {
   transition: var(--transition);
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .create-post-btn.active .chevron {
@@ -571,9 +592,10 @@ body {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 1;
   transform: translateY(0);
-  /* Ensure it fits within the main content area */
+  width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  margin-top: 4rem;
 }
 
 .create-post-section:hover {
@@ -620,6 +642,11 @@ body {
   height: 24px;
 }
 
+.text-content {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .text-content h2 {
   font-size: 1.75rem;
   font-weight: 800;
@@ -647,6 +674,7 @@ body {
 
 .form-group {
   position: relative;
+  min-width: 0;
 }
 
 .form-group.full-width {
@@ -668,6 +696,7 @@ body {
   width: 16px;
   height: 16px;
   color: var(--primary-color);
+  flex-shrink: 0;
 }
 
 .form-group input[type="text"],
@@ -683,6 +712,7 @@ body {
   color: var(--text-color);
   font-family: inherit;
   resize: vertical;
+  box-sizing: border-box;
 }
 
 .form-group input[type="text"]:focus,
@@ -754,6 +784,7 @@ body {
   width: 24px !important;
   height: 24px !important;
   color: var(--primary-color) !important;
+  flex-shrink: 0;
 }
 
 .upload-hint {
@@ -787,6 +818,7 @@ body {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--border-light);
+  flex-wrap: wrap;
 }
 
 .post-actions .btn {
@@ -804,12 +836,15 @@ body {
   overflow: hidden;
   text-decoration: none;
   font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .post-actions .btn svg {
   width: 16px;
   height: 16px;
   transition: var(--transition);
+  flex-shrink: 0;
 }
 
 .post-actions .clear-btn {
@@ -878,6 +913,8 @@ body {
   align-items: center;
   margin-bottom: 2rem;
   padding: 0 4px;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .section-header h2 {
@@ -886,6 +923,7 @@ body {
   color: var(--text-color);
   letter-spacing: -0.025em;
   position: relative;
+  flex-shrink: 0;
 }
 
 .section-header h2::after {
@@ -910,6 +948,8 @@ body {
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .community-count:hover,
@@ -925,6 +965,8 @@ body {
   overflow: hidden;
   border-radius: var(--border-radius);
   padding: 4px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .slider {
@@ -933,6 +975,7 @@ body {
   overflow-x: auto;
   padding: 1rem 0;
   scroll-behavior: smooth;
+  width: 100%;
 }
 
 .slider::-webkit-scrollbar {
@@ -956,6 +999,7 @@ body {
 /* Enhanced Community Cards */
 .community-card {
   min-width: 300px;
+  max-width: 300px;
   background: var(--surface-color);
   border-radius: var(--border-radius);
   overflow: hidden;
@@ -963,6 +1007,7 @@ body {
   transition: var(--transition);
   border: 1px solid var(--border-color);
   position: relative;
+  flex-shrink: 0;
 }
 
 .community-card::before {
@@ -1080,9 +1125,10 @@ body {
 /* Enhanced Posts Section */
 .post-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 2rem;
   margin-top: 1rem;
+  width: 100%;
 }
 
 .post {
@@ -1093,6 +1139,7 @@ body {
   transition: var(--transition);
   border: 1px solid var(--border-color);
   position: relative;
+  max-width: 100%;
 }
 
 .post::before {
@@ -1150,6 +1197,7 @@ body {
   padding: 1.5rem;
   border-top: 1px solid var(--border-light);
   background: var(--background-color);
+  flex-wrap: wrap;
 }
 
 .actions .btn {
@@ -1164,6 +1212,8 @@ body {
   background: var(--surface-color);
   color: var(--text-secondary);
   text-align: center;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .actions .btn:hover {
@@ -1206,6 +1256,8 @@ body {
   .main-content {
     margin-left: 0;
     padding: 1rem;
+    width: 100vw;
+    max-width: 100vw;
   }
 
   .sidebar {
@@ -1223,17 +1275,28 @@ body {
   .post-container {
     grid-template-columns: 1fr;
   }
+
+  .header {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 768px) {
+  .main-content {
+    padding: 0.5rem;
+  }
+
   .header {
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
+    position: static;
+    margin-bottom: 1rem;
   }
 
   .search {
     max-width: none;
+    width: 100%;
   }
 
   .user-menu {
@@ -1253,21 +1316,38 @@ body {
 
   .community-card {
     min-width: 280px;
+    max-width: 100%;
   }
 
   .actions {
     flex-direction: column;
   }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .slider {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .user-details {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 0.5rem;
+    padding: 0.25rem;
   }
 
   .create-post-section,
   .header {
     border-radius: var(--border-radius-md);
+    margin: 0.25rem 0;
   }
 
   .post-form,
@@ -1277,6 +1357,23 @@ body {
 
   .text-content h2 {
     font-size: 1.5rem;
+  }
+
+  .create-post-btn {
+    padding: 12px 24px;
+    font-size: 0.875rem;
+  }
+
+  .form-row {
+    gap: 1rem;
+  }
+
+  .post-container {
+    gap: 1rem;
+  }
+
+  .community-card {
+    min-width: 260px;
   }
 }
 
@@ -1346,6 +1443,8 @@ select:focus {
 
   .main-content {
     margin-left: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .create-post-section {
@@ -1359,7 +1458,7 @@ select:focus {
   position: fixed;
   top: 2rem;
   right: 2rem;
-  background: linear-gradient(135deg, var(--success-color), #059669); /* Default success */
+  background: linear-gradient(135deg, var(--success-color), #059669);
   color: white;
   padding: 1.25rem 1.75rem;
   border-radius: 16px;
@@ -1367,12 +1466,13 @@ select:focus {
   z-index: 1000;
   font-weight: 600;
   font-size: 0.875rem;
-  max-width: 400px;
+  max-width: min(400px, calc(100vw - 4rem));
   transform: translateX(100%);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   font-family: 'Inter', sans-serif;
+  word-wrap: break-word;
 }
 
 .notification-error {
@@ -1381,6 +1481,16 @@ select:focus {
 
 .notification-info {
   background: linear-gradient(135deg, var(--warning-color), #d97706);
+}
+
+@media (max-width: 768px) {
+  .notification {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: calc(100vw - 2rem);
+    width: auto;
+  }
 }
 
 /* Field Error Styles */
@@ -1395,4 +1505,22 @@ select:focus {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+/* Additional overflow fixes */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Container wrapper to prevent any potential overflow */
+.dashboard-wrapper {
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
