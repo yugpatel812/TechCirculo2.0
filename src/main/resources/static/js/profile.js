@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const displayUniversity = document.getElementById("display-university");
   const displayMajor = document.getElementById("display-major");
   const displayLocation = document.getElementById("display-location");
-  const displayMemberSince = document.getElementById("display-member-since");
   const displayBio = document.getElementById("display-bio");
 
   const editNameInput = document.getElementById("edit-name");
@@ -120,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
         displayUniversity.textContent = userData.university || "Tech University";
         displayMajor.textContent = userData.major || "Computer Science";
         displayLocation.textContent = userData.location || "San Francisco, CA";
-        displayMemberSince.textContent = userData.memberSince || "September 2023";
         displayBio.textContent = userData.bio || "Passionate computer science student interested in web development, AI, and cybersecurity.";
 
         profilePicDisplay.src = userData.profilePic || "https://via.placeholder.com/120x120?text=GU";
@@ -150,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
     displayUniversity.textContent = "Tech University";
     displayMajor.textContent = "Computer Science";
     displayLocation.textContent = "San Francisco, CA";
-    displayMemberSince.textContent = "September 2023";
     displayBio.textContent = "Passionate computer science student interested in web development, AI, and cybersecurity.";
 
     profilePicDisplay.src = "https://via.placeholder.com/120x120?text=GU";
