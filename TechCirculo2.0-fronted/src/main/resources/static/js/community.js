@@ -1,4 +1,4 @@
-// Community.js - Enhanced community management with dynamic content
+// Community.js - Fixed version with proper URL formatting and error handling
 
 document.addEventListener("DOMContentLoaded", async function () {
     const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
@@ -55,13 +55,43 @@ document.addEventListener("DOMContentLoaded", async function () {
         }, 4500);
     }
 
-    // Helper to get auth headers
+    // Helper to get auth headers with better error handling
     function getAuthHeaders() {
         const token = localStorage.getItem("token");
-        return {
-            "Content-Type": "application/json",
-            ...(token && { "Authorization": "Bearer " + token })
+        const headers = {
+            "Content-Type": "application/json"
         };
+        
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        } else {
+            console.warn("No authentication token found");
+        }
+        
+        return headers;
+    }
+
+    // Helper function to handle API responses
+    async function handleApiResponse(response, defaultErrorMessage = "An error occurred") {
+        if (!response.ok) {
+            let errorMessage = defaultErrorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+                // If response is not JSON (like HTML error page), use default message
+                console.error("Non-JSON error response:", e);
+            }
+            throw new Error(errorMessage);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            // If response is not JSON, throw error
+            throw new Error("Server returned non-JSON response. Check if backend is running correctly.");
+        }
     }
 
     // DOM Elements
@@ -103,10 +133,15 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Initialize the page
     async function initializePage() {
-        await fetchUserProfile();
-        await fetchAllCommunities();
-        await fetchJoinedCommunities();
-        initializeEventListeners();
+        try {
+            await fetchUserProfile();
+            await fetchAllCommunities();
+            await fetchJoinedCommunities();
+            initializeEventListeners();
+        } catch (error) {
+            console.error("Error initializing page:", error);
+            showNotification("Failed to initialize page. Please check if the backend server is running.", 'error');
+        }
     }
 
     // Fetch user profile for header
@@ -117,17 +152,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         try {
             const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: getAuthHeaders() });
-            const userData = await response.json();
-            if (response.ok) {
-                userProfileName.textContent = userData.name || "User";
-                userProfileImage.src = userData.profilePic || "https://via.placeholder.com/44x44?text=User";
-                greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
-            } else {
-                // Fallback to static data
-                userProfileName.textContent = "Guest";
-                userProfileImage.src = "https://via.placeholder.com/44x44?text=G";
-                greetingText.textContent = "Welcome, Guest!";
-            }
+            const userData = await handleApiResponse(response, "Failed to fetch user profile");
+            
+            userProfileName.textContent = userData.name || "User";
+            userProfileImage.src = userData.profilePic || "https://via.placeholder.com/44x44?text=User";
+            greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
         } catch (error) {
             console.error("Error fetching user profile:", error);
             // Fallback to static data
@@ -137,14 +166,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Fetch all available communities
+    // Fetch all available communities - FIXED URL
     async function fetchAllCommunities() {
         try {
             showLoadingState(allCommunitiesGrid, 'communities');
             const response = await fetch(`${API_BASE_URL}/communities/all`, { headers: getAuthHeaders() });
-            const communities = await response.json();
+            const communities = await handleApiResponse(response, "Failed to fetch communities");
 
-            if (response.ok && communities && communities.length > 0) {
+            if (communities && communities.length > 0) {
                 allCommunities = communities;
                 renderCommunities(allCommunitiesGrid, communities, false);
                 allCommunitiesCount.textContent = `${communities.length} communities`;
@@ -156,17 +185,19 @@ document.addEventListener("DOMContentLoaded", async function () {
             console.error("Error fetching all communities:", error);
             renderErrorState(allCommunitiesGrid, 'Failed to load communities');
             allCommunitiesCount.textContent = '0 communities';
+            showNotification(error.message, 'error');
         }
     }
 
-    // Fetch joined communities
+    // Fetch joined communities - FIXED URL
     async function fetchJoinedCommunities() {
         try {
             showLoadingState(joinedCommunitiesGrid, 'communities');
-            const response = await fetch(`${API_BASE_URL}communities/user/communities/joined`, { headers: getAuthHeaders() });
-            const communities = await response.json();
+            // FIXED: Added missing slash before 'communities'
+            const response = await fetch(`${API_BASE_URL}/communities/user/communities/joined`, { headers: getAuthHeaders() });
+            const communities = await handleApiResponse(response, "Failed to fetch joined communities");
 
-            if (response.ok && communities && communities.length > 0) {
+            if (communities && communities.length > 0) {
                 joinedCommunities = communities;
                 renderCommunities(joinedCommunitiesGrid, communities, true);
                 joinedCommunitiesCount.textContent = `${communities.length} communities`;
@@ -181,6 +212,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             renderErrorState(joinedCommunitiesGrid, 'Failed to load joined communities');
             joinedCommunitiesCount.textContent = '0 communities';
             joinedCount.textContent = '(0)';
+            showNotification(error.message, 'error');
         }
     }
 
@@ -278,30 +310,27 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // Join community
+    // Join community - FIXED URL
     async function joinCommunity(communityId, communityName, button) {
         const originalText = button.textContent;
         button.textContent = 'Joining...';
         button.disabled = true;
 
         try {
-            const response = await fetch(`${API_BASE_URL}communities/user/communities/join`, {
+            // FIXED: Added missing slash before 'communities'
+            const response = await fetch(`${API_BASE_URL}/communities/user/communities/join`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ communityId: communityId })
             });
 
-            if (response.ok) {
-                showNotification(`Successfully joined ${communityName}!`, 'success');
-                // Refresh both lists
-                await Promise.all([fetchAllCommunities(), fetchJoinedCommunities()]);
-            } else {
-                const errorData = await response.json();
-                showNotification(`Failed to join ${communityName}: ${errorData.message || response.statusText}`, 'error');
-            }
+            await handleApiResponse(response, `Failed to join ${communityName}`);
+            showNotification(`Successfully joined ${communityName}!`, 'success');
+            // Refresh both lists
+            await Promise.all([fetchAllCommunities(), fetchJoinedCommunities()]);
         } catch (error) {
             console.error("Error joining community:", error);
-            showNotification("An error occurred while trying to join the community.", 'error');
+            showNotification(error.message, 'error');
         } finally {
             button.textContent = originalText;
             button.disabled = false;
@@ -320,17 +349,13 @@ document.addEventListener("DOMContentLoaded", async function () {
                 headers: getAuthHeaders()
             });
 
-            if (response.ok) {
-                showNotification(`Successfully left ${communityName}!`, 'success');
-                // Refresh both lists
-                await Promise.all([fetchAllCommunities(), fetchJoinedCommunities()]);
-            } else {
-                const errorData = await response.json();
-                showNotification(`Failed to leave ${communityName}: ${errorData.message || response.statusText}`, 'error');
-            }
+            await handleApiResponse(response, `Failed to leave ${communityName}`);
+            showNotification(`Successfully left ${communityName}!`, 'success');
+            // Refresh both lists
+            await Promise.all([fetchAllCommunities(), fetchJoinedCommunities()]);
         } catch (error) {
             console.error("Error leaving community:", error);
-            showNotification("An error occurred while trying to leave the community.", 'error');
+            showNotification(error.message, 'error');
         } finally {
             button.textContent = originalText;
             button.disabled = false;
@@ -375,9 +400,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             showLoadingState(membersList, 'members');
             const response = await fetch(`${API_BASE_URL}/communities/${communityId}/members`, { headers: getAuthHeaders() });
-            const members = await response.json();
+            const members = await handleApiResponse(response, "Failed to load members");
 
-            if (response.ok && members && members.length > 0) {
+            if (members && members.length > 0) {
                 renderMembers(members);
                 membersTabCount.textContent = `(${members.length})`;
             } else {
@@ -421,9 +446,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             showLoadingState(announcementsList, 'announcements');
             const response = await fetch(`${API_BASE_URL}/communities/${communityId}/announcements`, { headers: getAuthHeaders() });
-            const announcements = await response.json();
+            const announcements = await handleApiResponse(response, "Failed to load announcements");
 
-            if (response.ok && announcements && announcements.length > 0) {
+            if (announcements && announcements.length > 0) {
                 renderAnnouncements(announcements);
                 announcementsTabCount.textContent = `(${announcements.length})`;
             } else {
@@ -474,9 +499,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             showLoadingState(postsList, 'posts');
             const response = await fetch(`${API_BASE_URL}/communities/${communityId}/posts`, { headers: getAuthHeaders() });
-            const posts = await response.json();
+            const posts = await handleApiResponse(response, "Failed to load posts");
 
-            if (response.ok && posts && posts.length > 0) {
+            if (posts && posts.length > 0) {
                 renderPosts(posts);
                 postsTabCount.textContent = `(${posts.length})`;
             } else {
