@@ -1,4 +1,6 @@
+// src/main/java/org/yug/backend/model/Community.java
 package org.yug.backend.model;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,7 +38,7 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserCommunity> userCommunities = new HashSet<>();
 
-    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(mappedBy = "communities")
     private Set<Post> posts = new HashSet<>();
 
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -61,13 +63,13 @@ public class Community {
         this.memberCount = (long)this.userCommunities.size();
     }
 
-    public void addPost(Post post) {
-        this.posts.add(post);
-        post.setCommunity(this);
-    }
 
     public void addAnnouncement(Announcement announcement) {
         this.announcements.add(announcement);
         announcement.setCommunity(this);
+    }
+    public void addPost(Post post) {
+        this.posts.add(post);
+        post.getCommunities().add(this);
     }
 }

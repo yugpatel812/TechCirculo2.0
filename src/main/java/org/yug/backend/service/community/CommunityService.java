@@ -1,20 +1,20 @@
-// src/main/java/org/yug/backend/service/CommunityService.java
+// src/main/java/org/yug/backend/service/community/CommunityService.java
 package org.yug.backend.service.community;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yug.backend.dto.community.*;
 import org.yug.backend.model.*;
 import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.*;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 
-import java.time.Instant;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -34,6 +34,7 @@ public class CommunityService {
     private UserRepository userRepository;
     @Autowired
     private UserCommunityRepository userCommunityRepository;
+
     @Transactional(readOnly = true)
     public List<CommunityDto> getAllCommunities() {
         try {
@@ -54,7 +55,7 @@ public class CommunityService {
                                     .name(community.getName())
                                     .description(community.getDescription())
                                     .imageUrl(community.getImageUrl())
-                                    .memberCount(community.getUserCommunities() != null ?community.getUserCommunities().size() : 0L)
+                                    .memberCount(community.getUserCommunities() != null ? community.getUserCommunities().size() : 0L)
                                     .build();
                         } catch (Exception e) {
                             logger.error("Error mapping community: {}", e.getMessage());
@@ -122,12 +123,14 @@ public class CommunityService {
         // Set relationships without triggering hashCode/equals
         userCommunity.setUser(user);
         userCommunity.setCommunity(community);
-
+        logger.info("User {} joining community {}", username, communityId);
         userCommunityRepository.save(userCommunity);
-
+        logger.info("User {} successfully joined community {}", username, communityId);
         // Update count without loading all relationships
         community.setMemberCount(userCommunityRepository.countByCommunityId(communityId));
+        logger.info("Updating member count for community {}", communityId);
         communityRepository.save(community);
+        logger.info("User {} joined community {}", username, communityId);
     }
 
     @Transactional
@@ -146,7 +149,7 @@ public class CommunityService {
         // Update both sides of the relationship before deletion
         user.getUserCommunities().remove(userCommunity);
         community.getUserCommunities().remove(userCommunity);
-        community.setMemberCount((long)community.getUserCommunities().size());
+        community.setMemberCount((long) community.getUserCommunities().size());
 
         userCommunityRepository.delete(userCommunity);
         logger.info("User {} left community {}", username, communityId);
@@ -159,7 +162,8 @@ public class CommunityService {
             throw new EntityNotFoundException("Community not found with ID: " + communityId);
         }
 
-        return postRepository.findByCommunityId(communityId).stream()
+        // Calling the updated repository method
+        return postRepository.findPostsByCommunityId(communityId).stream()
                 .map(post -> CommunityPostDto.builder()
                         .id(post.getId())
                         .title(post.getTitle())
@@ -172,27 +176,47 @@ public class CommunityService {
     }
 
     @Transactional
-    public CommunityPostDto createPost(String username, UUID communityId, PostCreateRequest request) {
+    public CommunityPostDto createPost(String username, PostCreateRequest request) {
         User author = userRepository.findByUsername(username);
         if (author == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
 
-        Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("Community not found with ID: " + communityId));
-
-        if (!userCommunityRepository.existsByUserIdAndCommunityId(author.getId(), communityId)) {
-            throw new IllegalStateException("User must be a member to post in this community.");
+        if (request.getCommunityIds() == null || request.getCommunityIds().isEmpty()) {
+            throw new IllegalArgumentException("At least one community ID is required.");
         }
 
+        logger.info("User {} attempting to create a post in communities {}", username, request.getCommunityIds());
+
+        // Verify all communities exist
+        List<Community> communities = communityRepository.findAllById(request.getCommunityIds());
+        if (communities.size() != request.getCommunityIds().size()) {
+            throw new EntityNotFoundException("One or more communities not found.");
+        }
+
+        // Verify user is member of all communities
+        for (Community community : communities) {
+            if (!userCommunityRepository.existsByUserIdAndCommunityId(author.getId(), community.getId())) {
+                throw new IllegalStateException(
+                        String.format("User must be a member to post in community %s", community.getName())
+                );
+            }
+        }
+
+        // Create the post
         Post newPost = new Post();
         newPost.setTitle(request.getTitle());
         newPost.setContent(request.getContent());
         newPost.setImageUrl(request.getImageUrl());
         newPost.setAuthor(author);
-        newPost.setCommunity(community);
 
+        // First save the post to generate ID
         Post savedPost = postRepository.save(newPost);
+        logger.info("Post saved with ID: {}", savedPost.getId());
+        for (UUID communityId : request.getCommunityIds()) {
+            postRepository.addPostToCommunity(savedPost.getId(), communityId);
+        }
+
         return CommunityPostDto.builder()
                 .id(savedPost.getId())
                 .title(savedPost.getTitle())
@@ -202,7 +226,6 @@ public class CommunityService {
                 .authorName(savedPost.getAuthor().getUsername())
                 .build();
     }
-
     // --- Announcements within a Community ---
     @Transactional(readOnly = true)
     public List<CommunityAnnouncementDto> getAnnouncementsByCommunity(UUID communityId) {
@@ -246,7 +269,7 @@ public class CommunityService {
                         .name(community.getName())
                         .description(community.getDescription())
                         .imageUrl(community.getImageUrl())
-                        .memberCount((long)community.getUserCommunities().size())
+                        .memberCount((long) community.getUserCommunities().size())
                         .build())
                 .collect(Collectors.toList());
     }
