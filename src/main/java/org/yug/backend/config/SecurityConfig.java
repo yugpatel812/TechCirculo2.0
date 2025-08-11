@@ -37,7 +37,7 @@ public class SecurityConfig {
         http.csrf(customizer -> customizer.disable())
                 // CORS configuration removed - now managed solely by CorsConfig.java
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/profile.html","/dashboard.html","/announcements.html","/css/**", "/js/**", "/images/**", "/static/**","Community.html", "/communities/**", "/index.html", "/login.html","SignIn.html", "/register.html").permitAll() // Allow public access to auth endpoints
+                        .requestMatchers("/auth/**","/profile.html","/dashboard.html","/annoucements.html","/css/**", "/js/**", "/images/**", "/static/**","Community.html", "/communities/**", "/index.html", "/login.html","SignIn.html", "/register.html").permitAll() // Allow public access to auth endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN") // Admin-only endpoints
                         // Secure all API endpoints
                         .anyRequest().authenticated() // Secure all other endpoints
