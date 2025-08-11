@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechCirculo - Communities</title>
+  <link rel="stylesheet" href="css/Dashboard.css" />
+  <link rel="stylesheet" href="css/Community.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="dashboard">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+      >
+        <path
+                d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+        />
+        <path
+                d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+        />
+        <path d="M19 11h2m-1 -1v2" />
+      </svg>
+      <span>TechCirculo</span>
+    </div>
+
+    <nav>
+      <a href="index.html">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <rect width="7" height="9" x="3" y="3" rx="1" />
+          <rect width="7" height="5" x="14" y="3" rx="1" />
+          <rect width="7" height="9" x="14" y="12" rx="1" />
+          <rect width="7" height="5" x="3" y="16" rx="1" />
+        </svg>
+        Dashboard
+      </a>
+      <a href="#" class="active">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <path d="M14 19a6 6 0 0 0-12 0" />
+          <circle cx="8" cy="9" r="4" />
+          <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+        </svg>
+        Communities
+      </a>
+      <a href="profile.html">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+
+          <!-- Circle for Head -->
+          <circle cx="12" cy="8" r="4" />
+
+          <!-- Arc for Shoulders -->
+          <path d="M4 20a8 8 0 0 1 16 0" />
+
+        </svg>
+
+        Profile
+      </a>
+      <a href="annoucements.html">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+          <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+        </svg>
+        Annoucements
+        <span class="badge">0</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="header">
+      <div class="search">
+        <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input type="text" placeholder="Search communities..." id="communitySearch" />
+      </div>
+
+      <div class="user-menu">
+        <button class="notifications-btn">
+          <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+          >
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+          </svg>
+          <span class="badge">0</span>
+        </button>
+
+        <div class="user-profile">
+          <div class="user-info">
+            <img id="user-profile-image" src="https://via.placeholder.com/40x40?text=User" alt="User Profile" />
+            <div class="user-details">
+              <span id="user-profile-name">User</span>
+              <h5 id="greeting-text">Welcome!</h5>
+            </div>
+          </div>
+          <div class="lo">
+            <a href="index.html" class="logout">Log Out</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Communities Overview Section -->
+    <section class="communities-overview" id="communitiesOverview">
+      <div class="communities-header">
+        <div class="header-content">
+          <div class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 19a6 6 0 0 0-12 0" />
+              <circle cx="8" cy="9" r="4" />
+              <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+            </svg>
+          </div>
+          <div class="text-content">
+            <h1>Communities</h1>
+            <p>Discover and join communities that match your interests</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Community Tabs -->
+      <div class="community-tabs">
+        <button class="community-tab active" data-tab="all">All Communities</button>
+        <button class="community-tab" data-tab="joined">My Communities <span id="joinedCount" class="tab-count">(0)</span></button>
+      </div>
+
+      <!-- All Communities Section -->
+      <div class="tab-panel active" id="allCommunitiesPanel">
+        <div class="section-header">
+          <h2>All Communities</h2>
+          <span class="community-count" id="allCommunitiesCount">0 communities</span>
+        </div>
+        <div class="communities-grid" id="allCommunitiesGrid">
+          <!-- Communities will be dynamically loaded here -->
+        </div>
+      </div>
+
+      <!-- Joined Communities Section -->
+      <div class="tab-panel" id="joinedCommunitiesPanel">
+        <div class="section-header">
+          <h2>My Communities</h2>
+          <span class="community-count" id="joinedCommunitiesCount">0 communities</span>
+        </div>
+        <div class="communities-grid" id="joinedCommunitiesGrid">
+          <!-- Joined communities will be dynamically loaded here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Individual Community Detail Section (Hidden by default) -->
+    <section class="community-detail" id="communityDetail" style="display: none;">
+      <div class="community-header">
+        <button class="back-btn" id="backToCommunities">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+          </svg>
+          Back to Communities
+        </button>
+        <div class="community-info">
+          <h1 id="communityName">Community Name</h1>
+          <p id="communityDescription">Community description</p>
+          <div class="community-stats">
+            <span id="communityMembers">0 members</span>
+            <span id="communityPosts">0 posts</span>
+            <span id="communityCategory">Category</span>
+          </div>
+          <button id="joinCommunityBtn" class="join-btn">Join Community</button>
+        </div>
+      </div>
+
+      <!-- Community Content Tabs -->
+      <div class="content-tabs">
+        <button class="content-tab active" data-content="chatroom">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Chat Room
+        </button>
+        <button class="content-tab" data-content="members">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 19a6 6 0 0 0-12 0" />
+            <circle cx="8" cy="9" r="4" />
+            <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+          </svg>
+          Members <span id="membersTabCount">(0)</span>
+        </button>
+        <button class="content-tab" data-content="announcements">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+          </svg>
+          Announcements <span id="announcementsTabCount">(0)</span>
+        </button>
+        <button class="content-tab" data-content="posts">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14,2 14,8 20,8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10,9 9,9 8,9"/>
+          </svg>
+          Posts <span id="postsTabCount">(0)</span>
+        </button>
+      </div>
+
+      <!-- Content Panels -->
+      <div class="content-panel active" id="chatroomPanel">
+        <div class="chat-container">
+          <h3>Community Chat Room</h3>
+          <div class="chat-messages" id="chatMessages">
+            <!-- Static chat messages for now -->
+            <div class="chat-message">
+              <div class="message-avatar">JS</div>
+              <div class="message-content">
+                <div class="message-header">
+                  <span class="message-author">John Smith</span>
+                  <span class="message-time">10:30 AM</span>
+                </div>
+                <div class="message-text">Hey everyone! Just finished the React tutorial, any tips for next steps?</div>
+              </div>
+            </div>
+            <div class="chat-message">
+              <div class="message-avatar">SW</div>
+              <div class="message-content">
+                <div class="message-header">
+                  <span class="message-author">Sarah Wilson</span>
+                  <span class="message-time">10:32 AM</span>
+                </div>
+                <div class="message-text">Great job John! I'd recommend diving into state management with Redux or Zustand</div>
+              </div>
+            </div>
+            <div class="chat-message">
+              <div class="message-avatar">PMJ</div>
+              <div class="message-content">
+                <div class="message-header">
+                  <span class="message-author">Prof. Mike Johnson</span>
+                  <span class="message-time">10:35 AM</span>
+                </div>
+                <div class="message-text">Also check out the official React documentation - it's really well written</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" placeholder="Type your message... (Static for now)" disabled />
+            <button class="send-btn" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 2-7 20-4-9-9-4Z"/>
+                <path d="M22 2 11 13"/>
+              </svg>
+            </button>
+          </div>
+          <p class="chat-note">Note: Chat functionality is currently static and will be made dynamic later.</p>
+        </div>
+      </div>
+
+      <div class="content-panel" id="membersPanel">
+        <div class="members-container">
+          <h3>Community Members</h3>
+          <div class="members-list" id="membersList">
+            <!-- Members will be loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="content-panel" id="announcementsPanel">
+        <div class="announcements-container">
+          <h3>Community Announcements</h3>
+          <div class="announcements-list" id="announcementsList">
+            <!-- Announcements will be loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="content-panel" id="postsPanel">
+        <div class="posts-container">
+          <h3>Community Posts</h3>
+          <div class="posts-list" id="postsList">
+            <!-- Posts will be loaded dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/Community.js"></script>
+</body>
+</html>

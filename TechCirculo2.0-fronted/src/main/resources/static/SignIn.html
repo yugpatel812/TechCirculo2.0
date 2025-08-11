@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>University Login System</title>
+    <link rel="stylesheet" href="css/SignIn.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-container" id="loginForm">
+        <div class="form-header">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="school-icon"
+          >
+            <path d="m4 6 8-4 8 4" />
+            <path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2" />
+            <path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" />
+            <path d="M18 5v17" />
+            <path d="M6 5v17" />
+            <circle cx="12" cy="9" r="2" />
+          </svg>
+          <h1>Welcome Back To TechCirculo</h1>
+          <p>Sign in</p>
+        </div>
+
+        <div class="error-message" id="loginError"></div>
+
+        <form id="loginFormElement">
+          <div class="form-group">
+            <label for="loginRole">Role</label>
+            <select id="loginRole" required>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+              <option value="alumni">Alumni</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input
+              type="email"
+              id="loginEmail"
+              placeholder="...@paruluniversity.ac.in"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input
+              type="password"
+              id="loginPassword"
+              required
+              placeholder="Enter 6-digit password"
+            />
+          </div>
+
+          <button type="submit">Sign In</button>
+        </form>
+        <form action="/oauth2/authorization/google" method="GET">
+         
+          <button type="submit" class="login-with-google-btn">
+            <img src="download.svg">
+            Sign in with Google
+          </button>
+        </form>
+
+        <p class="switch-form">
+          Don't have an account?
+          <a href="#" onclick="toggleForm('register')">Register</a>
+        </p>
+      </div>
+
+      <div class="form-container hidden" id="registerForm">
+        <div class="form-header">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="school-icon"
+          >
+            <path d="m4 6 8-4 8 4" />
+            <path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2" />
+            <path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" />
+            <path d="M18 5v17" />
+            <path d="M6 5v17" />
+            <circle cx="12" cy="9" r="2" />
+          </svg>
+          <h1>Create Account</h1>
+          <p>
+            Welcome To TechCirculo-A central point where education and
+            collaboration meet
+          </p>
+        </div>
+
+        <div class="error-message" id="registerError"></div>
+
+        <form id="registerFormElement">
+          <div class="form-group">
+            <label for="registerRole">Role</label>
+            <select id="registerRole" required>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+              <option value="alumni">Alumni</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" required />
+          </div>
+
+          <div class="form-group">
+            <label for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" required />
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" required />
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" required />
+          </div>
+
+          <button type="submit">Create Account</button>
+        </form>
+
+        <p class="switch-form">
+          Already have an account?
+          <a href="#" onclick="toggleForm('login')">Sign in</a>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Auto-detect backend URL (Works for both local & deployed environments)
+      const BASE_URL = "http://localhost:8084/auth";
+        // Change this to your actual production API
+
+      console.log("Using Backend URL:", BASE_URL);
+
+      // Reusable function to make API requests
+      async function apiRequest(endpoint, method, body) {
+        try {
+          const response = await fetch(`${BASE_URL}/${endpoint}`, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || "Request failed");
+          }
+          return data;
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      // Toggle between login and register forms
+      function toggleForm(type) {
+        document
+          .getElementById("loginForm")
+          .classList.toggle("hidden", type === "register");
+        document
+          .getElementById("registerForm")
+          .classList.toggle("hidden", type === "login");
+      }
+
+      // Show error message
+      function showError(element, message) {
+        element.textContent = message;
+        element.style.display = "block";
+      }
+
+      // Hide error message
+      function hideError(element) {
+        element.style.display = "none";
+      }
+
+      // Validate university email domain
+      // function validateEmail(email, role) {
+      //   return role === "admin" || email.endsWith("@paruluniversity.ac.in");
+      // }
+
+      // Handle login form submission
+      document
+        .getElementById("loginFormElement")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const loginError = document.getElementById("loginError");
+          hideError(loginError);
+
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          const role = document.getElementById("loginRole").value;
+
+          // if (!validateEmail(email, role)) {
+          //   showError(loginError, "Please use your university email address");
+          //   return;
+          // }
+
+          try {
+            const data = await apiRequest("login", "POST", {
+              email,
+              password,
+
+            });
+
+            // Store JWT token for future authentication
+            localStorage.setItem("token", data.token);
+
+            alert("Login Successful!");
+            window.location.href = "dashboard.html"; // Redirect to dashboard
+          } catch (error) {
+            showError(loginError, error.message);
+          }
+        });
+
+      // Handle registration form submission
+      document
+        .getElementById("registerFormElement")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const registerError = document.getElementById("registerError");
+          hideError(registerError);
+
+          const email = document.getElementById("registerEmail").value;
+          const password = document.getElementById("registerPassword").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+          const role = document.getElementById("registerRole").value;
+          const username= document.getElementById("username").value;
+          //
+          // if (!validateEmail(email, role)) {
+          //   showError(
+          //     registerError,
+          //     "Please use your university email address"
+          //   );
+          //   return;
+        //  }
+
+          if (password !== confirmPassword) {
+            showError(registerError, "Passwords do not match");
+            return;
+          }
+
+          try {
+            const data = await apiRequest("register", "POST", {
+              email,
+              password,
+              username,
+            });
+
+            alert("Registration Successful! Please log in.");
+            toggleForm("login"); // Switch to login form
+          } catch (error) {
+            showError(registerError, error.message);
+          }
+        });
+    </script>
+  </body>
+</html>
