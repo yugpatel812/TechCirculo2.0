@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yug.backend.dto.community.*;
+import org.yug.backend.dto.post.PostCreateRequest;
 import org.yug.backend.model.*;
 import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.*;

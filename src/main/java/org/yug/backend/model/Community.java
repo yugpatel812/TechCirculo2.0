@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -38,8 +39,9 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserCommunity> userCommunities = new HashSet<>();
 
+
     @ManyToMany(mappedBy = "communities")
-    private Set<Post> posts = new HashSet<>();
+    private Set<Post> posts = new LinkedHashSet<>(); // Changed to LinkedHashSet
 
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Announcement> announcements = new HashSet<>();
@@ -72,4 +74,17 @@ public class Community {
         this.posts.add(post);
         post.getCommunities().add(this);
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Community)) return false;
+        Community that = (Community) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
 }

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.yug.backend.model.auth.User;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,11 +30,11 @@ public class Post {
 
     @ManyToMany
     @JoinTable(
-            name = "post_communities", // Name of the new join table
+            name = "post_communities",
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "community_id")
     )
-    private Set<Community> communities = new HashSet<>(); // Relationship to a set of communities
+    private Set<Community> communities = new LinkedHashSet<>(); // Changed to LinkedHashSet
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -46,8 +47,14 @@ public class Post {
 
     @Column(name = "likes_count")
     private Integer likesCount = 0;
-    public void addCommunity(Community community) {
+    public synchronized void addCommunity(Community community) {
+        if (this.communities == null) {
+            this.communities = new LinkedHashSet<>();
+        }
         this.communities.add(community);
+        if (community.getPosts() == null) {
+            community.setPosts(new LinkedHashSet<>());
+        }
         community.getPosts().add(this);
     }
     public Post(User author, String title, String content, String imageUrl, Set<Community> communities) {
