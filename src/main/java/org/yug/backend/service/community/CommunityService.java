@@ -14,7 +14,6 @@ import org.yug.backend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
