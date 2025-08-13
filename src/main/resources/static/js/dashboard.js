@@ -555,7 +555,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fetch Communities for Select Dropdown with enhanced styling
     async function fetchCommunitiesForSelect() {
         try {
-            const response = await fetch(`${API_BASE_URL}/user/communities`, { headers: getAuthHeaders() });
+            const response = await fetch(`${API_BASE_URL}/communities/user/communities/joined`, { headers: getAuthHeaders() });
             const communities = await response.json();
 
             communitySelect.innerHTML = '<option value="" disabled>Choose a community...</option>';
@@ -634,7 +634,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 formData.append('image', image);
             }
 
-            const response = await fetch(`${API_BASE_URL}/posts/create`, {
+            const response = await fetch(`${API_BASE_URL}/api/posts`, {
                 method: 'POST',
                 headers: {
                     ...(localStorage.getItem("token") && { "Authorization": "Bearer " + localStorage.getItem("token") })

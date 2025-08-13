@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function fetchUserCommunities() {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/communities/joined`, { headers: getAuthHeaders() });
+      const response = await fetch(`${API_BASE_URL}/communities/user/communities/joined`, { headers: getAuthHeaders() });
       const communities = await response.json();
       communityList.innerHTML = "";
       if (response.ok && communities && communities.length > 0) {
