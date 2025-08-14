@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+/Users/yugpatel/e-commerce-app/services/TechCirculo/docker-compose.yml
+/Users/yugpatel/e-commerce-app/services/TechCirculo/Dockerfile
