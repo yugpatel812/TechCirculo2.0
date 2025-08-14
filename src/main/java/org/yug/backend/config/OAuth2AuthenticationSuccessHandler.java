@@ -32,7 +32,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         logger.info("Generated token for user {}: {}", username, token);
 
-        String redirectUrl = "http://localhost:8084/dashboard.html?token=" + token;
+        // Dynamically build the redirect URL
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+
+        String baseUrl = scheme + "://" + serverName;
+        if (serverPort != 80 && serverPort != 443) {
+            baseUrl += ":" + serverPort;
+        }
+
+        String redirectUrl = baseUrl + "/dashboard.html?token=" + token;
         logger.info("Redirecting to: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
     }

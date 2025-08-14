@@ -1,6 +1,6 @@
 // js/profile.js - Enhanced profile management with modern UI
 document.addEventListener("DOMContentLoaded", function () {
-  const API_BASE_URL = "http://localhost:8084"; // API base URL
+  const API_BASE_URL = window.location.origin; // API base URL
 
   // Enhanced notification system
   function showNotification(message, type = 'success') {

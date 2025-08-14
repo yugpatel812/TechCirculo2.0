@@ -1,6 +1,6 @@
 // js/announcements.js - Enhanced announcements management with modern UI
 document.addEventListener("DOMContentLoaded", function () {
-    const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
+    const API_BASE_URL = window.location.origin; // API base URL, consistent with other JS files
 
     // Enhanced notification system
     function showNotification(message, type = 'success') {

@@ -13,8 +13,9 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                // src/main/java/org/yug/backend/config/CorsConfig.java
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:8084", "http://127.0.0.1:8080", "http://localhost:3000")
+                        .allowedOrigins("http://localhost:8084", "http://127.0.0.1:8080", "http://localhost:3000","https://techcirculo20-production.up.railway.app", "https://techcirculo.railway.app")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

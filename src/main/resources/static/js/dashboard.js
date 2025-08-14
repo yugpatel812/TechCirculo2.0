@@ -1,7 +1,7 @@
 // dashboard.js
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
+    const API_BASE_URL = window.location.origin;// API base URL, consistent with other JS files
 
     // New logic to handle the token from Google OAuth2 redirect
     (function handleOAuth2Token() {

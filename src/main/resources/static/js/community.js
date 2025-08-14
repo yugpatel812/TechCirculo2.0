@@ -1,7 +1,7 @@
 // Community.js - Enhanced community management with dynamic content
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
+    const API_BASE_URL = window.location.origin; // API base URL, consistent with other JS files
 
     // Enhanced notification system
     function showNotification(message, type = 'success') {
