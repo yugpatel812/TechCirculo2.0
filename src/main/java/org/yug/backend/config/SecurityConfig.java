@@ -2,11 +2,6 @@
 package org.yug.backend.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,15 +14,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.yug.backend.service.CustomOAuth2UserService;
-
-// Removed: import java.util.List; // No longer needed for CORS config in this file
+import org.yug.backend.service.MyUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private MyUserDetailsService userDetailsService;
 
     @Autowired
     private JwtFilter jwtFilter;
@@ -35,16 +29,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(customizer -> customizer.disable())
-                // CORS configuration removed - now managed solely by CorsConfig.java
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**","/profile.html","/dashboard.html","/annoucements.html","/css/**", "/js/**", "/images/**", "/static/**","Community.html", "/communities/**", "/index.html", "/login.html","SignIn.html", "/register.html").permitAll() // Allow public access to auth endpoints
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Admin-only endpoints
-                        // Secure all API endpoints
-                        .anyRequest().authenticated() // Secure all other endpoints
+                        .requestMatchers("/auth/**","/profile.html","/dashboard.html","/annoucements.html","/css/**", "/js/**", "/images/**", "/static/**","Community.html", "/communities/**", "/index.html", "/login.html","SignIn.html", "/register.html").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/SignIn.html") // ADD THIS LINE: Explicitly set the login page for OAuth2
+                        .loginPage("/SignIn.html")
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService())
                         )

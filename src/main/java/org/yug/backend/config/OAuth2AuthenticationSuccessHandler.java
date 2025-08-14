@@ -1,3 +1,4 @@
+// src/main/java/org/yug/backend/config/OAuth2AuthenticationSuccessHandler.java
 package org.yug.backend.config;
 
 import jakarta.servlet.ServletException;
@@ -12,45 +13,27 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.yug.backend.service.JwtService;
 
-
 import java.io.IOException;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-        private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
+
     @Autowired
     private JwtService jwtService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-logger.info("OAuth2 User: "+oAuth2User);
-        // Extract email from Google OAuth2 response
-        String email = oAuth2User.getAttribute("email");
+        logger.info("OAuth2 User: " + oAuth2User);
 
-        // Derive username from email (e.g., remove the domain part)
-        String username = extractUsernameFromEmail(email);
-
-        // Generate the JWT token using the username
+        String username = oAuth2User.getAttribute("name");
         String token = jwtService.generateToken(username);
 
-        // Set the response content type to JSON
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        logger.info("Generated token for user {}: {}", username, token);
 
-        // Redirect to the frontend with the token as a query parameter
         String redirectUrl = "http://localhost:8084/dashboard.html?token=" + token;
+        logger.info("Redirecting to: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
-    }
-
-    /**
-     * Extracts a username from the email.
-     * For example, "john.doe@paruluniversity.ac.in" -> "john.doe"
-     */
-    private String extractUsernameFromEmail(String email) {
-        if (email == null || !email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-        return email.split("@")[0]; // Extract the part before the '@' symbol
     }
 }

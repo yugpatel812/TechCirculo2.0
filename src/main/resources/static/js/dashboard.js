@@ -3,6 +3,19 @@
 document.addEventListener("DOMContentLoaded", async function () {
     const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
 
+    // New logic to handle the token from Google OAuth2 redirect
+    (function handleOAuth2Token() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (token) {
+            console.log("OAuth2 token found in URL. Storing in local storage.");
+            localStorage.setItem("token", token);
+            // Clean the URL to remove the token for security
+            history.replaceState({}, document.title, window.location.pathname);
+        }
+    })();
+
     // Add loading states and animations
     function showLoading(element) {
         element.classList.add('loading');
