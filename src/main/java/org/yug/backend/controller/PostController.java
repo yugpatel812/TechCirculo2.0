@@ -29,7 +29,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<PostDto> createPost(
+    public ResponseEntity<Void> createPost(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam("communities") String communitiesJson,
             @RequestParam("title") String title,
@@ -38,7 +38,8 @@ public class PostController {
 
         // Manually deserialize the communities JSON string into a List of UUIDs
         ObjectMapper objectMapper = new ObjectMapper();
-        List<UUID> communityIds = objectMapper.readValue(communitiesJson, new TypeReference<List<UUID>>() {});
+        List<UUID> communityIds = objectMapper.readValue(communitiesJson, new TypeReference<List<UUID>>() {
+        });
 
         // Manually create the PostCreateRequest DTO
         PostCreateRequest request = new PostCreateRequest();
@@ -48,7 +49,19 @@ public class PostController {
         // The image file would be handled here if you were implementing the upload logic
 
         // Call the service with the manually created request object
-        PostDto newPost = postService.createPost(userDetails.getUsername(), request);
-        return new ResponseEntity<>(newPost, HttpStatus.CREATED);
+        postService.createPost(userDetails.getUsername(), request);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PostDto>> getAllPosts() {
+        List<PostDto> posts = postService.getAllPosts();
+        return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<List<PostService.PostTitleDto>> getUserPosts(@AuthenticationPrincipal UserDetails userDetails) {
+        List<PostService.PostTitleDto> userPosts = postService.getUserPosts(userDetails.getUsername());
+        return new ResponseEntity<>(userPosts, HttpStatus.OK);
     }
 }

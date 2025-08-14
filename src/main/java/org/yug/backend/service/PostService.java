@@ -1,5 +1,8 @@
 package org.yug.backend.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +26,7 @@ public class PostService {
     private final UserCommunityRepository userCommunityRepository;
 
     @Transactional
-    public PostDto createPost(String username, PostCreateRequest request) {
+    public void createPost(String username, PostCreateRequest request) {
         try {
             // 1. Verify user exists
             User author = userRepository.findByUsername(username);
@@ -35,7 +38,7 @@ public class PostService {
             post.setContent(request.getContent());
             post.setImageUrl(request.getImageUrl());
             post.setAuthor(author);
-logger.info("Post created with title: {}", post.getTitle());
+            logger.info("Post created with title: {}", post.getTitle());
             // 3. Process communities safely
             Set<Community> communities = new LinkedHashSet<>();
             for (UUID communityId : request.getCommunityIds()) {
@@ -58,24 +61,64 @@ logger.info("Post created with title: {}", post.getTitle());
             logger.info("Created post {} in communities {}",
                     savedPost.getId(), savedPost.getCommunities().size());
 
-            return toDto(savedPost);
+
         } catch (Exception ex) {
             logger.error("Error creating post: {}", ex.getMessage(), ex);
             throw new RuntimeException("Failed to create post: " + ex.getMessage(), ex);
         }
     }
 
-    private PostDto toDto(Post post) {
-        return PostDto.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .imageUrl(post.getImageUrl())
-                .likesCount(post.getLikesCount())
-                .authorName(post.getAuthor().getUsername())
-                .communityIds(post.getCommunities().stream()
-                        .map(Community::getId)
-                        .toList())
-                .build();
+
+    public List<PostDto> getAllPosts() {
+        try {
+            List<Post> posts = postRepository.findAll();
+            logger.info("Retrieved {} posts", posts.size());
+
+            // Convert to DTOs
+            List<PostDto> postDtos = new ArrayList<>();
+            for (Post post : posts) {
+                PostDto dto = PostDto.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .content(post.getContent())
+                        .imageUrl(post.getImageUrl())
+                        .likesCount(post.getLikesCount())
+                        .authorName(post.getAuthor().getUsername())
+                        .communityNames(post.getCommunities().stream()
+                                .map(Community::getName)
+                                .toList())
+                        .build();
+                postDtos.add(dto);
+            }
+            return postDtos;
+        } catch (Exception ex) {
+            logger.error("Error retrieving posts: {}", ex.getMessage(), ex);
+            throw new RuntimeException("Failed to retrieve posts: " + ex.getMessage(), ex);
+        }
     }
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class PostTitleDto {
+        private String title;
+        private String timeAgo;
+        private int comments;
+    }
+
+
+    public List<PostTitleDto> getUserPosts(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            return Collections.emptyList();
+        }
+
+        return user.getPosts().stream()
+                .map(post -> new PostTitleDto(
+                        post.getTitle(),
+                        "Recently", // or real timeAgo later
+                        0           // comments count later
+                ))
+                .toList();
+    }
+
 }

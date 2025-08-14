@@ -519,7 +519,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         showLoading(postContainer);
 
         try {
-            const response = await fetch(`${API_BASE_URL}/posts/all`, { headers: getAuthHeaders() }); // Assuming an API for all posts
+            const response = await fetch(`${API_BASE_URL}/api/posts/all`, { headers: getAuthHeaders() }); // Assuming an API for all posts
             const posts = await response.json();
             postContainer.innerHTML = ""; // Clear existing static content
 

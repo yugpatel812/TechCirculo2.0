@@ -15,5 +15,5 @@ public class PostDto {
     private String imageUrl;
     private Integer likesCount;
     private String authorName;
-    private List<UUID> communityIds;
+    private List<String> communityNames;
 }

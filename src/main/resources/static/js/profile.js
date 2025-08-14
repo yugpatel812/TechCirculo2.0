@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function fetchUserPosts() {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/posts`, { headers: getAuthHeaders() });
+      const response = await fetch(`${API_BASE_URL}/api/posts/user`, { headers: getAuthHeaders() });
       const posts = await response.json();
       postList.innerHTML = "";
       if (response.ok && posts && posts.length > 0) {

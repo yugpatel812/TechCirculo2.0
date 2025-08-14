@@ -1,0 +1,8 @@
+services:
+  app:
+    build: .
+    container_name: tech-circulo-app
+    ports:
+      - "8084:8084"
+
+
