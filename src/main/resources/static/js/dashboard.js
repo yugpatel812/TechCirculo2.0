@@ -481,7 +481,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/user/communities/join`, {
+            const response = await fetch(`${API_BASE_URL}/communities/user/communities/join`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ communityId: communityId })
