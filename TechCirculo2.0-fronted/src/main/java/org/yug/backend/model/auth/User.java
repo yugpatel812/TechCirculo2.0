@@ -5,10 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import org.yug.backend.model.Post;
+
 import org.yug.backend.model.Profile;
 import org.yug.backend.model.UserAnnouncement;
 import org.yug.backend.model.UserCommunity;
+import org.yug.backend.model.post.Post;
 
 import java.util.HashSet;
 import java.util.Objects;

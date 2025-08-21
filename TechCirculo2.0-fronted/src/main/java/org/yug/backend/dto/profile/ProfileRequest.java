@@ -1,13 +1,18 @@
-// src/main/java/org/yug/backend/dto/profile/ProfileRequest.java
+//profileRequest.java
 package org.yug.backend.dto.profile;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
 public class ProfileRequest {
-    @NotBlank(message = "Name is required")
     private String name;
+    private String email;
     private String university;
-    private String profilePic; // Base64 or URL
+    private String major;
+    private String location;
+    private String bio;
+    private String profilePicUrl;
+    private String linkedinUrl;
+    private String githubUrl;
+    private String leetcodeUrl;
 }

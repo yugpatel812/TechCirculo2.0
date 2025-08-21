@@ -1,6 +1,22 @@
-// js/profile.js - Enhanced profile management with modern UI
+// js/profile.js - Enhanced profile management with backend-compatible endpoints
 document.addEventListener("DOMContentLoaded", function () {
   const API_BASE_URL = "http://localhost:8084"; // API base URL
+
+  // 🔑 Reusable header helpers
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  return {
+    "Authorization": `Bearer ${token}`,
+    "Content-Type": "application/json"
+  };
+}
+
+function getAuthHeadersMultipart() {
+  const token = localStorage.getItem("token");
+  return {
+    "Authorization": `Bearer ${token}` // browser sets boundary
+  };
+}
 
   // Enhanced notification system
   function showNotification(message, type = 'success') {
@@ -54,15 +70,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 4500);
   }
 
-  // Helper to get auth headers
-  function getAuthHeaders() {
-    const token = localStorage.getItem("token");
-    return {
-      "Content-Type": "application/json",
-      ...(token && { "Authorization": "Bearer " + token })
-    };
-  }
-
   /* --- DOM Elements --- */
   const editPanel = document.getElementById("edit-panel");
   const editPersonalInfoBtn = document.getElementById("edit-personal-info-btn");
@@ -81,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const displayUniversity = document.getElementById("display-university");
   const displayMajor = document.getElementById("display-major");
   const displayLocation = document.getElementById("display-location");
-  const displayMemberSince = document.getElementById("display-member-since");
   const displayBio = document.getElementById("display-bio");
 
   const editNameInput = document.getElementById("edit-name");
@@ -112,24 +118,26 @@ document.addEventListener("DOMContentLoaded", function () {
   /* --- Profile Data Fetching and Display --- */
   async function fetchAndDisplayProfile() {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: getAuthHeaders() });
+      // ✅ Updated to match backend endpoint: GET /profile
+      const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
       const userData = await response.json();
+      
       if (response.ok) {
         displayName.textContent = userData.name || "Guest User";
         displayEmail.textContent = userData.email || "guest@university.edu";
         displayUniversity.textContent = userData.university || "Tech University";
         displayMajor.textContent = userData.major || "Computer Science";
         displayLocation.textContent = userData.location || "San Francisco, CA";
-        displayMemberSince.textContent = userData.memberSince || "September 2023";
         displayBio.textContent = userData.bio || "Passionate computer science student interested in web development, AI, and cybersecurity.";
 
-        profilePicDisplay.src = userData.profilePic || "https://via.placeholder.com/120x120?text=GU";
-        editProfilePhoto.src = userData.profilePic || "https://via.placeholder.com/80x80?text=GU";
+        // Backend returns profilePicUrl field
+        profilePicDisplay.src = userData.profilePicUrl || "https://via.placeholder.com/120x120?text=GU";
+        editProfilePhoto.src = userData.profilePicUrl || "https://via.placeholder.com/80x80?text=GU";
 
-        // Update social links
-        updateSocialLink(linkedinLink, userData.socialLinks?.linkedin, "LinkedIn");
-        updateSocialLink(githubLink, userData.socialLinks?.github, "GitHub");
-        updateSocialLink(leetcodeLink, userData.socialLinks?.portfolio || userData.socialLinks?.leetcode, "Portfolio");
+        // Update social links - backend returns direct URLs
+        updateSocialLink(linkedinLink, userData.linkedinUrl, "LinkedIn");
+        updateSocialLink(githubLink, userData.githubUrl, "GitHub");
+        updateSocialLink(leetcodeLink, userData.leetcodeUrl, "LeetCode");
 
         fetchUserCommunities();
         fetchUserPosts();
@@ -150,7 +158,6 @@ document.addEventListener("DOMContentLoaded", function () {
     displayUniversity.textContent = "Tech University";
     displayMajor.textContent = "Computer Science";
     displayLocation.textContent = "San Francisco, CA";
-    displayMemberSince.textContent = "September 2023";
     displayBio.textContent = "Passionate computer science student interested in web development, AI, and cybersecurity.";
 
     profilePicDisplay.src = "https://via.placeholder.com/120x120?text=GU";
@@ -158,11 +165,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     updateSocialLink(linkedinLink, "https://www.linkedin.com", "LinkedIn");
     updateSocialLink(githubLink, "https://github.com", "GitHub");
-    updateSocialLink(leetcodeLink, "https://leetcode.com", "Portfolio");
+    updateSocialLink(leetcodeLink, "https://leetcode.com", "LeetCode");
   }
 
   function updateSocialLink(element, url, defaultText) {
-    if (url && url !== "#") {
+    if (url && url !== "#" && url.trim() !== "") {
       element.href = url;
       element.querySelector('span').textContent = defaultText;
     } else {
@@ -173,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function fetchUserCommunities() {
     try {
-      const response = await fetch(`${API_BASE_URL}/user/communities/joined`, { headers: getAuthHeaders() });
+      const response = await fetch(`${API_BASE_URL}/communities/join`, { headers: getAuthHeaders() });
       const communities = await response.json();
       communityList.innerHTML = "";
       if (response.ok && communities && communities.length > 0) {
@@ -237,49 +244,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  async function fetchUserPosts() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/user/posts`, { headers: getAuthHeaders() });
-      const posts = await response.json();
-      postList.innerHTML = "";
-      if (response.ok && posts && posts.length > 0) {
-        posts.forEach(post => {
-          const li = document.createElement("li");
-          li.className = "post-item";
-          li.innerHTML = `
-            <div class="post-title">${post.title}</div>
-            <div class="post-meta">${post.timeAgo || 'Recently'} • ${post.comments || 0} comments</div>
-          `;
-          postList.appendChild(li);
-        });
-      } else {
-        // Static fallback
-        postList.innerHTML = `
-          <li class="post-item">
-            <div class="post-title">React Best Practices Discussion</div>
-            <div class="post-meta">2 hours ago • 5 comments</div>
-          </li>
-          <li class="post-item">
-            <div class="post-title">CSS Grid vs Flexbox - When to use what?</div>
-            <div class="post-meta">1 day ago • 12 comments</div>
-          </li>
+async function fetchUserPosts() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/posts/my-posts?page=0&size=5`, {
+      headers: getAuthHeaders()
+    });
+    const data = await response.json(); // Spring Page object
+    const posts = data.content; // Extract list
+
+    postList.innerHTML = "";
+
+    if (response.ok && posts && posts.length > 0) {
+      posts.forEach(post => {
+        const li = document.createElement("li");
+        li.className = "post-item";
+        li.innerHTML = `
+          <div class="post-title">${post.title}</div>
+          <div class="post-meta">${post.timeAgo || 'Recently'} • ${post.comments || 0} comments</div>
         `;
-      }
-    } catch (error) {
-      console.error("Error fetching user posts:", error);
-      // Static fallback
-      postList.innerHTML = `
-        <li class="post-item">
-          <div class="post-title">React Best Practices Discussion</div>
-          <div class="post-meta">2 hours ago • 5 comments</div>
-        </li>
-        <li class="post-item">
-          <div class="post-title">CSS Grid vs Flexbox - When to use what?</div>
-          <div class="post-meta">1 day ago • 12 comments</div>
-        </li>
-      `;
+        postList.appendChild(li);
+      });
+    } else {
+      postList.innerHTML = `<li class="post-item">No recent posts</li>`;
     }
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    postList.innerHTML = `<li class="post-item">Failed to load posts</li>`;
   }
+}
+
 
   /* --- Modal Logic --- */
   function openModal() {
@@ -324,21 +317,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const newMajor = editMajorInput.value.trim();
     const newLocation = editLocationInput.value.trim();
     const newBio = editBioInput.value.trim();
-    const newProfilePic = editProfilePhoto.src;
+    const newProfilePicUrl = editProfilePhoto.src;
 
     if (!newName || !newEmail) {
       showNotification("Name and email are required.", 'error');
       return;
     }
 
-    const updatedProfile = {
+    // ✅ Updated to include ALL fields that backend now supports
+    const updatedPersonalInfo = {
       name: newName,
       email: newEmail,
       university: newUniversity,
       major: newMajor,
       location: newLocation,
       bio: newBio,
-      profilePic: newProfilePic
+      profilePicUrl: newProfilePicUrl
     };
 
     // Show loading state
@@ -346,65 +340,165 @@ document.addEventListener("DOMContentLoaded", function () {
     saveEditBtn.disabled = true;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/user/profile`, {
+      // ✅ Updated to match backend endpoint: PUT /profile/personal-info
+      const response = await fetch(`${API_BASE_URL}/profile/personal-info`, {
         method: 'PUT',
         headers: getAuthHeaders(),
-        body: JSON.stringify(updatedProfile)
+        body: JSON.stringify(updatedPersonalInfo)
       });
 
       if (response.ok) {
-        showNotification("Profile updated successfully!", 'success');
-        // Update display elements
-        displayName.textContent = newName;
-        displayEmail.textContent = newEmail;
-        displayUniversity.textContent = newUniversity;
-        displayMajor.textContent = newMajor;
-        displayLocation.textContent = newLocation;
-        displayBio.textContent = newBio;
-        profilePicDisplay.src = newProfilePic;
+        const updatedProfile = await response.json();
+        showNotification("Personal info updated successfully!", 'success');
+        
+        // ✅ Better null handling with fallbacks
+        displayName.textContent = updatedProfile.name || newName || "Guest User";
+        displayEmail.textContent = updatedProfile.email || newEmail || "No email provided";
+        displayUniversity.textContent = updatedProfile.university || newUniversity || "University not specified";
+        displayMajor.textContent = updatedProfile.major || newMajor || "Major not specified";
+        displayLocation.textContent = updatedProfile.location || newLocation || "Location not specified";
+        displayBio.textContent = updatedProfile.bio || newBio || "No bio provided";
+        
+        // Handle profile picture with proper URL construction
+        if (updatedProfile.profilePicUrl) {
+          const profilePicUrl = updatedProfile.profilePicUrl.startsWith('http') 
+            ? updatedProfile.profilePicUrl 
+            : `${API_BASE_URL}${updatedProfile.profilePicUrl}`;
+          profilePicDisplay.src = profilePicUrl;
+        } else if (newProfilePicUrl) {
+          profilePicDisplay.src = newProfilePicUrl;
+        }
+        
         closeModal();
-      } else {
+      }else {
         const errorData = await response.json();
-        showNotification(`Failed to update profile: ${errorData.message || response.statusText}`, 'error');
+        showNotification(`Failed to update personal info: ${errorData.message || response.statusText}`, 'error');
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      showNotification("An error occurred while updating your profile.", 'error');
+      console.error("Error updating personal info:", error);
+      showNotification("An error occurred while updating your personal info.", 'error');
     } finally {
       saveEditBtn.textContent = "Save Changes";
       saveEditBtn.disabled = false;
     }
   });
-
   /* --- Profile Photo Editing --- */
   function handlePhotoUpload(imageElement) {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
-    fileInput.onchange = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-          showNotification("Image size should be less than 5MB.", 'error');
-          return;
-        }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          imageElement.src = e.target.result;
-          showNotification("Photo updated successfully!", 'success');
-        };
-        reader.readAsDataURL(file);
-      }
-    };
+   fileInput.onchange = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  console.log("File details:", {
+    name: file.name,
+    size: file.size,
+    type: file.type
+  });
+
+  if (file.size > 5 * 1024 * 1024) {
+    showNotification("Image size should be less than 5MB.", "error");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  
+  // Debug: Log FormData contents
+  for (let pair of formData.entries()) {
+    console.log("FormData:", pair[0], pair[1]);
+  }
+
+  console.log("Token exists:", !!localStorage.getItem("token"),"and token is",localStorage.getItem("token"));
+
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/profile/profile-pic`, {
+      method: "POST",
+      headers: getAuthHeadersMultipart(),
+      body: formData,
+    });
+
+    console.log(res);
+    
+    console.log("Response status:", res.status);
+    console.log("Response headers:", [...res.headers.entries()]);
+
+    if (res.ok) {
+      const data = await res.json();
+      const newProfilePicUrl = API_BASE_URL + data.profilePicUrl; // prepend API base
+
+      imageElement.src = newProfilePicUrl;
+      profilePicDisplay.src = newProfilePicUrl;
+      editProfilePhoto.src = newProfilePicUrl;
+
+      showNotification("Photo uploaded successfully!", "success");
+    } else {
+      const errorData = await res.json();
+      
+  console.error("Upload failed response:", errorData);
+      showNotification(`Upload failed: ${errorData.message || res.statusText}`, "error");
+    }
+  } catch (err) {
+    console.error(err);
+    showNotification("An error occurred during upload.", "error");
+  }
+};
+
+
     fileInput.click();
   }
 
-  removePhotoBtn.addEventListener("click", function () {
-    const placeholderSrc = "https://via.placeholder.com/120x120?text=GU";
-    profilePicDisplay.src = placeholderSrc;
-    editProfilePhoto.src = "https://via.placeholder.com/80x80?text=GU";
-    showNotification("Photo removed successfully!", 'success');
+  removePhotoBtn.addEventListener("click", async function () {
+    try {
+      // Create a placeholder file to upload
+      const canvas = document.createElement('canvas');
+      canvas.width = 120;
+      canvas.height = 120;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillRect(0, 0, 120, 120);
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('GU', 60, 65);
+
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append("file", blob, "/images/profil_pic.png");
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/profile/profile-pic`, {
+            method: "PUT",
+            headers: getAuthHeadersMultipart(),
+            body: formData
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const placeholderUrl = data.profilePicUrl;
+            profilePicDisplay.src = placeholderUrl;
+            editProfilePhoto.src = placeholderUrl;
+            showNotification("Photo removed successfully!", 'success');
+          }
+        } catch (error) {
+          console.error("Error removing photo:", error);
+          // Fallback to placeholder URLs
+          const placeholderSrc = "https://via.placeholder.com/120x120?text=GU";
+          profilePicDisplay.src = placeholderSrc;
+          editProfilePhoto.src = "https://via.placeholder.com/80x80?text=GU";
+          showNotification("Photo removed successfully!", 'success');
+        }
+      });
+    } catch (error) {
+      // Fallback to placeholder URLs
+      const placeholderSrc = "https://via.placeholder.com/120x120?text=GU";
+      profilePicDisplay.src = placeholderSrc;
+      editProfilePhoto.src = "https://via.placeholder.com/80x80?text=GU";
+      showNotification("Photo removed successfully!", 'success');
+    }
   });
 
   editPhotoBtn.addEventListener("click", () => handlePhotoUpload(profilePicDisplay));
@@ -420,9 +514,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   saveSocialLinksBtn.addEventListener("click", async () => {
-    const linkedinURL = linkedinInput.value.trim();
-    const githubURL = githubInput.value.trim();
-    const portfolioURL = leetcodeInput.value.trim();
+    const linkedinUrl = linkedinInput.value.trim();
+    const githubUrl = githubInput.value.trim();
+    const leetcodeUrl = leetcodeInput.value.trim();
 
     // Simple URL validation
     const isValidUrl = (url) => {
@@ -435,15 +529,16 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     };
 
-    if (!isValidUrl(linkedinURL) || !isValidUrl(githubURL) || !isValidUrl(portfolioURL)) {
+    if (!isValidUrl(linkedinUrl) || !isValidUrl(githubUrl) || !isValidUrl(leetcodeUrl)) {
       showNotification("Please enter valid URLs.", 'error');
       return;
     }
 
+    // ✅ Updated to match backend SocialLinksRequest DTO
     const updatedSocialLinks = {
-      linkedin: linkedinURL,
-      github: githubURL,
-      portfolio: portfolioURL
+      linkedinUrl: linkedinUrl,
+      githubUrl: githubUrl,
+      leetcodeUrl: leetcodeUrl
     };
 
     // Show loading state
@@ -451,18 +546,21 @@ document.addEventListener("DOMContentLoaded", function () {
     saveSocialLinksBtn.disabled = true;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/user/social-links`, {
+      // ✅ Updated to match backend endpoint: PUT /profile/social-links
+      const response = await fetch(`${API_BASE_URL}/profile/social-links`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(updatedSocialLinks)
       });
 
       if (response.ok) {
+        const updatedProfile = await response.json();
         showNotification("Social links updated successfully!", 'success');
 
-        updateSocialLink(linkedinLink, linkedinURL, "LinkedIn");
-        updateSocialLink(githubLink, githubURL, "GitHub");
-        updateSocialLink(leetcodeLink, portfolioURL, "Portfolio");
+        // Update social links with backend response
+        updateSocialLink(linkedinLink, updatedProfile.linkedinUrl, "LinkedIn");
+        updateSocialLink(githubLink, updatedProfile.githubUrl, "GitHub");
+        updateSocialLink(leetcodeLink, updatedProfile.leetcodeUrl, "LeetCode");
 
         socialLinksEdit.style.display = "none";
         socialLinksDisplay.style.display = "block";
@@ -484,46 +582,7 @@ document.addEventListener("DOMContentLoaded", function () {
     socialLinksDisplay.style.display = "block";
   });
 
-  /* --- Join New Community Logic --- */
-  joinCommunityBtn.addEventListener("click", async () => {
-    const communityName = prompt("Enter the name of the community you want to join:");
-    if (communityName && communityName.trim()) {
-      // Show loading state
-      joinCommunityBtn.textContent = "Searching...";
-      joinCommunityBtn.disabled = true;
 
-      try {
-        const searchResponse = await fetch(`${API_BASE_URL}/communities/search?name=${encodeURIComponent(communityName.trim())}`, { headers: getAuthHeaders() });
-        const searchResults = await searchResponse.json();
-
-        if (searchResponse.ok && searchResults && searchResults.length > 0) {
-          const community = searchResults[0]; // Take the first match
-
-          const joinResponse = await fetch(`${API_BASE_URL}/user/communities/join`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ communityId: community.id })
-          });
-
-          if (joinResponse.ok) {
-            showNotification(`Successfully joined ${community.name}!`, 'success');
-            fetchUserCommunities(); // Refresh the communities list
-          } else {
-            const errorData = await joinResponse.json();
-            showNotification(`Failed to join community: ${errorData.message || joinResponse.statusText}`, 'error');
-          }
-        } else {
-          showNotification(`Community "${communityName}" not found.`, 'error');
-        }
-      } catch (error) {
-        console.error("Error joining community:", error);
-        showNotification("An error occurred while trying to join the community.", 'error');
-      } finally {
-        joinCommunityBtn.textContent = "Join New";
-        joinCommunityBtn.disabled = false;
-      }
-    }
-  });
 
   // Initialize the page
   fetchAndDisplayProfile();

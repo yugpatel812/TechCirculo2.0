@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.yug.backend.config.JwtFilter;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -24,19 +23,19 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
-    private static final String SECRET = "TmV3U2VjcmV0S2V5Rm9ySldUU2lnbmluZ1B1cnBvc2VzMTIzNDU2Nzg=\r\n";
-
-    private String secretKey;
+    
+    // Use a consistent secret key approach
+    private final String secretKey;
 
     public JwtService(){
-        secretKey = generateSecretKey();
+        this.secretKey = generateSecretKey();
     }
 
-    public String generateSecretKey() {
+    private String generateSecretKey() {
         try {
             KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
             SecretKey secretKey = keyGen.generateKey();
-            System.out.println("Secret Key : " + secretKey.toString());
+            logger.info("Generated new secret key for JWT");
             return Base64.getEncoder().encodeToString(secretKey.getEncoded());
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error generating secret key", e);
@@ -44,16 +43,18 @@ public class JwtService {
     }
 
     public String generateToken(String username) {
-
         Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, username);
+    }
 
+    private String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*30))
-                .signWith(getKey(), SignatureAlgorithm.HS256).compact();
-
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private Key getKey() {
@@ -61,41 +62,81 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String extractUserName(String token) {
-        // extract the username from jwt token
-        logger.info("inside extractUserName");
+    // Extract username from token
+    public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        logger.info("inside extractAllClaims");
-        return Jwts.parserBuilder()
-                .setSigningKey(getKey())
-                .build().parseClaimsJws(token).getBody();
-    }
-
-
-    public boolean validateToken(String token, UserDetails userDetails) {
-
-        final String userName = extractUserName(token);
-        logger.info("Username: "+userName);
-        logger.info("UserDetails: "+userDetails);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
+    // Extract expiration date from token
+    public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    // Extract any claim from token
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
 
+    // Extract all claims from token
+    private Claims extractAllClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            logger.error("Error extracting claims from token: {}", e.getMessage());
+            throw new RuntimeException("Invalid token", e);
+        }
+    }
 
+    // Check if token is expired
+    public Boolean isTokenExpired(String token) {
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (Exception e) {
+            logger.error("Error checking token expiration: {}", e.getMessage());
+            return true; // Consider expired if we can't check
+        }
+    }
+
+    // Validate token with username
+    public Boolean isTokenValid(String token, String username) {
+        try {
+            final String extractedUsername = extractUsername(token);
+            return (extractedUsername.equals(username) && !isTokenExpired(token));
+        } catch (Exception e) {
+            logger.error("Error validating token: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    // Alternative overload that just checks token validity without username
+    public Boolean isTokenValid(String token) {
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            logger.error("Error validating token: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    // Validate token with UserDetails (for Spring Security integration)
+    public boolean validateToken(String token, UserDetails userDetails) {
+        try {
+            final String username = extractUsername(token);
+            logger.info("Validating token for username: {}", username);
+            return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        } catch (Exception e) {
+            logger.error("Error validating token with UserDetails: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    // Legacy method name support (keeping for backward compatibility)
+    public String extractUserName(String token) {
+        return extractUsername(token);
+    }
 }

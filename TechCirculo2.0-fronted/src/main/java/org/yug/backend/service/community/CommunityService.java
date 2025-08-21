@@ -1,270 +1,282 @@
-// src/main/java/org/yug/backend/service/CommunityService.java
 package org.yug.backend.service.community;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yug.backend.dto.community.*;
-import org.yug.backend.model.*;
+import org.yug.backend.dto.post.PostCreateRequest;
+import org.yug.backend.dto.profile.UserProfileDto;
+import org.yug.backend.model.Community;
+import org.yug.backend.model.UserCommunity;
 import org.yug.backend.model.auth.User;
-import org.yug.backend.repository.*;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
+import org.yug.backend.model.post.Post;
+import org.yug.backend.repository.CommunityRepository;
+import org.yug.backend.repository.PostRepository;
+import org.yug.backend.repository.UserCommunityRepository;
+import org.yug.backend.repository.UserRepository;
+import org.yug.backend.service.UserService;
 
-import java.time.Instant;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class CommunityService {
-    private static final Logger logger = LoggerFactory.getLogger(CommunityService.class);
 
-    @Autowired
-    private CommunityRepository communityRepository;
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private AnnouncementRepository announcementRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserCommunityRepository userCommunityRepository;
-    @Transactional(readOnly = true)
+    private final CommunityRepository communityRepository;
+    private final UserCommunityRepository userCommunityRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final UserService userService; 
+
+    // ✅ Convert Entity to DTO with join status
+    private CommunityDto toDto(Community community, UUID currentUserId) {
+        boolean isJoined = false;
+        if (currentUserId != null) {
+            isJoined = userCommunityRepository.existsByUserIdAndCommunityId(currentUserId, community.getId());
+        }
+        
+        return CommunityDto.builder()
+                .id(community.getId())
+                .name(community.getName())
+                .description(community.getDescription())
+                .imageUrl(community.getImageUrl())
+                .memberCount(community.getMemberCount() != null ? community.getMemberCount() : 0L)
+                .isJoined(isJoined)
+                .build();
+    }
+
+    // ✅ Convert Entity to DTO without user context
+    private CommunityDto toDto(Community community) {
+        return CommunityDto.builder()
+                .id(community.getId())
+                .name(community.getName())
+                .description(community.getDescription())
+                .imageUrl(community.getImageUrl())
+                .memberCount(community.getMemberCount() != null ? community.getMemberCount() : 0L)
+                .isJoined(false)
+                .build();
+    }
+
+    // ✅ Convert Post entity to DTO
+    private CommunityPostDto toPostDto(Post post) {
+        return CommunityPostDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+                .authorId(post.getAuthor().getId())
+                .authorName(post.getAuthor().getUsername()) // or getFullName() if you have that field
+                .likesCount(post.getLikesCount() != null ? post.getLikesCount() : 0)
+                .commentsCount(0) // You can add this field to Post model later if needed
+                .build();
+    }
+
+    // ✅ Get all communities with join status for specific user
+    public List<CommunityDto> getAllCommunities(UUID currentUserId) {
+        return communityRepository.findAll()
+                .stream()
+                .map(community -> toDto(community, currentUserId))
+                .collect(Collectors.toList());
+    }
+
+    // ✅ Get all communities without user context
     public List<CommunityDto> getAllCommunities() {
-        try {
-            logger.info("Fetching all communities");
-            List<Community> communities = communityRepository.findAll();
-
-            if (communities == null || communities.isEmpty()) {
-                logger.info("No communities found");
-                return Collections.emptyList();
-            }
-
-            return communities.stream()
-                    .filter(Objects::nonNull)
-                    .map(community -> {
-                        try {
-                            return CommunityDto.builder()
-                                    .id(community.getId())
-                                    .name(community.getName())
-                                    .description(community.getDescription())
-                                    .imageUrl(community.getImageUrl())
-                                    .memberCount(community.getUserCommunities() != null ?community.getUserCommunities().size() : 0L)
-                                    .build();
-                        } catch (Exception e) {
-                            logger.error("Error mapping community: {}", e.getMessage());
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            logger.error("Error fetching communities: {}", e.getMessage());
-            throw new RuntimeException("Error fetching communities", e);
-        }
-    }
-    @Transactional(readOnly = true)
-    public List<CommunityDto> getJoinedCommunities(String username) {
-        logger.info("Fetching joined communities for user: {}", username);
-
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
-
-        // Get all UserCommunity entries for this user
-        List<UserCommunity> memberships = userCommunityRepository.findByUserId(user.getId());
-
-        // Extract community IDs
-        List<UUID> communityIds = memberships.stream()
-                .map(UserCommunity::getCommunityId)
-                .collect(Collectors.toList());
-
-        // Fetch all communities at once
-        List<Community> communities = communityRepository.findAllById(communityIds);
-
-        // Map to DTOs
-        return communities.stream()
-                .map(community -> CommunityDto.builder()
-                        .id(community.getId())
-                        .name(community.getName())
-                        .description(community.getDescription())
-                        .imageUrl(community.getImageUrl())
-                        .memberCount(community.getMemberCount()) // Use the pre-calculated count
-                        .build())
+        return communityRepository.findAll()
+                .stream()
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
+    // ✅ Search communities by name without user context
+    public List<CommunityDto> findCommunitiesByName(String name) {
+        return communityRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 
+    // ✅ Search communities by name with join status
+    public List<CommunityDto> findCommunitiesByName(String name, UUID currentUserId) {
+        return communityRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(community -> toDto(community, currentUserId))
+                .collect(Collectors.toList());
+    }
+
+    // ✅ Get joined communities
+    public List<CommunityDto> getJoinedCommunities(UUID userId) {
+        List<UserCommunity> relations = userCommunityRepository.findByUserId(userId);
+
+        return relations.stream()
+                .map(rel -> communityRepository.findById(rel.getCommunityId())
+                        .map(community -> toDto(community, userId))
+                        .orElse(null))
+                .filter(c -> c != null)
+                .toList();
+    }
+
+    // ✅ Create a new community (method overloads)
+    public CommunityDto createCommunity(String name, String description, String imageUrl) {
+        Community community = new Community(name, description, imageUrl);
+        Community saved = communityRepository.save(community);
+        return toDto(saved);
+    }
+
+    public CommunityDto createCommunity(CommunityDto dto) {
+        Community community = new Community(dto.getName(), dto.getDescription(), dto.getImageUrl());
+        Community saved = communityRepository.save(community);
+        return toDto(saved);
+    }
+
+    // ✅ Get community by ID without user context
+    public CommunityDto getCommunityById(UUID id) {
+        return communityRepository.findById(id)
+                .map(this::toDto)
+                .orElse(null);
+    }
+
+    // ✅ Get community by ID with join status
+    public CommunityDto getCommunityById(UUID id, UUID currentUserId) {
+        return communityRepository.findById(id)
+                .map(community -> toDto(community, currentUserId))
+                .orElse(null);
+    }
+
+    // ✅ Join community
     @Transactional
-    public void joinCommunity(String username, UUID communityId) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-
+    public void joinCommunity(UUID userId, UUID communityId) {
         Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("Community not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
 
-        if (userCommunityRepository.existsByUserIdAndCommunityId(user.getId(), communityId)) {
-            throw new IllegalStateException("User already a member");
+        if (userCommunityRepository.existsByUserIdAndCommunityId(userId, communityId)) {
+            throw new IllegalStateException("User already joined this community");
         }
 
-        UserCommunity userCommunity = new UserCommunity();
-        userCommunity.setUserId(user.getId());
-        userCommunity.setCommunityId(communityId);
+        UserCommunity relation = UserCommunity.builder()
+                .userId(userId)
+                .communityId(communityId)
+                .role("Member")
+                .build();
+        userCommunityRepository.save(relation);
 
-        // Set relationships without triggering hashCode/equals
-        userCommunity.setUser(user);
-        userCommunity.setCommunity(community);
-
-        userCommunityRepository.save(userCommunity);
-
-        // Update count without loading all relationships
-        community.setMemberCount(userCommunityRepository.countByCommunityId(communityId));
+        long count = userCommunityRepository.countByCommunityId(communityId);
+        community.setMemberCount(count);
         communityRepository.save(community);
     }
 
+    // ✅ Leave community
     @Transactional
-    public void leaveCommunity(String username, UUID communityId) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
+    public void leaveCommunity(UUID userId, UUID communityId) {
+        UserCommunity relation = userCommunityRepository.findByUserIdAndCommunityId(userId, communityId)
+                .orElseThrow(() -> new IllegalArgumentException("User not in community"));
+
+        userCommunityRepository.delete(relation);
 
         Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("Community not found with ID: " + communityId));
+                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
 
-        UserCommunity userCommunity = userCommunityRepository.findByUserIdAndCommunityId(user.getId(), communityId)
-                .orElseThrow(() -> new IllegalStateException("User is not a member of this community."));
-
-        // Update both sides of the relationship before deletion
-        user.getUserCommunities().remove(userCommunity);
-        community.getUserCommunities().remove(userCommunity);
-        community.setMemberCount((long)community.getUserCommunities().size());
-
-        userCommunityRepository.delete(userCommunity);
-        logger.info("User {} left community {}", username, communityId);
+        long count = userCommunityRepository.countByCommunityId(communityId);
+        community.setMemberCount(count);
+        communityRepository.save(community);
     }
 
-    // --- Posts within a Community ---
-    @Transactional(readOnly = true)
+    // ✅ UPDATED - Get posts by community (now actually fetches from database)
     public List<CommunityPostDto> getPostsByCommunity(UUID communityId) {
-        if (!communityRepository.existsById(communityId)) {
-            throw new EntityNotFoundException("Community not found with ID: " + communityId);
-        }
-
-        return postRepository.findByCommunityId(communityId).stream()
-                .map(post -> CommunityPostDto.builder()
-                        .id(post.getId())
-                        .title(post.getTitle())
-                        .content(post.getContent())
-                        .imageUrl(post.getImageUrl())
-                        .likesCount(post.getLikesCount())
-                        .authorName(post.getAuthor() != null ? post.getAuthor().getUsername() : "Unknown")
-                        .build())
+        List<Post> posts = postRepository.findByCommunityId(communityId);
+        
+        return posts.stream()
+                .map(this::toPostDto)
                 .collect(Collectors.toList());
     }
 
+    // ✅ UPDATED - Create post in community (now actually saves to database)
     @Transactional
-    public CommunityPostDto createPost(String username, UUID communityId, PostCreateRequest request) {
-        User author = userRepository.findByUsername(username);
-        if (author == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
-
+    public CommunityPostDto createPost(UUID userId, UUID communityId, PostCreateRequest request) {
+        // Validate that community exists
         Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("Community not found with ID: " + communityId));
-
-        if (!userCommunityRepository.existsByUserIdAndCommunityId(author.getId(), communityId)) {
-            throw new IllegalStateException("User must be a member to post in this community.");
+                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
+        
+        // Validate that user is a member of the community
+        boolean isMember = userCommunityRepository.existsByUserIdAndCommunityId(userId, communityId);
+        if (!isMember) {
+            throw new IllegalStateException("User must be a member of the community to post");
         }
-
-        Post newPost = new Post();
-        newPost.setTitle(request.getTitle());
-        newPost.setContent(request.getContent());
-        newPost.setImageUrl(request.getImageUrl());
-        newPost.setAuthor(author);
-        newPost.setCommunity(community);
-
-        Post savedPost = postRepository.save(newPost);
-        return CommunityPostDto.builder()
-                .id(savedPost.getId())
-                .title(savedPost.getTitle())
-                .content(savedPost.getContent())
-                .imageUrl(savedPost.getImageUrl())
-                .likesCount(savedPost.getLikesCount())
-                .authorName(savedPost.getAuthor().getUsername())
-                .build();
+        
+        // Get user details for author
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        
+        // Create and save the post entity using your constructor
+        Post post = new Post(community, author, request.getTitle(), request.getContent(), request.getImageUrl());
+        
+        // Save to database
+        Post savedPost = postRepository.save(post);
+        
+        // Convert to DTO and return
+        return toPostDto(savedPost);
     }
 
-    // --- Announcements within a Community ---
-    @Transactional(readOnly = true)
+    // ✅ Get announcements by community (placeholder)
     public List<CommunityAnnouncementDto> getAnnouncementsByCommunity(UUID communityId) {
-        if (!communityRepository.existsById(communityId)) {
-            throw new EntityNotFoundException("Community not found with ID: " + communityId);
-        }
-
-        return announcementRepository.findByCommunityId(communityId).stream()
-                .map(announcement -> CommunityAnnouncementDto.builder()
-                        .id(announcement.getId())
-                        .title(announcement.getTitle())
-                        .content(announcement.getContent())
-                        .type(announcement.getType())
-                        .build())
-                .collect(Collectors.toList());
+        return new ArrayList<>();
     }
 
-    // --- Members of a Community ---
-    @Transactional(readOnly = true)
+    // ✅ Get members by community
     public List<CommunityMemberDto> getMembersByCommunity(UUID communityId) {
-        if (!communityRepository.existsById(communityId)) {
-            throw new EntityNotFoundException("Community not found with ID: " + communityId);
+    List<UserCommunity> relations = userCommunityRepository.findByCommunityId(communityId);
+
+    return relations.stream()
+            .map(rel -> {
+                // get merged user+profile
+                UserProfileDto profileDto = userService.getUserProfile(rel.getUserId());
+
+                if (profileDto != null) {
+                    return CommunityMemberDto.builder()
+                            .id(profileDto.getId())
+                            .username(profileDto.getUsername())
+                            .email(profileDto.getEmail())
+                            .role(profileDto.getRole())  // from ProfileCommunity
+                            .name(profileDto.getName())
+                            .university(profileDto.getUniversity())
+                            .profilePicUrl(profileDto.getProfilePicUrl())
+                            .linkedinUrl(profileDto.getLinkedinUrl())
+                            .githubUrl(profileDto.getGithubUrl())
+                            .leetcodeUrl(profileDto.getLeetcodeUrl())
+                            .bio(profileDto.getBio())
+                            .location(profileDto.getLocation())
+                            .major(profileDto.getMajor())
+                            .build();
+                } else {
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .toList();
+}
+
+
+    // ✅ Seed default communities
+    @PostConstruct
+    public void seedCommunities() {
+        if (communityRepository.count() == 0) {
+            List<Community> defaults = List.of(
+                    new Community("Photography Lovers", "A place for photography enthusiasts.", "https://images.unsplash.com/photo-1504196606672-aef5c9cefc92"),
+                    new Community("Fitness Freaks", "Share workouts and fitness tips.", "https://images.unsplash.com/photo-1571019613914-85f342c57f8e"),
+                    new Community("Foodies Hub", "For people who love food.", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c"),
+                    new Community("Travel Diaries", "Explore and share travel experiences.", "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"),
+                    new Community("Book Club", "Discuss and share book recommendations.", "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f"),
+                    new Community("Music Vibes", "For music lovers.", "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4"),
+                    new Community("Tech Geeks", "Discuss latest in technology.", "https://images.unsplash.com/photo-1518779578993-ec3579fee39f"),
+                    new Community("Gaming Arena", "Connect with gamers worldwide.", "https://images.unsplash.com/photo-1607746882042-944635dfe10e"),
+                    new Community("Artistic Minds", "A space for artists to share work.", "https://images.unsplash.com/photo-1513364776144-60967b0f800f"),
+                    new Community("Nature Lovers", "Appreciate the beauty of nature.", "https://images.unsplash.com/photo-1506744038136-46273834b3fb")
+            );
+            communityRepository.saveAll(defaults);
         }
-
-        return userCommunityRepository.findByCommunityId(communityId).stream()
-                .map(UserCommunity::getUser)
-                .map(user -> CommunityMemberDto.builder()
-                        .userId(user.getId())
-                        .name(user.getProfile() != null ? user.getProfile().getName() : user.getUsername())
-                        .email(user.getEmail())
-                        .role(user.getRole().name())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<CommunityDto> findCommunitiesByName(String name) {
-        return communityRepository.findByNameContainingIgnoreCase(name).stream()
-                .map(community -> CommunityDto.builder()
-                        .id(community.getId())
-                        .name(community.getName())
-                        .description(community.getDescription())
-                        .imageUrl(community.getImageUrl())
-                        .memberCount((long)community.getUserCommunities().size())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public CommunityDto createCommunity(CommunityDto req) {
-        Community community = new Community();
-        community.setName(req.getName());
-        community.setDescription(req.getDescription());
-        community.setImageUrl(req.getImageUrl());
-
-        Community savedCommunity = communityRepository.save(community);
-        return CommunityDto.builder()
-                .id(savedCommunity.getId())
-                .name(savedCommunity.getName())
-                .description(savedCommunity.getDescription())
-                .imageUrl(savedCommunity.getImageUrl())
-                .memberCount(0L) // New community has 0 members initially
-                .build();
     }
 }

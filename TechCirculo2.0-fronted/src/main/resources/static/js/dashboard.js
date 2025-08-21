@@ -1,323 +1,73 @@
-// dashboard.js
+// dashboard.js - Optimized Version
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
+    const API_BASE_URL = "http://localhost:8084";
+    
+    // Cache DOM elements
+    const domCache = {
+        userProfileName: document.getElementById("user-profile-name"),
+        userProfileImage: document.getElementById("user-profile-image"),
+        greetingText: document.getElementById("greeting-text"),
+        communitySlider: document.querySelector(".slider"),
+        postContainer: document.getElementById("postContainer"),
+        notificationsBadge: document.querySelector(".notifications-btn .badge"),
+        communitySelect: document.getElementById("communitySelect"),
+        createPostForm: document.getElementById("createPostForm"),
+        communityCount: document.querySelector(".community-count"),
+        postCount: document.querySelector(".post-count")
+    };
 
-    // Add loading states and animations
-    function showLoading(element) {
-        element.classList.add('loading');
-        element.style.pointerEvents = 'none';
-    }
+    // Handle OAuth2 token
+    (function handleOAuth2Token() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        
+        if (token) {
+            console.log("OAuth2 token found in URL. Storing in local storage.");
+            localStorage.setItem("token", token);
+            history.replaceState({}, document.title, window.location.pathname);
+        }
+    })();
 
-    function hideLoading(element) {
-        element.classList.remove('loading');
-        element.style.pointerEvents = 'auto';
-    }
-
-    // Enhanced notification system with better styling
+    // Enhanced notification system
     function showNotification(message, type = 'success') {
+        // Remove existing notifications first
+        document.querySelectorAll('.notification').forEach(n => n.remove());
+        
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         notification.style.cssText = `
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
+            position: fixed; top: 2rem; right: 2rem; z-index: 1000;
             background: ${type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' :
-            type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' :
-                'linear-gradient(135deg, #f59e0b, #d97706)'};
-            color: white;
-            padding: 1.25rem 1.75rem;
-            border-radius: 16px;
+                type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' :
+                    'linear-gradient(135deg, #f59e0b, #d97706)'};
+            color: white; padding: 1.25rem 1.75rem; border-radius: 16px;
             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            z-index: 1000;
-            font-weight: 600;
-            font-size: 0.875rem;
-            max-width: 400px;
-            transform: translateX(100%);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-family: 'Inter', sans-serif;
+            font-weight: 600; font-size: 0.875rem; max-width: 400px;
+            transform: translateX(100%); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2);
         `;
 
         const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ⓘ';
         notification.innerHTML = `
             <div style="display: flex; align-items: center; gap: 0.75rem;">
                 <span style="font-size: 1.25rem; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.2); border-radius: 50%;">${icon}</span>
-                <span style="line-height: 1.4;">${message}</span>
+                <span>${message}</span>
             </div>
         `;
 
         document.body.appendChild(notification);
-
+        
         // Animate in
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             notification.style.transform = 'translateX(0)';
-        }, 100);
+        });
 
-        // Animate out and remove
+        // Auto remove
         setTimeout(() => {
             notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 400);
-        }, 4500);
-    }
-
-    // Enhanced scroll to top functionality with better styling
-    function addScrollToTop() {
-        const scrollBtn = document.createElement('button');
-        scrollBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m18 15-6-6-6 6"/>
-            </svg>
-        `;
-        scrollBtn.style.cssText = `
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
-            color: white;
-            border: none;
-            font-size: 1.25rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            visibility: hidden;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        `;
-
-        scrollBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        scrollBtn.addEventListener('mouseenter', () => {
-            scrollBtn.style.transform = 'scale(1.1) translateY(-2px)';
-            scrollBtn.style.boxShadow = '0 32px 64px -12px rgb(0 0 0 / 0.35)';
-        });
-
-        scrollBtn.addEventListener('mouseleave', () => {
-            scrollBtn.style.transform = 'scale(1) translateY(0)';
-            scrollBtn.style.boxShadow = '0 25px 50px -12px rgb(0 0 0 / 0.25)';
-        });
-
-        document.body.appendChild(scrollBtn);
-
-        // Show/hide based on scroll position with smooth transition
-        let ticking = false;
-        window.addEventListener('scroll', () => {
-            if (!ticking) {
-                requestAnimationFrame(() => {
-                    if (window.scrollY > 400) {
-                        scrollBtn.style.opacity = '1';
-                        scrollBtn.style.visibility = 'visible';
-                        scrollBtn.style.transform = 'scale(1)';
-                    } else {
-                        scrollBtn.style.opacity = '0';
-                        scrollBtn.style.visibility = 'hidden';
-                        scrollBtn.style.transform = 'scale(0.8)';
-                    }
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        });
-    }
-
-    // Enhanced drag and drop functionality for file upload
-    function initializeFileUpload() {
-        const uploadGroup = document.querySelector('.upload-group');
-        const fileInput = document.getElementById('postImage');
-
-        if (!uploadGroup || !fileInput) return;
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadGroup.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadGroup.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadGroup.addEventListener(eventName, unhighlight, false);
-        });
-
-        uploadGroup.addEventListener('drop', handleDrop, false);
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function highlight(e) {
-            uploadGroup.classList.add('dragover');
-        }
-
-        function unhighlight(e) {
-            uploadGroup.classList.remove('dragover');
-        }
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-
-            if (files.length > 0) {
-                fileInput.files = files;
-                updateFileDisplay(files[0]);
-            }
-        }
-
-        fileInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                updateFileDisplay(e.target.files[0]);
-            }
-        });
-
-        function updateFileDisplay(file) {
-            const uploadInfo = uploadGroup.querySelector('.upload-info span');
-            if (uploadInfo) {
-                uploadInfo.textContent = `Selected: ${file.name}`;
-                uploadGroup.style.borderColor = 'var(--success-color)';
-                uploadGroup.style.background = 'rgba(16, 185, 129, 0.05)';
-            }
-        }
-    }
-
-    // Enhanced form validation with visual feedback
-    function initializeFormValidation() {
-        const form = document.getElementById('createPostForm');
-        const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
-
-        inputs.forEach(input => {
-            input.addEventListener('blur', validateField);
-            input.addEventListener('input', clearValidation);
-        });
-
-        function validateField(e) {
-            const field = e.target;
-            const isValid = field.checkValidity();
-
-            if (!isValid) {
-                field.style.borderColor = 'var(--error-color)';
-                field.style.boxShadow = '0 0 0 4px rgba(239, 68, 68, 0.1)';
-                showFieldError(field);
-            } else {
-                field.style.borderColor = 'var(--success-color)';
-                field.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.1)';
-                clearFieldError(field);
-            }
-        }
-
-        function clearValidation(e) {
-            const field = e.target;
-            field.style.borderColor = 'var(--border-color)';
-            field.style.boxShadow = 'none';
-            clearFieldError(field);
-        }
-
-        function showFieldError(field) {
-            clearFieldError(field);
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'field-error';
-            errorMsg.style.cssText = `
-                color: var(--error-color);
-                font-size: 0.75rem;
-                margin-top: 0.25rem;
-                font-weight: 500;
-            `;
-            errorMsg.textContent = field.validationMessage;
-            field.parentNode.appendChild(errorMsg);
-        }
-
-        function clearFieldError(field) {
-            const errorMsg = field.parentNode.querySelector('.field-error');
-            if (errorMsg) {
-                errorMsg.remove();
-            }
-        }
-    }
-
-    // Initialize create post toggle functionality
-    function initializeCreatePostToggle() {
-        const toggleBtn = document.getElementById('createPostToggle');
-        const createPostSection = document.getElementById('createPostSection');
-
-        if (!toggleBtn || !createPostSection) return;
-
-        toggleBtn.addEventListener('click', function() {
-            const isVisible = createPostSection.style.display !== 'none';
-
-            if (isVisible) {
-                // Hide the section with animation
-                createPostSection.style.opacity = '0';
-                createPostSection.style.transform = 'translateY(-20px)';
-
-                setTimeout(() => {
-                    createPostSection.style.display = 'none';
-                    toggleBtn.classList.remove('active');
-                }, 300);
-
-                // Update button text
-                toggleBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-                        <circle cx="12" cy="13" r="3"/>
-                    </svg>
-                    Create New Post
-                    <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m6 9 6 6 6-6"/>
-                    </svg>
-                `;
-            } else {
-                // Show the section with animation
-                createPostSection.style.display = 'block';
-                createPostSection.style.opacity = '0';
-                createPostSection.style.transform = 'translateY(-20px)';
-                toggleBtn.classList.add('active');
-
-                // Force reflow
-                createPostSection.offsetHeight;
-
-                setTimeout(() => {
-                    createPostSection.style.opacity = '1';
-                    createPostSection.style.transform = 'translateY(0)';
-                }, 50);
-
-                // Update button text
-                toggleBtn.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-                        <circle cx="12" cy="13" r="3"/>
-                    </svg>
-                    Hide Create Post
-                    <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m6 9 6 6 6-6"/>
-                    </svg>
-                `;
-
-                // Scroll to the create post section smoothly
-                setTimeout(() => {
-                    createPostSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }, 100);
-            }
-        });
+            setTimeout(() => notification.remove(), 400);
+        }, 3000);
     }
 
     // Helper to get auth headers
@@ -325,399 +75,509 @@ document.addEventListener("DOMContentLoaded", async function () {
         const token = localStorage.getItem("token");
         return {
             "Content-Type": "application/json",
-            ...(token && { "Authorization": "Bearer " + token }) // Include token if available
+            ...(token && { "Authorization": "Bearer " + token })
         };
     }
 
-    // DOM Elements
-    const userProfileName = document.getElementById("user-profile-name");
-    const userProfileImage = document.getElementById("user-profile-image");
-    const greetingText = document.getElementById("greeting-text");
-    const communitySlider = document.querySelector(".slider"); // This is the .slider class used for all communities
-    const postContainer = document.querySelector(".post-container");
-    const notificationsBadge = document.querySelector(".notifications-btn .badge");
-
-    // New Post Form Elements
-    const createPostForm = document.getElementById("createPostForm");
-    const communitySelect = document.getElementById("communitySelect");
-    const postTitleInput = document.getElementById("postTitle");
-    const postContentTextarea = document.getElementById("postContent");
-    const postImageInput = document.getElementById("postImage");
-    const clearPostBtn = document.getElementById("clearPostBtn");
-    const publishPostBtn = document.getElementById("publishPostBtn");
-
-    // Initialize enhanced features
-    addScrollToTop();
-    initializeFileUpload();
-    initializeFormValidation();
-    initializeCreatePostToggle();
-
-    // Add smooth animations to elements on load
-    function animateElementsOnLoad() {
-        const sidebar = document.querySelector('.sidebar');
-        const header = document.querySelector('.header');
-        const createPostSection = document.querySelector('.create-post-section');
-
-        if (sidebar) sidebar.classList.add('animate-fadeInLeft');
-        if (header) header.classList.add('animate-fadeInUp');
-        if (createPostSection) {
-            setTimeout(() => {
-                createPostSection.classList.add('animate-fadeInUp');
-            }, 200);
+    // Optimized loading state management
+    function setLoadingState(element, isLoading) {
+        if (!element) return;
+        
+        if (isLoading) {
+            element.style.opacity = '0.6';
+            element.style.pointerEvents = 'none';
+        } else {
+            element.style.opacity = '1';
+            element.style.pointerEvents = 'auto';
         }
     }
 
-    // Fetch User Profile Data with enhanced error handling
+    // Optimized user profile fetch
     async function fetchUserProfile() {
-        const profileElements = [userProfileName, userProfileImage, greetingText];
-        profileElements.forEach(el => el && showLoading(el));
-
         try {
-            const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: getAuthHeaders() });
-            const userData = await response.json();
+            const response = await fetch(`${API_BASE_URL}/profile`, { 
+                headers: getAuthHeaders(),
+                signal: AbortSignal.timeout(5000) // 5 second timeout
+            });
+            
             if (response.ok) {
-                userProfileName.textContent = userData.name || "User";
-                userProfileImage.src = userData.profilePic || "https://via.placeholder.com/44x44?text=User"; // Default placeholder if no image
-                greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
+                const userData = await response.json();
+                domCache.userProfileName.textContent = userData.name || "User";
+                domCache.userProfileImage.src = userData.profilePicUrl || "images/profile_pic.png";
+                domCache.greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
             } else {
-                console.warn("Failed to fetch user profile:", userData.message);
-                // Fallback to static data if API fails or token is missing
-                userProfileName.textContent = "Guest";
-                userProfileImage.src = "https://via.placeholder.com/44x44?text=G";
-                greetingText.textContent = `Welcome, Guest!`;
+                // Fallback for guest users
+                domCache.userProfileName.textContent = "Guest";
+                domCache.userProfileImage.src = "images/profile_pic.png";
+                domCache.greetingText.textContent = "Welcome, Guest!";
             }
         } catch (error) {
             console.error("Error fetching user profile:", error);
-            // Fallback to static data
-            userProfileName.textContent = "Guest";
-            userProfileImage.src = "https://via.placeholder.com/44x44?text=G";
-            greetingText.textContent = `Welcome, Guest!`;
-        } finally {
-            profileElements.forEach(el => el && hideLoading(el));
+            // Fallback data
+            domCache.userProfileName.textContent = "Guest";
+            domCache.userProfileImage.src = "images/profile_pic.png";
+            domCache.greetingText.textContent = "Welcome, Guest!";
         }
     }
 
-    // Fetch All Communities for the slider with enhanced animations
+    // Optimized communities fetch
     async function fetchAllCommunities() {
-        showLoading(communitySlider);
-
+        if (!domCache.communitySlider) return;
+        
+        setLoadingState(domCache.communitySlider, true);
+        
         try {
-            const response = await fetch(`${API_BASE_URL}/communities/all`, { headers: getAuthHeaders() });
+            const response = await fetch(`${API_BASE_URL}/communities/all`, { 
+                headers: getAuthHeaders(),
+                signal: AbortSignal.timeout(10000) // 10 second timeout
+            });
+            
             const communities = await response.json();
-            communitySlider.innerHTML = ""; // Clear existing static content
-
+            
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            
             if (response.ok && communities && communities.length > 0) {
+                domCache.communityCount.textContent = `${communities.length} communities`;
+                
                 communities.forEach((community, index) => {
-                    const communityCard = document.createElement("div");
-                    communityCard.classList.add("community-card");
-                    communityCard.style.opacity = '0';
-                    communityCard.style.transform = 'translateY(30px)';
-                    communityCard.innerHTML = `
-                        <div class="community-header">
-                            <img src="${community.imageUrl || 'https://via.placeholder.com/300x180?text=Community'}" alt="${community.name}">
-                            <span class="member-count">${community.memberCount || 0} members</span>
-                        </div>
-                        <div class="community-body">
-                            <h3>${community.name}</h3>
-                            <p>${community.description || 'No description available.'}</p>
-                            <button type="button" class="joinnow" data-community-id="${community.id}">Join now</button>
-                        </div>
-                    `;
-                    communitySlider.appendChild(communityCard);
-
-                    // Staggered animation
-                    setTimeout(() => {
-                        communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                        communityCard.style.opacity = '1';
-                        communityCard.style.transform = 'translateY(0)';
-                    }, 100 + (index * 100));
+                    const communityCard = createCommunityCard(community, index);
+                    fragment.appendChild(communityCard);
                 });
-
-                // Attach event listeners to newly created "Join now" buttons
-                document.querySelectorAll(".joinnow").forEach(button => {
-                    button.addEventListener("click", async function() {
-                        const communityId = this.dataset.communityId;
-                        const communityName = this.closest('.community-card').querySelector('h3').textContent;
-                        await joinCommunity(communityId, communityName);
-                    });
-                });
-
+                
+                // Single DOM update
+                domCache.communitySlider.innerHTML = "";
+                domCache.communitySlider.appendChild(fragment);
+                
+                // Attach event listeners after all cards are added
+                attachCommunityEventListeners();
+                
             } else {
-                communitySlider.innerHTML = "<p style='text-align: center; color: var(--text-muted); padding: 2rem;'>No communities available.</p>";
+                domCache.communitySlider.innerHTML = "<p style='text-align: center; color: #64748b; padding: 2rem;'>No communities available.</p>";
+                domCache.communityCount.textContent = "0 communities";
             }
         } catch (error) {
-            console.error("Error fetching all communities:", error);
-            communitySlider.innerHTML = "<p style='text-align: center; color: var(--error-color); padding: 2rem;'>Failed to load communities.</p>";
+            console.error("Error fetching communities:", error);
+            domCache.communitySlider.innerHTML = "<p style='text-align: center; color: #ef4444; padding: 2rem;'>Failed to load communities.</p>";
+            domCache.communityCount.textContent = "0 communities";
         } finally {
-            hideLoading(communitySlider);
+            setLoadingState(domCache.communitySlider, false);
         }
     }
 
-    // Function to handle joining a community with enhanced feedback
-    async function joinCommunity(communityId, communityName) {
-        const joinBtn = document.querySelector(`[data-community-id="${communityId}"]`);
-        if (joinBtn) {
-            joinBtn.disabled = true;
-            joinBtn.innerHTML = `
-                <svg style="animation: spin 1s linear infinite; width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Joining...
-            `;
-        }
+    // Optimized community card creation
+    function createCommunityCard(community, index) {
+        const communityCard = document.createElement("div");
+        communityCard.classList.add("community-card");
+        communityCard.style.opacity = '0';
+        communityCard.style.transform = 'translateY(30px)';
+        
+        const isJoined = community.isJoined === true;
+        const buttonText = isJoined ? 'Joined ' : 'Join now';
+        const buttonClass = isJoined ? 'joinnow joined' : 'joinnow';
+        
+        communityCard.innerHTML = `
+            <div class="community-header">
+                <img src="${community.imageUrl || '/images/community_logo.png'}" 
+                     alt="${community.name}" 
+                     onerror="this.src='/images/community_logo.png'">
+                <span class="member-count">${community.memberCount || 0} members</span>
+            </div>
+            <div class="community-body">
+                <h3>${community.name}</h3>
+                <p>${community.description || 'No description available.'}</p>
+                <button type="button" class="${buttonClass}" 
+                        data-community-id="${community.id}" 
+                        ${isJoined ? 'disabled' : ''}>${buttonText}</button>
+            </div>
+        `;
+        
+        // Staggered animation
+        setTimeout(() => {
+            communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            communityCard.style.opacity = '1';
+            communityCard.style.transform = 'translateY(0)';
+        }, 50 + (index * 50)); // Reduced delay for faster loading
+        
+        return communityCard;
+    }
 
+    // Attach community event listeners
+    function attachCommunityEventListeners() {
+        document.querySelectorAll(".joinnow:not(.joined):not([disabled])").forEach(button => {
+            button.addEventListener("click", async function() {
+                const communityId = this.dataset.communityId;
+                const communityName = this.closest('.community-card').querySelector('h3').textContent;
+                await joinCommunity(communityId, communityName, this);
+            });
+        });
+    }
+
+    // Optimized join community function
+    async function joinCommunity(communityId, communityName, buttonElement) {
+        if (!communityId) return;
+        
+        const originalText = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = 'Joining...';
+        
         try {
-            const response = await fetch(`${API_BASE_URL}/user/communities/join`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({ communityId: communityId })
+            const token = localStorage.getItem("token");
+            if (!token) {
+                showNotification("You must be logged in to join a community.", 'error');
+                return;
+            }
+
+            const response = await fetch(`${API_BASE_URL}/communities/join`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ communityId }),
+                signal: AbortSignal.timeout(10000)
             });
 
             if (response.ok) {
                 showNotification(`Successfully joined ${communityName}!`, 'success');
-                // Update button state
-                if (joinBtn) {
-                    joinBtn.innerHTML = 'Joined ✓';
-                    joinBtn.style.background = 'linear-gradient(135deg, var(--success-color), #059669)';
-                    joinBtn.disabled = false;
-                }
-                // Optionally, refresh communities to update member counts
-                fetchAllCommunities();
+                buttonElement.innerHTML = 'Joined ✓';
+                buttonElement.classList.add('joined');
+                buttonElement.disabled = true;
             } else {
-                const errorData = await response.json();
-                showNotification(`Failed to join ${communityName}: ${errorData.message || response.statusText}`, 'error');
+                const errorData = await response.json().catch(() => ({}));
+                showNotification(`Failed to join ${communityName}: ${errorData.message || 'Unknown error'}`, 'error');
+                buttonElement.innerHTML = originalText;
+                buttonElement.disabled = false;
             }
         } catch (error) {
             console.error("Error joining community:", error);
-            showNotification("An error occurred while trying to join the community.", 'error');
-        } finally {
-            if (joinBtn) {
-                joinBtn.disabled = false;
-                if (joinBtn.innerHTML.includes('Joining')) {
-                    joinBtn.innerHTML = 'Join now';
-                }
-            }
+            showNotification("Network error. Please try again.", 'error');
+            buttonElement.innerHTML = originalText;
+            buttonElement.disabled = false;
         }
     }
 
-    // Fetch Posts with enhanced animations
+    // Heavily optimized posts fetch
     async function fetchPosts() {
-        showLoading(postContainer);
-
+        if (!domCache.postContainer) return;
+        
+        // Show loading immediately
+        domCache.postContainer.innerHTML = '<div class="loading" style="text-align: center; padding: 40px; color: #64748b;">Loading posts...</div>';
+        
         try {
-            const response = await fetch(`${API_BASE_URL}/posts/all`, { headers: getAuthHeaders() }); // Assuming an API for all posts
-            const posts = await response.json();
-            postContainer.innerHTML = ""; // Clear existing static content
+            const response = await fetch(`${API_BASE_URL}/posts?page=0&size=10&sortBy=createdAt&sortDir=desc`, {
+                headers: getAuthHeaders(),
+                signal: AbortSignal.timeout(10000)
+            });
 
-            if (response.ok && posts && posts.length > 0) {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const posts = data.content || [];
+            
+            // Use DocumentFragment for better performance
+            const fragment = document.createDocumentFragment();
+            
+            if (posts.length > 0) {
                 posts.forEach((post, index) => {
-                    const postElement = document.createElement("div");
-                    postElement.classList.add("post");
-                    postElement.style.opacity = '0';
-                    postElement.style.transform = 'translateY(30px)';
-                    postElement.innerHTML = `
-                        <img src="${post.imageUrl || 'https://via.placeholder.com/600x200?text=Post'}" alt="${post.title}">
-                        <h3>${post.title}</h3>
-                        <p>${post.content}</p>
-                        <div class="actions">
-                            <button class="btn like-btn" data-post-id="${post.id}" onclick="likePost(this)">Like ❤️</button>
-                            <button class="btn share-btn" onclick="sharePost()">Share 🔄</button>
-                            <button class="btn join-btn" data-community-id="${post.communityId}" onclick="toggleJoin(this)">Join Community</button>
-                        </div>
-                    `;
-                    postContainer.appendChild(postElement);
-
-                    // Staggered animation
-                    setTimeout(() => {
-                        postElement.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                        postElement.style.opacity = '1';
-                        postElement.style.transform = 'translateY(0)';
-                    }, 100 + (index * 100));
+                    const postElement = createPostElement(post, index);
+                    fragment.appendChild(postElement);
                 });
-
+                
+                // Single DOM update
+                domCache.postContainer.innerHTML = "";
+                domCache.postContainer.appendChild(fragment);
+                
                 // Update post count
-                const postCountElement = document.querySelector('.post-count');
-                if (postCountElement) {
-                    postCountElement.textContent = `${posts.length} posts`;
+                if (domCache.postCount) {
+                    domCache.postCount.textContent = `${data.totalElements || posts.length} posts`;
                 }
+                
+                // Attach event listeners
+                attachPostEventListeners();
+                
             } else {
-                postContainer.innerHTML = "<p style='text-align: center; color: var(--text-muted); padding: 2rem; grid-column: 1 / -1;'>No posts available.</p>";
+                domCache.postContainer.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 60px 20px; color: #64748b;">
+                        <h3>No posts available</h3>
+                        <p>Be the first to share something!</p>
+                    </div>
+                `;
+                if (domCache.postCount) {
+                    domCache.postCount.textContent = "0 posts";
+                }
             }
         } catch (error) {
             console.error("Error fetching posts:", error);
-            postContainer.innerHTML = "<p style='text-align: center; color: var(--error-color); padding: 2rem; grid-column: 1 / -1;'>Failed to load posts.</p>";
-        } finally {
-            hideLoading(postContainer);
+            domCache.postContainer.innerHTML = `
+                <div class="empty-state" style="text-align: center; padding: 60px 20px; color: #ef4444;">
+                    <h3>Failed to load posts</h3>
+                    <p>Please check your connection and try again.</p>
+                    <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #6366f1; color: white; border: none; border-radius: 8px; cursor: pointer;">Retry</button>
+                </div>
+            `;
+            if (domCache.postCount) {
+                domCache.postCount.textContent = "0 posts";
+            }
         }
     }
 
-    // Fetch Communities for Select Dropdown with enhanced styling
+    // Optimized post element creation
+    function createPostElement(post, index = 0) {
+        const postElement = document.createElement('article');
+        postElement.className = 'post';
+        postElement.style.opacity = '0';
+        postElement.style.transform = 'translateY(30px)';
+        console.log(post);
+       // console.log("community name", post.communityName);
+        //console.log(`${post?.communityName || 'Unknown Community'}`);
+        
+        // Determine join button state
+        const isJoined = post.owner === true;
+        //console.log(`${post.owner}?.${.isJoined} === ${true}`);
+        
+        //console.log("isJoined",isJoined);
+        
+        const joinButtonText = isJoined ? 'Joined ' : 'Join';
+        const joinButtonClass = isJoined ? 'join-btn joined' : 'join-btn';
+        const joinButtonDisabled = isJoined ? 'disabled' : '';
+        
+        // Get user role display
+        const getUserRoleDisplay = (role) => {
+            const roleMap = {
+                'STUDENT': 'Student',
+                'ALUMNI': 'Alumni', 
+                'TEACHER': 'Teacher',
+                'ADMIN': 'Admin',
+                'FACULTY': 'Faculty',
+                'STAFF': 'Staff'
+            };
+            return roleMap[role?.toUpperCase()] || 'Member';
+        };
+        
+        postElement.innerHTML = `
+            <div class="post-header">
+                <div class="post-meta">
+                    <div class="author-info">
+                        <img src="${post.authorProfilePicture || '/images/profile_pic.png'}" 
+                             alt="${post.authorName || 'User'}" 
+                             class="author-avatar"
+                             onerror="this.src='/images/profile_pic.png'">
+                        <div class="author-details">
+                            <span class="author-name">${post.authorName || 'Anonymous'}</span>
+                            <span class="author-role">${getUserRoleDisplay(post.authorRole)}</span>
+                        </div>
+                    </div>
+                    <div class="post-time">
+                        ${post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ''}
+                    </div>
+                </div>
+            </div>
+
+            ${post.imageUrl ? `<img src="${post.imageUrl}" 
+                 alt="${post.title}" 
+                 class="post-image"
+                 onerror="this.style.display='none'">` : ''}
+                 
+            <div class="post-content">
+                <h3 class="post-title">${post.title}</h3>
+                <p class="post-text">${post.content}</p>
+                
+                <div class="post-actions">
+                    <div class="action-buttons">
+                        <button class="action-btn like-btn ${post.isLiked ? 'liked' : ''}" data-post-id="${post.id}">
+                            <svg fill="${post.isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            <span class="like-count">${post.likeCount || 0}</span>
+                        </button>
+                        
+                        <button class="${joinButtonClass}" 
+                                data-community-id="${post.community?.id}" 
+                                data-community-name="${post.community?.name}"
+                                ${joinButtonDisabled}>
+                            ${joinButtonText}
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="post-footer">
+                    <div class="community-info">
+                        <img src="${post.community?.imageUrl || '/images/community_logo.png'}" 
+                             alt="${post.community?.name || 'Community'}" 
+                             class="community-avatar"
+                             onerror="this.src='/images/community_logo.png'">
+                        <span class="community-name">Posted in ${post?.communityName || 'Unknown Community'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Faster animation
+        setTimeout(() => {
+            postElement.style.transition = 'all 0.4s ease';
+            postElement.style.opacity = '1';
+            postElement.style.transform = 'translateY(0)';
+        }, 50 + (index * 30));
+        
+        return postElement;
+    }
+
+    // Attach post event listeners
+    function attachPostEventListeners() {
+        // Like buttons
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('liked');
+                const isLiked = this.classList.contains('liked');
+                this.style.color = isLiked ? '#ef4444' : '';
+                this.querySelector('svg').style.fill = isLiked ? 'currentColor' : 'none';
+                showNotification(isLiked ? 'Post liked!' : 'Post unliked!', 'success');
+            });
+        });
+
+        
+    }
+
+    // Optimized communities for select dropdown
     async function fetchCommunitiesForSelect() {
+        if (!domCache.communitySelect) return;
+        
         try {
-            const response = await fetch(`${API_BASE_URL}/user/communities`, { headers: getAuthHeaders() });
+            const response = await fetch(`${API_BASE_URL}/communities/join`, { 
+                headers: getAuthHeaders(),
+                signal: AbortSignal.timeout(5000)
+            });
             const communities = await response.json();
 
-            communitySelect.innerHTML = '<option value="" disabled>Choose a community...</option>';
+            domCache.communitySelect.innerHTML = '<option value="" disabled selected>Choose a community...</option>';
 
             if (response.ok && communities && communities.length > 0) {
                 communities.forEach(community => {
                     const option = document.createElement("option");
                     option.value = community.id;
                     option.textContent = community.name;
-                    communitySelect.appendChild(option);
+                    domCache.communitySelect.appendChild(option);
                 });
             } else {
                 const option = document.createElement("option");
                 option.value = "";
                 option.textContent = "No communities available";
                 option.disabled = true;
-                communitySelect.appendChild(option);
+                domCache.communitySelect.appendChild(option);
             }
         } catch (error) {
             console.error("Error fetching communities for select:", error);
-            const option = document.createElement("option");
-            option.value = "";
-            option.textContent = "Error loading communities";
-            option.disabled = true;
-            communitySelect.appendChild(option);
+            domCache.communitySelect.innerHTML = '<option value="" disabled>Error loading communities</option>';
         }
     }
 
-    // Enhanced Create Post Form Submission
-    createPostForm.addEventListener("submit", async function(e) {
-        e.preventDefault();
-
-        // Get form data
-        const selectedCommunities = Array.from(communitySelect.selectedOptions).map(option => option.value);
-        const title = postTitleInput.value.trim();
-        const content = postContentTextarea.value.trim();
-        const image = postImageInput.files[0];
-
-        // Enhanced validation
-        if (selectedCommunities.length === 0) {
-            showNotification("Please select at least one community", 'error');
-            communitySelect.focus();
-            return;
+    // Initialize UI enhancements
+    function initializeUIEnhancements() {
+        // Create post toggle
+        const toggleBtn = document.getElementById('createPostToggle');
+        const createPostSection = document.getElementById('createPostSection');
+        
+        if (toggleBtn && createPostSection) {
+            toggleBtn.addEventListener('click', function() {
+                const isVisible = createPostSection.style.display !== 'none';
+                
+                if (isVisible) {
+                    createPostSection.style.display = 'none';
+                    toggleBtn.classList.remove('active');
+                } else {
+                    createPostSection.style.display = 'block';
+                    toggleBtn.classList.add('active');
+                    setTimeout(() => {
+                        createPostSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            });
         }
 
-        if (!title) {
-            showNotification("Please enter a post title", 'error');
-            postTitleInput.focus();
-            return;
+        // Form submission
+        if (domCache.createPostForm) {
+            domCache.createPostForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData();
+                const communitySelect = document.getElementById('communitySelect');
+                const postTitle = document.getElementById('postTitle');
+                const postContent = document.getElementById('postContent');
+                const postImage = document.getElementById('postImage');
+                
+                if (!communitySelect.value || !postTitle.value.trim() || !postContent.value.trim()) {
+                    showNotification("Please fill in all required fields", 'error');
+                    return;
+                }
+                
+                formData.append('title', postTitle.value.trim());
+                formData.append('content', postContent.value.trim());
+                formData.append('communities', JSON.stringify([communitySelect.value]));
+                
+                if (postImage.files[0]) {
+                    formData.append('image', postImage.files[0]);
+                }
+                
+                const publishBtn = document.getElementById('publishPostBtn');
+                const originalText = publishBtn.innerHTML;
+                publishBtn.disabled = true;
+                publishBtn.innerHTML = 'Publishing...';
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/communities/${communitySelect.value}/posts`, {
+                        method: 'POST',
+                        headers: {
+                            ...(localStorage.getItem("token") && { "Authorization": "Bearer " + localStorage.getItem("token") })
+                        },
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        showNotification("Post published successfully!", 'success');
+                        domCache.createPostForm.reset();
+                        fetchPosts(); // Refresh posts
+                    } else {
+                        const errorData = await response.json().catch(() => ({}));
+                        showNotification(`Failed to publish: ${errorData.message || 'Unknown error'}`, 'error');
+                    }
+                } catch (error) {
+                    console.error("Error creating post:", error);
+                    showNotification("Network error. Please try again.", 'error');
+                } finally {
+                    publishBtn.disabled = false;
+                    publishBtn.innerHTML = originalText;
+                }
+            });
         }
+    }
 
-        if (!content) {
-            showNotification("Please enter post content", 'error');
-            postContentTextarea.focus();
-            return;
-        }
-
-        // Show loading state on publish button
-        publishPostBtn.disabled = true;
-        publishPostBtn.innerHTML = `
-            <svg style="animation: spin 1s linear infinite; width: 16px; height: 16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path style="opacity: 0.75;" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Publishing...
-        `;
-
+    // Main initialization - Run all tasks in parallel for faster loading
+    async function initialize() {
         try {
-            // Create FormData for file upload if image is selected
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('content', content);
-            formData.append('communities', JSON.stringify(selectedCommunities));
-
-            if (image) {
-                formData.append('image', image);
-            }
-
-            const response = await fetch(`${API_BASE_URL}/posts/create`, {
-                method: 'POST',
-                headers: {
-                    ...(localStorage.getItem("token") && { "Authorization": "Bearer " + localStorage.getItem("token") })
-                },
-                body: formData
-            });
-
-            if (response.ok) {
-                showNotification("Post published successfully!", 'success');
-                // Clear form
-                createPostForm.reset();
-                // Update file upload display
-                const uploadInfo = document.querySelector('.upload-info span');
-                if (uploadInfo) {
-                    uploadInfo.textContent = 'Drag and drop an image here, or click to browse';
-                }
-                const uploadGroup = document.querySelector('.upload-group');
-                if (uploadGroup) {
-                    uploadGroup.style.borderColor = 'var(--border-color)';
-                    uploadGroup.style.background = 'var(--background-color)';
-                }
-                // Refresh posts
-                fetchPosts();
-            } else {
-                const errorData = await response.json();
-                showNotification(`Failed to publish post: ${errorData.message || response.statusText}`, 'error');
-            }
+            // Initialize UI enhancements immediately
+            initializeUIEnhancements();
+            
+            // Run all API calls in parallel
+            const promises = [
+                fetchUserProfile(),
+                fetchAllCommunities(), 
+                fetchPosts(),
+                fetchCommunitiesForSelect()
+            ];
+            
+            // Wait for all promises to complete
+            await Promise.allSettled(promises);
+            
+            console.log("Dashboard initialized successfully");
         } catch (error) {
-            console.error("Error creating post:", error);
-            showNotification("An error occurred while publishing the post.", 'error');
-        } finally {
-            // Reset publish button
-            publishPostBtn.disabled = false;
-            publishPostBtn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m22 2-7 20-4-9-9-4Z"/>
-                    <path d="M22 2 11 13"/>
-                </svg>
-                Publish Post
-            `;
+            console.error("Error initializing dashboard:", error);
+            showNotification("Some features may not work properly. Please refresh the page.", 'error');
         }
-    });
+    }
 
-    // Enhanced Clear Form Button
-    clearPostBtn.addEventListener("click", function() {
-        if (confirm("Are you sure you want to clear all fields?")) {
-            createPostForm.reset();
-            // Reset file upload display
-            const uploadInfo = document.querySelector('.upload-info span');
-            if (uploadInfo) {
-                uploadInfo.textContent = 'Drag and drop an image here, or click to browse';
-            }
-            const uploadGroup = document.querySelector('.upload-group');
-            if (uploadGroup) {
-                uploadGroup.style.borderColor = 'var(--border-color)';
-                uploadGroup.style.background = 'var(--background-color)';
-            }
-            // Clear any validation styling
-            const inputs = createPostForm.querySelectorAll('input, textarea, select');
-            inputs.forEach(input => {
-                input.style.borderColor = 'var(--border-color)';
-                input.style.boxShadow = 'none';
-                const errorMsg = input.parentNode.querySelector('.field-error');
-                if (errorMsg) errorMsg.remove();
-            });
-            showNotification("Form cleared", 'info');
-        }
-    });
-
-    // Add CSS for spinning animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Initialize everything
-    animateElementsOnLoad();
-    await fetchUserProfile();
-    await fetchAllCommunities();
-    await fetchPosts();
-    await fetchCommunitiesForSelect();
+    // Start initialization
+    initialize();
 });

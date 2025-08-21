@@ -1,3 +1,4 @@
+
 /* Profile-specific styles extending Dashboard.css */
 
 /* Ensure all elements don't overflow */
@@ -328,41 +329,7 @@
   max-width: 100%;
 }
 
-/* Activity Stats */
-.activity-stats .stats-grid {
-  padding: 2rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  width: 100%;
-  box-sizing: border-box;
-}
 
-.stat-item {
-  text-align: center;
-  padding: 1rem;
-  border-radius: var(--border-radius-sm);
-  background: linear-gradient(135deg, var(--background-color), #f8fafc);
-  border: 1px solid var(--border-light);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--primary-color);
-  margin-bottom: 0.25rem;
-  word-wrap: break-word;
-}
-
-.stat-label {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
 
 /* Social Links Section */
 .social-links-section .section-header .edit-btn {

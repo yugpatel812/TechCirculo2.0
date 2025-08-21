@@ -2,6 +2,30 @@
 document.addEventListener("DOMContentLoaded", function () {
     const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
 
+    // Helper to get auth headers
+    function getAuthHeaders() {
+        const token = localStorage.getItem("token");
+        return {
+            "Content-Type": "application/json",
+            ...(token && { "Authorization": "Bearer " + token })
+        };
+    }
+
+    // Loading states
+    function showLoading(element) {
+        if (element) {
+            element.classList.add('loading');
+            element.style.pointerEvents = 'none';
+        }
+    }
+
+    function hideLoading(element) {
+        if (element) {
+            element.classList.remove('loading');
+            element.style.pointerEvents = 'auto';
+        }
+    }
+
     // Enhanced notification system
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
@@ -54,13 +78,75 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 4500);
     }
 
-    // Helper to get auth headers
-    function getAuthHeaders() {
-        const token = localStorage.getItem("token");
-        return {
-            "Content-Type": "application/json",
-            ...(token && { "Authorization": "Bearer " + token })
-        };
+    // Fetch user profile for header - SINGLE DEFINITION
+    async function fetchUserProfile() {
+        const userProfileName = document.getElementById("user-profile-name");
+        const userProfileImage = document.getElementById("user-profile-image");
+        const greetingText = document.getElementById("greeting-text");
+
+        //console.log("Fetching user profile...");
+        
+
+        // Show loading states
+        const profileElements = [userProfileName, userProfileImage, greetingText];
+        profileElements.forEach(el => el && showLoading(el));
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
+           // console.log("Profile API response status:", response.status);
+            
+            if (response.ok) {
+                const userData = await response.json();
+                //console.log("User data received:", userData);
+                
+                if (userProfileName) {
+                    userProfileName.textContent = userData.name || "User";
+                }
+                if (userProfileImage) {
+                    userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
+                    userProfileImage.onerror = function() {
+                        this.src = "/images/profile_pic.png";
+                        console.log("Failed to load profile image, using fallback");
+                    };
+                }
+                if (greetingText) {
+                    greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
+                }
+                
+                //showNotification("Profile loaded successfully!", 'success');
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.warn("Failed to fetch user profile:", errorData.message || response.statusText);
+                
+                // Fallback to static data
+                if (userProfileName) userProfileName.textContent = "Guest";
+                if (userProfileImage) {
+                    userProfileImage.src = "/images/profile_pic.png";
+                    userProfileImage.onerror = function() {
+                        this.src = "https://via.placeholder.com/44x44?text=G";
+                    };
+                }
+                if (greetingText) greetingText.textContent = "Welcome, Guest!";
+                
+                showNotification("Could not load profile, using guest mode", 'info');
+            }
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            
+            // Fallback to static data
+            if (userProfileName) userProfileName.textContent = "Guest";
+            if (userProfileImage) {
+                userProfileImage.src = "/images/profile_pic.png";
+                userProfileImage.onerror = function() {
+                    this.src = "https://via.placeholder.com/44x44?text=G";
+                };
+            }
+            if (greetingText) greetingText.textContent = "Welcome, Guest!";
+            
+            showNotification("Failed to load profile", 'error');
+        } finally {
+            profileElements.forEach(el => el && hideLoading(el));
+        }
     }
 
     // DOM Elements
@@ -78,6 +164,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize the page
     async function initializePage() {
+       // console.log("Initializing page...");
+        
+        // Fetch user profile first
+        await fetchUserProfile();
+        
+        // Then initialize other components
         await fetchAnnouncements();
         initializeEventListeners();
         updateUrgentBadge();
@@ -88,24 +180,29 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             showLoadingState();
             const response = await fetch(`${API_BASE_URL}/announcements`, { headers: getAuthHeaders() });
-            const data = await response.json();
-
-            if (response.ok && data && data.length > 0) {
-                announcements = data.map(ann => ({
-                    ...ann,
-                    date: new Date(ann.date || Date.now()).getTime(),
-                    priority: ann.priority || 'normal',
-                    category: ann.category || 'general',
-                    read: ann.read || false,
-                    bookmarked: ann.bookmarked || false
-                }));
-                filteredAnnouncements = [...announcements];
-                renderAnnouncements();
-            } else {
-                // Keep static announcements as fallback
-                initializeStaticAnnouncements();
-                renderAnnouncements();
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    announcements = data.map(ann => ({
+                        ...ann,
+                        date: new Date(ann.date || Date.now()).getTime(),
+                        priority: ann.priority || 'normal',
+                        category: ann.category || 'general',
+                        read: ann.read || false,
+                        bookmarked: ann.bookmarked || false
+                    }));
+                    filteredAnnouncements = [...announcements];
+                    renderAnnouncements();
+                    return;
+                }
             }
+            
+            // Fallback to static announcements
+           // console.log("Using static announcements as fallback");
+            initializeStaticAnnouncements();
+            renderAnnouncements();
+            
         } catch (error) {
             console.error("Error fetching announcements:", error);
             // Keep static announcements as fallback
@@ -257,26 +354,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Show loading state
     function showLoadingState() {
-        announcementsList.innerHTML = '';
-        for (let i = 0; i < 4; i++) {
-            const skeleton = document.createElement('div');
-            skeleton.className = 'loading-skeleton skeleton-announcement';
-            announcementsList.appendChild(skeleton);
+        if (announcementsList) {
+            announcementsList.innerHTML = '';
+            for (let i = 0; i < 4; i++) {
+                const skeleton = document.createElement('div');
+                skeleton.className = 'loading-skeleton skeleton-announcement';
+                announcementsList.appendChild(skeleton);
+            }
         }
     }
 
     // Render empty state
     function renderEmptyState() {
-        announcementsList.innerHTML = `
-            <div class="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-                </svg>
-                <h3>No announcements found</h3>
-                <p>Try adjusting your filters or search terms.</p>
-            </div>
-        `;
+        if (announcementsList) {
+            announcementsList.innerHTML = `
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                    </svg>
+                    <h3>No announcements found</h3>
+                    <p>Try adjusting your filters or search terms.</p>
+                </div>
+            `;
+        }
     }
 
     // Filter announcements
@@ -426,26 +527,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // Bookmark buttons (event delegation)
-        announcementsList.addEventListener('click', (e) => {
-            if (e.target.closest('.bookmark-btn')) {
-                e.preventDefault();
-                const btn = e.target.closest('.bookmark-btn');
-                const announcementId = btn.dataset.announcementId;
-                toggleBookmark(announcementId);
-            }
-        });
-
-        // Card click to mark as read
-        announcementsList.addEventListener('click', (e) => {
-            if (e.target.closest('.announcement-card') && !e.target.closest('.bookmark-btn')) {
-                const card = e.target.closest('.announcement-card');
-                const announcementId = card.querySelector('.bookmark-btn').dataset.announcementId;
-                const announcement = announcements.find(a => a.id == announcementId);
-                if (announcement && !announcement.read) {
-                    toggleRead(announcementId);
+        if (announcementsList) {
+            announcementsList.addEventListener('click', (e) => {
+                if (e.target.closest('.bookmark-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.closest('.bookmark-btn');
+                    const announcementId = btn.dataset.announcementId;
+                    toggleBookmark(announcementId);
                 }
-            }
-        });
+            });
+
+            // Card click to mark as read
+            announcementsList.addEventListener('click', (e) => {
+                if (e.target.closest('.announcement-card') && !e.target.closest('.bookmark-btn')) {
+                    const card = e.target.closest('.announcement-card');
+                    const announcementId = card.querySelector('.bookmark-btn').dataset.announcementId;
+                    const announcement = announcements.find(a => a.id == announcementId);
+                    if (announcement && !announcement.read) {
+                        toggleRead(announcementId);
+                    }
+                }
+            });
+        }
     }
 
     // Debounce function for search

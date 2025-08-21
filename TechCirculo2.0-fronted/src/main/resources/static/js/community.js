@@ -2,6 +2,25 @@
 
 document.addEventListener("DOMContentLoaded", async function () {
     const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
+    // ✅ Auto-attach JWT token to all fetch calls
+const originalFetch = window.fetch;
+window.fetch = async (...args) => {
+    let [resource, config] = args;
+
+    // Get token from localStorage
+    const token = localStorage.getItem("jwtToken");
+
+    // If token exists, attach Authorization header
+    if (token) {
+        config = config || {};
+        config.headers = {
+            ...config.headers,
+            "Authorization": `Bearer ${token}`
+        };
+    }
+
+    return originalFetch(resource, config);
+};
 
     // Enhanced notification system
     function showNotification(message, type = 'success') {
@@ -145,26 +164,43 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     // Fetch user profile for header
-    async function fetchUserProfile() {
-        const userProfileName = document.getElementById("user-profile-name");
-        const userProfileImage = document.getElementById("user-profile-image");
-        const greetingText = document.getElementById("greeting-text");
+   async function fetchUserProfile() {
+    const userProfileName = document.getElementById("user-profile-name");
+    const userProfileImage = document.getElementById("user-profile-image");
+    const greetingText = document.getElementById("greeting-text");
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/user/profile`, { headers: getAuthHeaders() });
-            const userData = await handleApiResponse(response, "Failed to fetch user profile");
-            
+    try {
+        const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
+        const userData = await handleApiResponse(response, "Failed to fetch user profile");
+        
+        if (userProfileName) {
             userProfileName.textContent = userData.name || "User";
-            userProfileImage.src = userData.profilePic || "https://via.placeholder.com/44x44?text=User";
-            greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-            // Fallback to static data
-            userProfileName.textContent = "Guest";
-            userProfileImage.src = "https://via.placeholder.com/44x44?text=G";
-            greetingText.textContent = "Welcome, Guest!";
         }
+        
+        if (userProfileImage) {
+            userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
+            userProfileImage.onerror = function() {
+                this.src = "/images/profile_pic.png";
+                console.log("Failed to load profile image, using fallback");
+            };
+        }
+        
+        if (greetingText) {
+            greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
+        }
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to static data
+        if (userProfileName) userProfileName.textContent = "Guest";
+        if (userProfileImage) {
+            userProfileImage.src = "/images/profile_pic.png";
+            userProfileImage.onerror = function() {
+                this.src = "https://via.placeholder.com/44x44?text=G";
+            };
+        }
+        if (greetingText) greetingText.textContent = "Welcome, Guest!";
     }
+}
 
     // Fetch all available communities - FIXED URL
     async function fetchAllCommunities() {
@@ -194,7 +230,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             showLoadingState(joinedCommunitiesGrid, 'communities');
             // FIXED: Added missing slash before 'communities'
-            const response = await fetch(`${API_BASE_URL}/communities/user/communities/joined`, { headers: getAuthHeaders() });
+            const response = await fetch(`${API_BASE_URL}/communities/join`, { headers: getAuthHeaders() });
             const communities = await handleApiResponse(response, "Failed to fetch joined communities");
 
             if (communities && communities.length > 0) {
@@ -216,99 +252,114 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Render communities in grid
-    function renderCommunities(container, communities, isJoined) {
-        container.innerHTML = '';
+   function renderCommunities(container, communities) {
+    container.innerHTML = '';
 
-        communities.forEach((community, index) => {
-            const communityCard = document.createElement('div');
-            communityCard.className = 'community-card';
-            communityCard.style.opacity = '0';
-            communityCard.style.transform = 'translateY(20px)';
+    communities.forEach((community, index) => {
+        const communityCard = document.createElement('div');
+        communityCard.className = 'community-card';
+        communityCard.style.opacity = '0';
+        communityCard.style.transform = 'translateY(20px)';
 
-            const isTrending = Math.random() > 0.7; // Random trending for demo
+        const isTrending = Math.random() > 0.7; // Random trending for demo
 
-            communityCard.innerHTML = `
-                <div class="community-card-header">
-                    ${isTrending ? '<div class="community-trending">Trending</div>' : ''}
-                    <img src="${community.imageUrl || `https://via.placeholder.com/400x140/6366f1/ffffff?text=${encodeURIComponent(community.name)}`}" 
-                         alt="${community.name}" />
-                </div>
-                <div class="community-card-body">
-                    <h3 class="community-title">${community.name}</h3>
-                    <p class="community-description">${community.description || 'No description available.'}</p>
-                    
-                    <div class="community-stats">
-                        <div class="stat-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 19a6 6 0 0 0-12 0" />
-                                <circle cx="8" cy="9" r="4" />
-                                <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
-                            </svg>
-                            <span>${community.memberCount || 0} members</span>
-                        </div>
-                        <div class="stat-item">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14,2 14,8 20,8"/>
-                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                <line x1="16" y1="17" x2="8" y2="17"/>
-                            </svg>
-                            <span>${community.postCount || 0} posts</span>
-                        </div>
+        // Create the image element with proper error handling
+        const img = document.createElement('img');
+        const defaultImage = '/images/community_logo.png';
+
+        img.onerror = function () {
+            this.src = defaultImage;
+        };
+
+        img.src = community?.imageUrl || defaultImage;
+        img.alt = community?.name || 'Community';
+
+        const isJoined = community?.isJoined === true; // <- check per community
+
+        communityCard.innerHTML = `
+            <div class="community-card-header">
+                ${isTrending ? '<div class="community-trending">Trending</div>' : ''}
+                <div class="community-image-container"></div>
+            </div>
+            <div class="community-card-body">
+                <h3 class="community-title">${community?.name || 'Unnamed Community'}</h3>
+                <p class="community-description">${community?.description || 'No description available.'}</p>
+                
+                <div class="community-stats">
+                    <div class="stat-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 19a6 6 0 0 0-12 0" />
+                            <circle cx="8" cy="9" r="4" />
+                            <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+                        </svg>
+                        <span>${community?.memberCount ?? 0} members</span>
                     </div>
-                    
-                    <div class="community-category">${community.category || 'General'}</div>
-                    
-                    <div class="community-actions">
-                        <button class="view-btn" data-community-id="${community.id}">View</button>
-                        ${isJoined ?
-                `<button class="leave-btn" data-community-id="${community.id}" data-community-name="${community.name}">Leave</button>` :
-                `<button class="join-btn" data-community-id="${community.id}" data-community-name="${community.name}">Join</button>`
+                    <div class="stat-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        <span>${community?.postCount ?? 0} posts</span>
+                    </div>
+                </div>
+                
+                <div class="community-category">${community?.category || 'General'}</div>
+                
+                <div class="community-actions">
+                    <button class="view-btn" data-community-id="${community?.id}">View</button>
+                    ${isJoined
+                        ? `<button class="leave-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Leave</button>`
+                        : `<button class="join-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Join</button>`
+                    }
+                </div>
+            </div>
+        `;
+
+        // Insert the image element in the community-image-container
+        const imageContainer = communityCard.querySelector('.community-image-container');
+        imageContainer.appendChild(img);
+
+        container.appendChild(communityCard);
+
+        // Animate in with stagger
+        setTimeout(() => {
+            communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            communityCard.style.opacity = '1';
+            communityCard.style.transform = 'translateY(0)';
+        }, 100 + (index * 50));
+    });
+
+    // Event listeners
+    container.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const communityId = e.target.dataset.communityId;
+            const community = communities.find(c => c.id === communityId);
+            if (community) {
+                showCommunityDetail(community);
             }
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(communityCard);
-
-            // Animate in with stagger
-            setTimeout(() => {
-                communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                communityCard.style.opacity = '1';
-                communityCard.style.transform = 'translateY(0)';
-            }, 100 + (index * 50));
         });
+    });
 
-        // Add event listeners to buttons
-        container.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const communityId = e.target.dataset.communityId;
-                const community = communities.find(c => c.id === communityId);
-                if (community) {
-                    showCommunityDetail(community);
-                }
-            });
+    container.querySelectorAll('.join-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const communityId = e.target.dataset.communityId;
+            const communityName = e.target.dataset.communityName;
+            await joinCommunity(communityId, communityName, e.target);
         });
+    });
 
-        container.querySelectorAll('.join-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const communityId = e.target.dataset.communityId;
-                const communityName = e.target.dataset.communityName;
-                await joinCommunity(communityId, communityName, e.target);
-            });
+    container.querySelectorAll('.leave-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const communityId = e.target.dataset.communityId;
+            const communityName = e.target.dataset.communityName;
+            await leaveCommunity(communityId, communityName, e.target);
         });
-
-        container.querySelectorAll('.leave-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const communityId = e.target.dataset.communityId;
-                const communityName = e.target.dataset.communityName;
-                await leaveCommunity(communityId, communityName, e.target);
-            });
-        });
-    }
+    });
+}
 
     // Join community - FIXED URL
     async function joinCommunity(communityId, communityName, button) {
@@ -318,7 +369,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         try {
             // FIXED: Added missing slash before 'communities'
-            const response = await fetch(`${API_BASE_URL}/communities/user/communities/join`, {
+            const response = await fetch(`${API_BASE_URL}/communities/join`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 body: JSON.stringify({ communityId: communityId })
@@ -344,7 +395,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         button.disabled = true;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/user/communities/leave/${communityId}`, {
+            const response = await fetch(`${API_BASE_URL}/communities/leave/${communityId}`, {
                 method: 'DELETE',
                 headers: getAuthHeaders()
             });
@@ -365,7 +416,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Show community detail view
     function showCommunityDetail(community) {
         currentCommunityId = community.id;
-
+        //console.log(community);
+        
         // Update community info
         communityName.textContent = community.name;
         communityDescription.textContent = community.description || 'No description available.';
@@ -423,7 +475,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         members.forEach(member => {
             const memberItem = document.createElement('div');
             memberItem.className = 'member-item';
-
+            //console.log(member);
+            
             const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
             const roleClass = (member.role || 'student').toLowerCase();
 
@@ -431,10 +484,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <div class="member-avatar">${initials}</div>
                 <div class="member-info">
                     <div class="member-name">${member.name || 'Unknown User'}</div>
-                    <div class="member-role">${member.department || 'No department specified'}</div>
+                    <div class="member-role">${member.major || 'No department specified'}</div>
                 </div>
                 <div class="member-badge ${roleClass}">${member.role || 'Student'}</div>
-                <button class="view-profile-btn">View Profile</button>
+                <a href="profile.html"><button class="view-profile-btn">View Profile</button></a>
             `;
 
             membersList.appendChild(memberItem);
@@ -498,11 +551,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     async function loadCommunityPosts(communityId) {
         try {
             showLoadingState(postsList, 'posts');
+            console.log("community id : ${communityId}");
+            
             const response = await fetch(`${API_BASE_URL}/communities/${communityId}/posts`, { headers: getAuthHeaders() });
             const posts = await handleApiResponse(response, "Failed to load posts");
-
+            console.log(posts);
+            
             if (posts && posts.length > 0) {
                 renderPosts(posts);
+                communityPosts.textContent = `${posts.length} Posts`
                 postsTabCount.textContent = `(${posts.length})`;
             } else {
                 renderEmptyState(postsList, 'No posts yet', 'Be the first to start a conversation!');
@@ -523,14 +580,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             const postItem = document.createElement('div');
             postItem.className = 'post-item';
 
-            const authorInitials = post.author ? post.author.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+            const authorInitials = post.authorName ? post.authorName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
             const timeAgo = post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Recently';
 
             postItem.innerHTML = `
                 <div class="post-header">
                     <div class="post-author-avatar">${authorInitials}</div>
                     <div class="post-author-info">
-                        <div class="post-author-name">${post.author || 'Anonymous'}</div>
+                        <div class="post-author-name">${post.authorName || 'Anonymous'}</div>
                         <div class="post-time">${timeAgo}</div>
                     </div>
                 </div>
@@ -541,22 +598,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                         </svg>
-                        ${post.likes || 0}
+                        ${post.likesCount || 0}
                     </button>
-                    <button class="post-action comment-action">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        </svg>
-                        ${post.comments || 0}
-                    </button>
-                    <button class="post-action share-action">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                            <polyline points="16,6 12,2 8,6"/>
-                            <line x1="12" y1="2" x2="12" y2="15"/>
-                        </svg>
-                        Share
-                    </button>
+                    
                 </div>
             `;
 

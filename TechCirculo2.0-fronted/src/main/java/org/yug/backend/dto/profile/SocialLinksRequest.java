@@ -1,11 +1,11 @@
-// src/main/java/org/yug/backend/dto/profile/SocialLinksRequest.java
+//socialLinksRequest.java
 package org.yug.backend.dto.profile;
 
 import lombok.Data;
 
 @Data
 public class SocialLinksRequest {
-    private String linkedin;
-    private String github;
-    private String leetcode;
+    private String linkedinUrl;
+    private String githubUrl;
+    private String leetcodeUrl;
 }

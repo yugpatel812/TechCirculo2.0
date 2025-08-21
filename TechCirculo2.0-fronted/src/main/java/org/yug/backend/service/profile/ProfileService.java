@@ -1,112 +1,111 @@
-// src/main/java/org/yug/backend/service/ProfileService.java
 package org.yug.backend.service.profile;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.yug.backend.dto.profile.ProfileRequest;
-import org.yug.backend.dto.profile.ProfileResponse;
-import org.yug.backend.dto.profile.SocialLinksRequest;
+import org.yug.backend.dto.profile.*;
 import org.yug.backend.model.Profile;
 import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.ProfileRepository;
 import org.yug.backend.repository.UserRepository;
-import org.yug.backend.service.JwtService;
 
 @Service
+@RequiredArgsConstructor
 public class ProfileService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final ProfileRepository profileRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ProfileRepository profileRepository;
-
-    @Autowired
-    private JwtService jwtService; // To extract username from token
-
-    @Transactional(readOnly = true)
-    public ProfileResponse getUserProfile(String username) {
+    private Profile getOrCreateProfile(String username) {
         User user = userRepository.findByUsername(username);
-
-
-        Profile profile = user.getProfile(); // Assuming Profile is eagerly fetched or accessible
-        if (profile == null) {
-            // If a profile doesn't exist, create a new one with default values
-            profile = new Profile(user);
-            profile.setName(user.getUsername()); // Set name from username initially
-            profileRepository.save(profile);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found: " + username);
         }
 
-        return ProfileResponse.builder()
-                .name(profile.getName())
-                .email(user.getEmail()) // Email from User entity
-                .university(profile.getUniversity())
-                .profilePic(profile.getProfilePicUrl())
-                .socialLinks(ProfileResponse.SocialLinks.builder()
-                        .linkedin(profile.getLinkedinUrl())
-                        .github(profile.getGithubUrl())
-                        .leetcode(profile.getLeetcodeUrl())
-                        .build())
-                .build();
+        return profileRepository.findByUser_Username(username)
+                .orElseGet(() -> {
+                    Profile newProfile = new Profile();
+                    newProfile.setUser(user);
+                    // Set email from User entity as default
+                    newProfile.setEmail(user.getEmail());
+                    return profileRepository.save(newProfile);
+                });
+    }
+
+    public ProfileResponse getUserProfile(String username) {
+        Profile profile = getOrCreateProfile(username);
+        return mapToResponse(profile);
     }
 
     @Transactional
     public ProfileResponse updatePersonalInfo(String username, ProfileRequest request) {
-        User user = userRepository.findByUsername(username);
+        Profile profile = getOrCreateProfile(username);
 
+        if (request.getName() != null) profile.setName(request.getName());
+        if (request.getEmail() != null) profile.setEmail(request.getEmail());
+        if (request.getUniversity() != null) profile.setUniversity(request.getUniversity());
+        if (request.getMajor() != null) profile.setMajor(request.getMajor());
+        if (request.getLocation() != null) profile.setLocation(request.getLocation());
+        if (request.getBio() != null) profile.setBio(request.getBio());
+        if (request.getProfilePicUrl() != null) profile.setProfilePicUrl(request.getProfilePicUrl());
 
-        Profile profile = user.getProfile();
-        if (profile == null) {
-            profile = new Profile(user);
-        }
-
-        profile.setName(request.getName());
-        profile.setUniversity(request.getUniversity());
-        profile.setProfilePicUrl(request.getProfilePic());
-
-        profileRepository.save(profile); // Save changes to the profile
-
-        return ProfileResponse.builder()
-                .name(profile.getName())
-                .email(user.getEmail())
-                .university(profile.getUniversity())
-                .profilePic(profile.getProfilePicUrl())
-                .socialLinks(ProfileResponse.SocialLinks.builder()
-                        .linkedin(profile.getLinkedinUrl())
-                        .github(profile.getGithubUrl())
-                        .leetcode(profile.getLeetcodeUrl())
-                        .build())
-                .build();
+        profileRepository.save(profile);
+        return mapToResponse(profile);
     }
 
     @Transactional
     public ProfileResponse updateSocialLinks(String username, SocialLinksRequest request) {
-        User user = userRepository.findByUsername(username);
+        Profile profile = getOrCreateProfile(username);
 
+        if (request.getLinkedinUrl() != null) profile.setLinkedinUrl(request.getLinkedinUrl());
+        if (request.getGithubUrl() != null) profile.setGithubUrl(request.getGithubUrl());
+        if (request.getLeetcodeUrl() != null) profile.setLeetcodeUrl(request.getLeetcodeUrl());
 
-        Profile profile = user.getProfile();
-        if (profile == null) {
-            profile = new Profile(user);
-        }
+        profileRepository.save(profile);
+        return mapToResponse(profile);
+    }
 
-        profile.setLinkedinUrl(request.getLinkedin());
-        profile.setGithubUrl(request.getGithub());
-        profile.setLeetcodeUrl(request.getLeetcode());
+    @Transactional
+    public ProfileResponse updateProfilePic(String username, String fileUrl) {
+        Profile profile = getOrCreateProfile(username);
+        profile.setProfilePicUrl(fileUrl);
+        profileRepository.save(profile);
+        return mapToResponse(profile);
+    }
 
-        profileRepository.save(profile); // Save changes to the profile
+    @Transactional
+    public ProfileResponse updateFullProfile(String username, ProfileUpdateRequest request) {
+        Profile profile = getOrCreateProfile(username);
 
+        if (request.getName() != null) profile.setName(request.getName());
+        if (request.getEmail() != null) profile.setEmail(request.getEmail());
+        if (request.getUniversity() != null) profile.setUniversity(request.getUniversity());
+        if (request.getMajor() != null) profile.setMajor(request.getMajor());
+        if (request.getLocation() != null) profile.setLocation(request.getLocation());
+        if (request.getBio() != null) profile.setBio(request.getBio());
+        if (request.getProfilePicUrl() != null) profile.setProfilePicUrl(request.getProfilePicUrl());
+
+        if (request.getLinkedinUrl() != null) profile.setLinkedinUrl(request.getLinkedinUrl());
+        if (request.getGithubUrl() != null) profile.setGithubUrl(request.getGithubUrl());
+        if (request.getLeetcodeUrl() != null) profile.setLeetcodeUrl(request.getLeetcodeUrl());
+
+        profileRepository.save(profile);
+        return mapToResponse(profile);
+    }
+
+    private ProfileResponse mapToResponse(Profile profile) {
         return ProfileResponse.builder()
                 .name(profile.getName())
-                .email(user.getEmail())
+                .email(profile.getEmail())
                 .university(profile.getUniversity())
-                .profilePic(profile.getProfilePicUrl())
-                .socialLinks(ProfileResponse.SocialLinks.builder()
-                        .linkedin(profile.getLinkedinUrl())
-                        .github(profile.getGithubUrl())
-                        .leetcode(profile.getLeetcodeUrl())
-                        .build())
+                .major(profile.getMajor())
+                .location(profile.getLocation())
+                .bio(profile.getBio())
+                .profilePicUrl(profile.getProfilePicUrl())
+                .linkedinUrl(profile.getLinkedinUrl())
+                .githubUrl(profile.getGithubUrl())
+                .leetcodeUrl(profile.getLeetcodeUrl())
                 .build();
     }
 }

@@ -33,7 +33,7 @@
           <p>Sign in</p>
         </div>
 
-        <div class="error-message" id="loginError"></div>
+        <div class="error-message" id="loginError" style="display: none;"></div>
 
         <form id="loginFormElement">
           <div class="form-group">
@@ -68,11 +68,11 @@
 
           <button type="submit">Sign In</button>
         </form>
+        
         <form action="/oauth2/authorization/google" method="GET">
-         
           <button type="submit" class="login-with-google-btn">
-            <img src="download.svg">
-            Sign in with Google
+            <img src="images/google_logo.png" alt="Google logo" style="width: 20px; height: 20px;">
+            <p>Sign in with Google</p>
           </button>
         </form>
 
@@ -110,7 +110,7 @@
           </p>
         </div>
 
-        <div class="error-message" id="registerError"></div>
+        <div class="error-message" id="registerError" style="display: none;"></div>
 
         <form id="registerFormElement">
           <div class="form-group">
@@ -153,133 +153,181 @@
       </div>
     </div>
 
-    <script>
-      // Auto-detect backend URL (Works for both local & deployed environments)
-      const BASE_URL = "http://localhost:8084/auth";
-        // Change this to your actual production API
+   <script>
+  // Auto-detect backend URL (Works for both local & deployed environments)
+  const BASE_URL = "http://localhost:8084/auth";
+  console.log("Using Backend URL:", BASE_URL);
 
-      console.log("Using Backend URL:", BASE_URL);
+  // In-memory token storage (fallback for localStorage issues)
+  let authToken = null;
 
-      // Reusable function to make API requests
-      async function apiRequest(endpoint, method, body) {
+  function storeToken(token) {
+    authToken = token;
+    try {
+      if (typeof Storage !== "undefined") {
+        localStorage.setItem("token", token);
+        console.log("Token stored in localStorage");
+      }
+    } catch (error) {
+      console.warn("localStorage not available, using memory storage:", error);
+    }
+  }
+
+  function getToken() {
+    try {
+      if (typeof Storage !== "undefined" && localStorage.getItem("token")) {
+        return localStorage.getItem("token");
+      }
+    } catch (error) {
+      console.warn("localStorage access failed:", error);
+    }
+    return authToken;
+  }
+
+  function clearToken() {
+    authToken = null;
+    try {
+      if (typeof Storage !== "undefined") {
+        localStorage.removeItem("token");
+      }
+    } catch (error) {
+      console.warn("localStorage access failed:", error);
+    }
+  }
+
+  async function apiRequest(endpoint, method, body) {
+    try {
+      const requestOptions = {
+        method,
+        headers: { "Content-Type": "application/json" }
+      };
+
+      if (method !== "GET" && body) {
+        requestOptions.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(`${BASE_URL}/${endpoint}`, requestOptions);
+
+      if (!response.ok) {
+        let errorMessage;
         try {
-          const response = await fetch(`${BASE_URL}/${endpoint}`, {
-            method: method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-          });
-
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.message || "Request failed");
-          }
-          return data;
-        } catch (error) {
-          throw error;
+          const errorData = await response.json();
+          errorMessage = errorData.message || `HTTP error ${response.status}`;
+        } catch {
+          errorMessage = `HTTP error ${response.status}`;
         }
+        throw new Error(errorMessage);
       }
 
-      // Toggle between login and register forms
-      function toggleForm(type) {
-        document
-          .getElementById("loginForm")
-          .classList.toggle("hidden", type === "register");
-        document
-          .getElementById("registerForm")
-          .classList.toggle("hidden", type === "login");
+      return await response.json();
+    } catch (error) {
+      console.error("API Request Error:", error);
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        throw new Error("Network error: Unable to connect to server.");
       }
+      throw error;
+    }
+  }
 
-      // Show error message
-      function showError(element, message) {
-        element.textContent = message;
-        element.style.display = "block";
-      }
+  function toggleForm(type) {
+    document.getElementById("loginForm").classList.toggle("hidden", type === "register");
+    document.getElementById("registerForm").classList.toggle("hidden", type !== "register");
+  }
 
-      // Hide error message
-      function hideError(element) {
-        element.style.display = "none";
-      }
+  function showError(element, message) {
+    if (element) {
+      element.textContent = message;
+      element.style.display = "block";
+    }
+  }
 
-      // Validate university email domain
-      // function validateEmail(email, role) {
-      //   return role === "admin" || email.endsWith("@paruluniversity.ac.in");
-      // }
+  function hideError(element) {
+    if (element) {
+      element.style.display = "none";
+    }
+  }
 
-      // Handle login form submission
-      document
-        .getElementById("loginFormElement")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const loginError = document.getElementById("loginError");
-          hideError(loginError);
+  // ✅ Fixed redirect function
+  function redirectToDashboard() {
+    console.log("Redirecting to dashboard...");
+    window.location.href = "/dashboard.html"; // Static file path
+  }
 
-          const email = document.getElementById("loginEmail").value;
-          const password = document.getElementById("loginPassword").value;
-          const role = document.getElementById("loginRole").value;
+  document.addEventListener("DOMContentLoaded", function () {
+    const loginFormElement = document.getElementById("loginFormElement");
+    if (loginFormElement) {
+      loginFormElement.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const loginError = document.getElementById("loginError");
+        hideError(loginError);
 
-          // if (!validateEmail(email, role)) {
-          //   showError(loginError, "Please use your university email address");
-          //   return;
-          // }
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        const role = document.getElementById("loginRole").value.toUpperCase();
 
-          try {
-            const data = await apiRequest("login", "POST", {
-              email,
-              password,
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = "Signing In...";
+        submitButton.disabled = true;
 
-            });
+        try {
+          const data = await apiRequest("login", "POST", { email, password, role });
 
-            // Store JWT token for future authentication
-            localStorage.setItem("token", data.token);
-
+          if (data.token) {
+            storeToken(data.token);
             alert("Login Successful!");
-            window.location.href = "dashboard.html"; // Redirect to dashboard
-          } catch (error) {
-            showError(loginError, error.message);
+            redirectToDashboard();
+          } else {
+            throw new Error("No token received from server");
           }
-        });
+        } catch (error) {
+          showError(loginError, error.message || "Login failed. Please try again.");
+        } finally {
+          submitButton.textContent = originalText;
+          submitButton.disabled = false;
+        }
+      });
+    }
 
-      // Handle registration form submission
-      document
-        .getElementById("registerFormElement")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const registerError = document.getElementById("registerError");
-          hideError(registerError);
+    const registerFormElement = document.getElementById("registerFormElement");
+    if (registerFormElement) {
+      registerFormElement.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const registerError = document.getElementById("registerError");
+        hideError(registerError);
 
-          const email = document.getElementById("registerEmail").value;
-          const password = document.getElementById("registerPassword").value;
-          const confirmPassword =
-            document.getElementById("confirmPassword").value;
-          const role = document.getElementById("registerRole").value;
-          const username= document.getElementById("username").value;
-          //
-          // if (!validateEmail(email, role)) {
-          //   showError(
-          //     registerError,
-          //     "Please use your university email address"
-          //   );
-          //   return;
-        //  }
+        const email = document.getElementById("registerEmail").value;
+        const password = document.getElementById("registerPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const role = document.getElementById("registerRole").value.toUpperCase();
+        const username = document.getElementById("username").value;
 
-          if (password !== confirmPassword) {
-            showError(registerError, "Passwords do not match");
-            return;
-          }
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = "Creating Account...";
+        submitButton.disabled = true;
 
-          try {
-            const data = await apiRequest("register", "POST", {
-              email,
-              password,
-              username,
-            });
+        if (password !== confirmPassword) {
+          showError(registerError, "Passwords do not match");
+          submitButton.textContent = originalText;
+          submitButton.disabled = false;
+          return;
+        }
 
-            alert("Registration Successful! Please log in.");
-            toggleForm("login"); // Switch to login form
-          } catch (error) {
-            showError(registerError, error.message);
-          }
-        });
-    </script>
+        try {
+          await apiRequest("register", "POST", { email, password, username, role });
+          alert("Registration Successful! Please log in.");
+          toggleForm("login");
+        } catch (error) {
+          showError(registerError, error.message || "Registration failed. Please try again.");
+        } finally {
+          submitButton.textContent = originalText;
+          submitButton.disabled = false;
+        }
+      });
+    }
+  });
+</script>
+
   </body>
 </html>

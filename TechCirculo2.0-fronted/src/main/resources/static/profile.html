@@ -146,11 +146,10 @@
             <div class="avatar-container">
               <div class="avatar-wrapper">
                 <img
-                        id="profile-pic"
-                        class="profile-avatar"
-                        src="https://via.placeholder.com/120x120?text=GU"
-                        alt="Profile Picture"
-                        onerror="this.onerror=null; this.src='https://via.placeholder.com/120x120?text=GU';"
+                  id="profile-pic"
+                  class="profile-avatar"
+                  src="/images/profile_pic.png"
+                  alt="Profile Picture"
                 />
                 <div class="avatar-overlay">
                   <button class="change-photo-btn" id="edit-photo-btn">
@@ -168,7 +167,6 @@
               <p id="display-email">guest@university.edu</p>
               <div class="user-badge">
                 <span class="badge student">Student</span>
-                <span class="badge-text">3rd Year</span>
               </div>
             </div>
           </div>
@@ -190,10 +188,6 @@
                 <label>Location</label>
                 <span id="display-location">San Francisco, CA</span>
               </div>
-              <div class="detail-item">
-                <label>Member Since</label>
-                <span id="display-member-since">September 2023</span>
-              </div>
             </div>
 
             <div class="bio-section">
@@ -208,31 +202,7 @@
       <div class="profile-columns">
         <!-- Left Column -->
         <div class="left-column">
-          <!-- Activity Stats -->
-          <section class="profile-section activity-stats">
-            <div class="section-header">
-              <h2>Activity Stats</h2>
-            </div>
 
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-number">12</div>
-                <div class="stat-label">Posts</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">28</div>
-                <div class="stat-label">Comments</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">94</div>
-                <div class="stat-label">Likes</div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-number">3</div>
-                <div class="stat-label">Communities</div>
-              </div>
-            </div>
-          </section>
 
           <!-- Social Links -->
           <section class="profile-section social-links-section">
@@ -299,7 +269,7 @@
                 <input type="url" id="linkedin-input" class="form-input" placeholder="https://linkedin.com/in/username" />
               </div>
               <div class="input-group">
-                <label for="leetcode-input">Portfolio URL</label>
+                <label for="leetcode-input">Leetcode URL</label>
                 <input type="url" id="leetcode-input" class="form-input" placeholder="https://yourportfolio.com" />
               </div>
               <div class="form-actions">
@@ -316,35 +286,12 @@
           <section class="profile-section communities-section">
             <div class="section-header">
               <h2>My Communities</h2>
-              <button class="add-btn" id="join-community-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 5v14"/>
-                  <path d="M5 12h14"/>
-                </svg>
-                Join New
-              </button>
+              
             </div>
 
             <div class="communities-list">
               <ul id="community-list">
-                <li class="community-item">
-                  <div class="community-info">
-                    <div class="community-name">Web Development</div>
-                    <div class="community-meta">Member • Sept 2023</div>
-                  </div>
-                </li>
-                <li class="community-item">
-                  <div class="community-info">
-                    <div class="community-name">AI/ML Research</div>
-                    <div class="community-meta">Member • Oct 2023</div>
-                  </div>
-                </li>
-                <li class="community-item">
-                  <div class="community-info">
-                    <div class="community-name">Cybersecurity</div>
-                    <div class="community-meta">Member • Nov 2023</div>
-                  </div>
-                </li>
+                
               </ul>
             </div>
           </section>
@@ -357,14 +304,7 @@
 
             <div class="posts-list">
               <ul id="post-list">
-                <li class="post-item">
-                  <div class="post-title">React Best Practices Discussion</div>
-                  <div class="post-meta">2 hours ago • 5 comments</div>
-                </li>
-                <li class="post-item">
-                  <div class="post-title">CSS Grid vs Flexbox - When to use what?</div>
-                  <div class="post-meta">1 day ago • 12 comments</div>
-                </li>
+                
               </ul>
             </div>
           </section>
@@ -389,7 +329,11 @@
 
     <div class="modal-body">
       <div class="edit-avatar-section">
-        <img id="edit-profile-photo" src="https://via.placeholder.com/80x80?text=GU" alt="Edit Profile Photo" />
+        <img 
+          id="edit-profile-photo" 
+          src="/images/profile_pic.png" 
+          alt="Edit Profile Photo"
+        />
         <div class="avatar-actions">
           <button class="btn btn-secondary" id="change-photo-btn">Change Photo</button>
           <button class="btn btn-outline" id="remove-photo-btn">Remove</button>

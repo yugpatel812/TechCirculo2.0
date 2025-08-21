@@ -45,6 +45,18 @@ public class Profile {
     @Column(name = "leetcode_url", length = 2048)
     private String leetcodeUrl;
 
+    @Column(name = "email")
+    private String email;
+    
+    @Column(name = "major")
+    private String major;
+    
+    @Column(name = "location")
+    private String location;
+    
+    @Column(name = "bio", length = 1000)
+    private String bio;
+
     public Profile(User user) {
         this.user = user;
         this.id = user != null ? user.getId() : null;
