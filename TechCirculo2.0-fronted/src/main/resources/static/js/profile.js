@@ -182,6 +182,8 @@ function getAuthHeadersMultipart() {
     try {
       const response = await fetch(`${API_BASE_URL}/communities/join`, { headers: getAuthHeaders() });
       const communities = await response.json();
+      console.log(communities);
+      
       communityList.innerHTML = "";
       if (response.ok && communities && communities.length > 0) {
         communities.forEach(community => {
@@ -190,7 +192,7 @@ function getAuthHeadersMultipart() {
           li.innerHTML = `
             <div class="community-info">
               <div class="community-name">${community.name}</div>
-              <div class="community-meta">Member • ${community.joinedDate || 'Recently'}</div>
+              <div class="community-meta">${community.role || 'Member'} • ${community.joinedAt || 'Recently'}</div>
             </div>
           `;
           communityList.appendChild(li);

@@ -361,7 +361,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             <div class="post-header">
                 <div class="post-meta">
                     <div class="author-info">
-                        <img src="${post.authorProfilePicture || '/images/profile_pic.png'}" 
+                        <img src="${post.authorProfileUrl || '/images/profile_pic.png'}" 
                              alt="${post.authorName || 'User'}" 
                              class="author-avatar"
                              onerror="this.src='/images/profile_pic.png'">
@@ -405,8 +405,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 
                 <div class="post-footer">
                     <div class="community-info">
-                        <img src="${post.community?.imageUrl || '/images/community_logo.png'}" 
-                             alt="${post.community?.name || 'Community'}" 
+                        <img src="${post?.communityImageUrl || '/images/community_logo.png'}" 
+                             alt="${post?.communityName || 'Community'}" 
                              class="community-avatar"
                              onerror="this.src='/images/community_logo.png'">
                         <span class="community-name">Posted in ${post?.communityName || 'Unknown Community'}</span>
