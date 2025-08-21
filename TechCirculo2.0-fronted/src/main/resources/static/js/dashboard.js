@@ -91,35 +91,66 @@ document.addEventListener("DOMContentLoaded", async function () {
             element.style.pointerEvents = 'auto';
         }
     }
-
-    // Optimized user profile fetch
-    async function fetchUserProfile() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/profile`, { 
-                headers: getAuthHeaders(),
-                signal: AbortSignal.timeout(5000) // 5 second timeout
-            });
-            
-            if (response.ok) {
-                const userData = await response.json();
-                domCache.userProfileName.textContent = userData.name || "User";
-                domCache.userProfileImage.src = userData.profilePicUrl || "images/profile_pic.png";
-                domCache.greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
-            } else {
-                // Fallback for guest users
-                domCache.userProfileName.textContent = "Guest";
-                domCache.userProfileImage.src = "images/profile_pic.png";
-                domCache.greetingText.textContent = "Welcome, Guest!";
+ async function handleApiResponse(response, defaultErrorMessage = "An error occurred") {
+        if (!response.ok) {
+            let errorMessage = defaultErrorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.message || errorMessage;
+            } catch (e) {
+                // If response is not JSON (like HTML error page), use default message
+                console.error("Non-JSON error response:", e);
             }
-        } catch (error) {
-            console.error("Error fetching user profile:", error);
-            // Fallback data
-            domCache.userProfileName.textContent = "Guest";
-            domCache.userProfileImage.src = "images/profile_pic.png";
-            domCache.greetingText.textContent = "Welcome, Guest!";
+            throw new Error(errorMessage);
+        }
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        } else {
+            // If response is not JSON, throw error
+            throw new Error("Server returned non-JSON response. Check if backend is running correctly.");
         }
     }
 
+    // Optimized user profile fetch
+    async function fetchUserProfile() {
+    const userProfileName = document.getElementById("user-profile-name");
+    const userProfileImage = document.getElementById("user-profile-image");
+    const greetingText = document.getElementById("greeting-text");
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
+        const userData = await handleApiResponse(response, "Failed to fetch user profile");
+        
+        if (userProfileName) {
+            userProfileName.textContent = userData.name || "User";
+        }
+        
+        if (userProfileImage) {
+            userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
+            userProfileImage.onerror = function() {
+                this.src = "/images/profile_pic.png";
+                //console.log("Failed to load profile image, using fallback");
+            };
+        }
+        
+        if (greetingText) {
+            greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
+        }
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to static data
+        if (userProfileName) userProfileName.textContent = "Guest";
+        if (userProfileImage) {
+            userProfileImage.src = "/images/profile_pic.png";
+            userProfileImage.onerror = function() {
+                this.src = "https://via.placeholder.com/44x44?text=G";
+            };
+        }
+        if (greetingText) greetingText.textContent = "Welcome, Guest!";
+    }
+}
     // Optimized communities fetch
     async function fetchAllCommunities() {
         if (!domCache.communitySlider) return;
@@ -330,7 +361,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         postElement.className = 'post';
         postElement.style.opacity = '0';
         postElement.style.transform = 'translateY(30px)';
-        console.log(post);
+        //console.log(post);
        // console.log("community name", post.communityName);
         //console.log(`${post?.communityName || 'Unknown Community'}`);
         

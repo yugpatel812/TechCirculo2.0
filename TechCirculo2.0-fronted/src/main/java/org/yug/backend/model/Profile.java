@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.yug.backend.model.auth.User;
 
-import java.util.Objects;
+
 import java.util.UUID;
 
 @Getter

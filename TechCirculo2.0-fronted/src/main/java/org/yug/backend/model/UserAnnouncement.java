@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import org.yug.backend.model.auth.User;
 
 import java.io.Serializable;
-import java.util.Objects;
+
 import java.util.UUID;
 
 // Define the composite primary key class

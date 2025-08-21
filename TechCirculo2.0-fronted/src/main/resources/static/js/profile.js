@@ -192,7 +192,12 @@ function getAuthHeadersMultipart() {
           li.innerHTML = `
             <div class="community-info">
               <div class="community-name">${community.name}</div>
-              <div class="community-meta">${community.role || 'Member'} • ${community.joinedAt || 'Recently'}</div>
+              <div class="community-meta">
+  ${community.role || 'Member'} • ${community.joinedAt 
+      ? new Date(community.joinedAt).toLocaleDateString() 
+      : 'Recently'}
+</div>
+
             </div>
           `;
           communityList.appendChild(li);

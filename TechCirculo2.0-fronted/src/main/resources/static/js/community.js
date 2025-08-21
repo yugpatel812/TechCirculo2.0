@@ -273,6 +273,8 @@ window.fetch = async (...args) => {
 
         img.src = community?.imageUrl || defaultImage;
         img.alt = community?.name || 'Community';
+        //console.log(community);
+        
 
         const isJoined = community?.isJoined === true; // <- check per community
 

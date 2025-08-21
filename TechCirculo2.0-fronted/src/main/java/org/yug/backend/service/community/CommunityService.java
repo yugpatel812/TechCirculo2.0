@@ -17,6 +17,7 @@ import org.yug.backend.repository.UserCommunityRepository;
 import org.yug.backend.repository.UserRepository;
 import org.yug.backend.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -157,25 +158,36 @@ public class CommunityService {
 
     // ✅ Join community
     @Transactional
-    public void joinCommunity(UUID userId, UUID communityId) {
-        Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
+    
+public void joinCommunity(UUID userId, UUID communityId) {
+    Community community = communityRepository.findById(communityId)
+            .orElseThrow(() -> new IllegalArgumentException("Community not found"));
 
-        if (userCommunityRepository.existsByUserIdAndCommunityId(userId, communityId)) {
-            throw new IllegalStateException("User already joined this community");
-        }
-
-        UserCommunity relation = UserCommunity.builder()
-                .userId(userId)
-                .communityId(communityId)
-                .role("Member")
-                .build();
-        userCommunityRepository.save(relation);
-
-        long count = userCommunityRepository.countByCommunityId(communityId);
-        community.setMemberCount(count);
-        communityRepository.save(community);
+    if (userCommunityRepository.existsByUserIdAndCommunityId(userId, communityId)) {
+        throw new IllegalStateException("User already joined this community");
     }
+
+    // ✅ Fetch the user
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    // ✅ Get the role from User entity
+    String userRole = user.getRole().name();  // make sure User entity has `role` field
+
+    UserCommunity relation = UserCommunity.builder()
+            .userId(userId)
+            .communityId(communityId)
+            .role(userRole) 
+            .joinedAt(LocalDateTime.now())
+            .build();
+
+    userCommunityRepository.save(relation);
+
+    long count = userCommunityRepository.countByCommunityId(communityId);
+    community.setMemberCount(count);
+    communityRepository.save(community);
+}
+
 
     // ✅ Leave community
     @Transactional
