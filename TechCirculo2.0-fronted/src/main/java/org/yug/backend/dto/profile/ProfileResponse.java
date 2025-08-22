@@ -16,4 +16,5 @@ public class ProfileResponse {
     private String linkedinUrl;
     private String githubUrl;
     private String leetcodeUrl;
+    private String role;
 }

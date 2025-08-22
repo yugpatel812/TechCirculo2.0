@@ -1,4 +1,4 @@
-// dashboard.js - Optimized Version
+// dashboard.js - Fixed Version
 
 document.addEventListener("DOMContentLoaded", async function () {
     const API_BASE_URL = "http://localhost:8084";
@@ -28,6 +28,62 @@ document.addEventListener("DOMContentLoaded", async function () {
             history.replaceState({}, document.title, window.location.pathname);
         }
     })();
+
+    // Initialize Hamburger Menu - Fixed Version
+   // Initialize Hamburger Menu - Fixed Version
+function initializeHamburgerMenu() {
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidebar = document.querySelector('.sidebar'); // Changed from getElementById to querySelector
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    // Check if elements exist before adding event listeners
+    if (!hamburgerBtn || !sidebar || !sidebarOverlay) {
+        console.warn('Hamburger menu elements not found:', {
+            hamburgerBtn: !!hamburgerBtn,
+            sidebar: !!sidebar,
+            sidebarOverlay: !!sidebarOverlay
+        });
+        return;
+    }
+
+    function toggleSidebar() {
+        hamburgerBtn.classList.toggle('active');
+        sidebar.classList.toggle('open');
+        sidebarOverlay.classList.toggle('active');
+    }
+
+    hamburgerBtn.addEventListener('click', toggleSidebar);
+    
+    sidebarOverlay.addEventListener('click', () => {
+        if (sidebar.classList.contains('open')) {
+            toggleSidebar();
+        }
+    });
+
+    // Auto-close on nav click (mobile)
+    const navLinks = sidebar.querySelectorAll('nav a');
+    if (navLinks.length > 0) {
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 1024 && sidebar.classList.contains('open')) {
+                    toggleSidebar();
+                }
+            });
+        });
+    }
+
+    // Auto-close on resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024 && sidebar.classList.contains('open')) {
+            toggleSidebar();
+        }
+    });
+
+    console.log('Hamburger menu initialized successfully');
+}
+
+// Make sure to call this function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', initializeHamburgerMenu);
 
     // Enhanced notification system
     function showNotification(message, type = 'success') {
@@ -91,7 +147,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             element.style.pointerEvents = 'auto';
         }
     }
- async function handleApiResponse(response, defaultErrorMessage = "An error occurred") {
+
+    async function handleApiResponse(response, defaultErrorMessage = "An error occurred") {
         if (!response.ok) {
             let errorMessage = defaultErrorMessage;
             try {
@@ -115,42 +172,42 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Optimized user profile fetch
     async function fetchUserProfile() {
-    const userProfileName = document.getElementById("user-profile-name");
-    const userProfileImage = document.getElementById("user-profile-image");
-    const greetingText = document.getElementById("greeting-text");
+        const userProfileName = document.getElementById("user-profile-name");
+        const userProfileImage = document.getElementById("user-profile-image");
+        const greetingText = document.getElementById("greeting-text");
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
-        const userData = await handleApiResponse(response, "Failed to fetch user profile");
-        
-        if (userProfileName) {
-            userProfileName.textContent = userData.name || "User";
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
+            const userData = await handleApiResponse(response, "Failed to fetch user profile");
+            
+            if (userProfileName) {
+                userProfileName.textContent = userData.name || "User";
+            }
+            
+            if (userProfileImage) {
+                userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
+                userProfileImage.onerror = function() {
+                    this.src = "/images/profile_pic.png";
+                };
+            }
+            
+            if (greetingText) {
+                greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
+            }
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            // Fallback to static data
+            if (userProfileName) userProfileName.textContent = "Guest";
+            if (userProfileImage) {
+                userProfileImage.src = "/images/profile_pic.png";
+                userProfileImage.onerror = function() {
+                    this.src = "https://via.placeholder.com/44x44?text=G";
+                };
+            }
+            if (greetingText) greetingText.textContent = "Welcome, Guest!";
         }
-        
-        if (userProfileImage) {
-            userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
-            userProfileImage.onerror = function() {
-                this.src = "/images/profile_pic.png";
-                //console.log("Failed to load profile image, using fallback");
-            };
-        }
-        
-        if (greetingText) {
-            greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
-        }
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        // Fallback to static data
-        if (userProfileName) userProfileName.textContent = "Guest";
-        if (userProfileImage) {
-            userProfileImage.src = "/images/profile_pic.png";
-            userProfileImage.onerror = function() {
-                this.src = "https://via.placeholder.com/44x44?text=G";
-            };
-        }
-        if (greetingText) greetingText.textContent = "Welcome, Guest!";
     }
-}
+
     // Optimized communities fetch
     async function fetchAllCommunities() {
         if (!domCache.communitySlider) return;
@@ -169,7 +226,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             const fragment = document.createDocumentFragment();
             
             if (response.ok && communities && communities.length > 0) {
-                domCache.communityCount.textContent = `${communities.length} communities`;
+                if (domCache.communityCount) {
+                    domCache.communityCount.textContent = `${communities.length} communities`;
+                }
                 
                 communities.forEach((community, index) => {
                     const communityCard = createCommunityCard(community, index);
@@ -185,12 +244,16 @@ document.addEventListener("DOMContentLoaded", async function () {
                 
             } else {
                 domCache.communitySlider.innerHTML = "<p style='text-align: center; color: #64748b; padding: 2rem;'>No communities available.</p>";
-                domCache.communityCount.textContent = "0 communities";
+                if (domCache.communityCount) {
+                    domCache.communityCount.textContent = "0 communities";
+                }
             }
         } catch (error) {
             console.error("Error fetching communities:", error);
             domCache.communitySlider.innerHTML = "<p style='text-align: center; color: #ef4444; padding: 2rem;'>Failed to load communities.</p>";
-            domCache.communityCount.textContent = "0 communities";
+            if (domCache.communityCount) {
+                domCache.communityCount.textContent = "0 communities";
+            }
         } finally {
             setLoadingState(domCache.communitySlider, false);
         }
@@ -228,7 +291,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
             communityCard.style.opacity = '1';
             communityCard.style.transform = 'translateY(0)';
-        }, 50 + (index * 50)); // Reduced delay for faster loading
+        }, 50 + (index * 50));
         
         return communityCard;
     }
@@ -361,16 +424,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         postElement.className = 'post';
         postElement.style.opacity = '0';
         postElement.style.transform = 'translateY(30px)';
-        //console.log(post);
-       // console.log("community name", post.communityName);
-        //console.log(`${post?.communityName || 'Unknown Community'}`);
         
         // Determine join button state
         const isJoined = post.owner === true;
-        //console.log(`${post.owner}?.${.isJoined} === ${true}`);
-        
-        //console.log("isJoined",isJoined);
-        
         const joinButtonText = isJoined ? 'Joined ' : 'Join';
         const joinButtonClass = isJoined ? 'join-btn joined' : 'join-btn';
         const joinButtonDisabled = isJoined ? 'disabled' : '';
@@ -458,18 +514,48 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Attach post event listeners
     function attachPostEventListeners() {
-        // Like buttons
+        // Like buttons - Fixed to work with dynamically created posts
         document.querySelectorAll('.like-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.classList.toggle('liked');
-                const isLiked = this.classList.contains('liked');
-                this.style.color = isLiked ? '#ef4444' : '';
-                this.querySelector('svg').style.fill = isLiked ? 'currentColor' : 'none';
-                showNotification(isLiked ? 'Post liked!' : 'Post unliked!', 'success');
+            btn.addEventListener('click', async function() {
+                const postId = this.dataset.postId;
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/posts/${postId}/like`, {
+                        method: 'POST',
+                        headers: getAuthHeaders()
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        
+                        this.classList.toggle('liked', result.isLiked);
+                        this.querySelector('svg').style.fill = result.isLiked ? 'currentColor' : 'none';
+                        
+                        // Update like count from backend
+                        const countSpan = this.querySelector('.like-count');
+                        if (countSpan) {
+                            countSpan.textContent = result.likeCount || 0;
+                        }
+                        
+                        showNotification(result.isLiked ? 'Post liked!' : 'Post unliked!', 'success');
+                    } else {
+                        throw new Error('Failed to like post');
+                    }
+                } catch (error) {
+                    console.error('Error liking post:', error);
+                    showNotification('Error liking post', 'error');
+                }
             });
         });
 
-        
+        // Join buttons for posts
+        document.querySelectorAll('.join-btn:not(.joined):not([disabled])').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const communityId = this.dataset.communityId;
+                const communityName = this.dataset.communityName;
+                await joinCommunity(communityId, communityName, this);
+            });
+        });
     }
 
     // Optimized communities for select dropdown
@@ -525,6 +611,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                         createPostSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 100);
                 }
+            });
+        }
+
+        // Clear form button
+        const clearBtn = document.getElementById('clearPostBtn');
+        if (clearBtn && domCache.createPostForm) {
+            clearBtn.addEventListener('click', function() {
+                domCache.createPostForm.reset();
+                showNotification('Form cleared', 'info');
             });
         }
 
@@ -588,6 +683,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Main initialization - Run all tasks in parallel for faster loading
     async function initialize() {
         try {
+            // Initialize hamburger menu first
+            initializeHamburgerMenu();
+            
             // Initialize UI enhancements immediately
             initializeUIEnhancements();
             
@@ -611,4 +709,31 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Start initialization
     initialize();
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("createPostToggle");
+  const postSection = document.getElementById("createPostSection");
+  const clearBtn = document.getElementById("clearPostBtn");
+
+  if (toggleBtn && postSection) {
+    toggleBtn.addEventListener("click", () => {
+        //console.log("button clikd");
+        
+      postSection.classList.toggle("active");
+
+      // optional: scroll into view when opening
+      if (postSection.classList.contains("active")) {
+        setTimeout(() => {
+          postSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 300);
+      }
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      document.getElementById("createPostForm").reset();
+      postSection.classList.remove("active");
+    });
+  }
 });

@@ -1,26 +1,87 @@
-// Community.js - Fixed version with proper URL formatting and error handling
+// Fixed Community.js - Hamburger Menu Implementation
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
+    const API_BASE_URL = "http://localhost:8084";
+
     // ✅ Auto-attach JWT token to all fetch calls
-const originalFetch = window.fetch;
-window.fetch = async (...args) => {
-    let [resource, config] = args;
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+        let [resource, config] = args;
+        const token = localStorage.getItem("jwtToken");
+        if (token) {
+            config = config || {};
+            config.headers = {
+                ...config.headers,
+                "Authorization": `Bearer ${token}`
+            };
+        }
+        return originalFetch(resource, config);
+    };
 
-    // Get token from localStorage
-    const token = localStorage.getItem("jwtToken");
+    // FIXED: Hamburger Menu Functionality - Moved inside main DOMContentLoaded
+    function initializeHamburgerMenu() {
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        // Check if elements exist before adding listeners
+        if (!hamburgerBtn || !sidebar || !sidebarOverlay) {
+            console.error('Hamburger menu elements not found');
+            return;
+        }
 
-    // If token exists, attach Authorization header
-    if (token) {
-        config = config || {};
-        config.headers = {
-            ...config.headers,
-            "Authorization": `Bearer ${token}`
-        };
+        // Toggle sidebar
+        function toggleSidebar() {
+            hamburgerBtn.classList.toggle('active');
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+            
+            // Prevent body scroll when sidebar is open
+            if (sidebar.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // Close sidebar
+        function closeSidebar() {
+            hamburgerBtn.classList.remove('active');
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Event listeners
+        hamburgerBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        
+        // Close sidebar when clicking on sidebar links (on mobile)
+        const sidebarLinks = document.querySelectorAll('.sidebar nav a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        });
+        
+        // Close sidebar on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                closeSidebar();
+            }
+        });
+
+        console.log('Hamburger menu initialized successfully');
     }
-
-    return originalFetch(resource, config);
-};
 
     // Enhanced notification system
     function showNotification(message, type = 'success') {
@@ -58,12 +119,10 @@ window.fetch = async (...args) => {
 
         document.body.appendChild(notification);
 
-        // Animate in
         setTimeout(() => {
             notification.style.transform = 'translateX(0)';
         }, 100);
 
-        // Animate out and remove
         setTimeout(() => {
             notification.style.transform = 'translateX(100%)';
             setTimeout(() => {
@@ -98,7 +157,6 @@ window.fetch = async (...args) => {
                 const errorData = await response.json();
                 errorMessage = errorData.message || errorMessage;
             } catch (e) {
-                // If response is not JSON (like HTML error page), use default message
                 console.error("Non-JSON error response:", e);
             }
             throw new Error(errorMessage);
@@ -108,7 +166,6 @@ window.fetch = async (...args) => {
         if (contentType && contentType.includes("application/json")) {
             return await response.json();
         } else {
-            // If response is not JSON, throw error
             throw new Error("Server returned non-JSON response. Check if backend is running correctly.");
         }
     }
@@ -153,6 +210,9 @@ window.fetch = async (...args) => {
     // Initialize the page
     async function initializePage() {
         try {
+            // FIXED: Initialize hamburger menu first
+            initializeHamburgerMenu();
+            
             await fetchUserProfile();
             await fetchAllCommunities();
             await fetchJoinedCommunities();
@@ -162,47 +222,46 @@ window.fetch = async (...args) => {
             showNotification("Failed to initialize page. Please check if the backend server is running.", 'error');
         }
     }
-
+    
     // Fetch user profile for header
-   async function fetchUserProfile() {
-    const userProfileName = document.getElementById("user-profile-name");
-    const userProfileImage = document.getElementById("user-profile-image");
-    const greetingText = document.getElementById("greeting-text");
+    async function fetchUserProfile() {
+        const userProfileName = document.getElementById("user-profile-name");
+        const userProfileImage = document.getElementById("user-profile-image");
+        const greetingText = document.getElementById("greeting-text");
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
-        const userData = await handleApiResponse(response, "Failed to fetch user profile");
-        
-        if (userProfileName) {
-            userProfileName.textContent = userData.name || "User";
+        try {
+            const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
+            const userData = await handleApiResponse(response, "Failed to fetch user profile");
+            
+            if (userProfileName) {
+                userProfileName.textContent = userData.name || "User";
+            }
+            
+            if (userProfileImage) {
+                userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
+                userProfileImage.onerror = function() {
+                    this.src = "/images/profile_pic.png";
+                    console.log("Failed to load profile image, using fallback");
+                };
+            }
+            
+            if (greetingText) {
+                greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
+            }
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            if (userProfileName) userProfileName.textContent = "Guest";
+            if (userProfileImage) {
+                userProfileImage.src = "/images/profile_pic.png";
+                userProfileImage.onerror = function() {
+                    this.src = "https://via.placeholder.com/44x44?text=G";
+                };
+            }
+            if (greetingText) greetingText.textContent = "Welcome, Guest!";
         }
-        
-        if (userProfileImage) {
-            userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
-            userProfileImage.onerror = function() {
-                this.src = "/images/profile_pic.png";
-                console.log("Failed to load profile image, using fallback");
-            };
-        }
-        
-        if (greetingText) {
-            greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
-        }
-    } catch (error) {
-        console.error("Error fetching user profile:", error);
-        // Fallback to static data
-        if (userProfileName) userProfileName.textContent = "Guest";
-        if (userProfileImage) {
-            userProfileImage.src = "/images/profile_pic.png";
-            userProfileImage.onerror = function() {
-                this.src = "https://via.placeholder.com/44x44?text=G";
-            };
-        }
-        if (greetingText) greetingText.textContent = "Welcome, Guest!";
     }
-}
 
-    // Fetch all available communities - FIXED URL
+    // Fetch all available communities
     async function fetchAllCommunities() {
         try {
             showLoadingState(allCommunitiesGrid, 'communities');
@@ -225,11 +284,10 @@ window.fetch = async (...args) => {
         }
     }
 
-    // Fetch joined communities - FIXED URL
+    // Fetch joined communities
     async function fetchJoinedCommunities() {
         try {
             showLoadingState(joinedCommunitiesGrid, 'communities');
-            // FIXED: Added missing slash before 'communities'
             const response = await fetch(`${API_BASE_URL}/communities/join`, { headers: getAuthHeaders() });
             const communities = await handleApiResponse(response, "Failed to fetch joined communities");
 
@@ -252,125 +310,116 @@ window.fetch = async (...args) => {
         }
     }
 
-   function renderCommunities(container, communities) {
-    container.innerHTML = '';
+    function renderCommunities(container, communities) {
+        container.innerHTML = '';
 
-    communities.forEach((community, index) => {
-        const communityCard = document.createElement('div');
-        communityCard.className = 'community-card';
-        communityCard.style.opacity = '0';
-        communityCard.style.transform = 'translateY(20px)';
+        communities.forEach((community, index) => {
+            const communityCard = document.createElement('div');
+            communityCard.className = 'community-card';
+            communityCard.style.opacity = '0';
+            communityCard.style.transform = 'translateY(20px)';
 
-        const isTrending = Math.random() > 0.7; // Random trending for demo
+            const isTrending = Math.random() > 0.7;
+            const img = document.createElement('img');
+            const defaultImage = '/images/community_logo.png';
 
-        // Create the image element with proper error handling
-        const img = document.createElement('img');
-        const defaultImage = '/images/community_logo.png';
+            img.onerror = function () {
+                this.src = defaultImage;
+            };
 
-        img.onerror = function () {
-            this.src = defaultImage;
-        };
-
-        img.src = community?.imageUrl || defaultImage;
-        img.alt = community?.name || 'Community';
-        //console.log(community);
-        
-
-        const isJoined = community?.isJoined === true; // <- check per community
-
-        communityCard.innerHTML = `
-            <div class="community-card-header">
-                ${isTrending ? '<div class="community-trending">Trending</div>' : ''}
-                <div class="community-image-container"></div>
-            </div>
-            <div class="community-card-body">
-                <h3 class="community-title">${community?.name || 'Unnamed Community'}</h3>
-                <p class="community-description">${community?.description || 'No description available.'}</p>
-                
-                <div class="community-stats">
-                    <div class="stat-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 19a6 6 0 0 0-12 0" />
-                            <circle cx="8" cy="9" r="4" />
-                            <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
-                        </svg>
-                        <span>${community?.memberCount ?? 0} members</span>
+            img.src = community?.imageUrl || defaultImage;
+            img.alt = community?.name || 'Community';
+            
+            communityCard.innerHTML = `
+                <div class="community-card-header">
+                    ${isTrending ? '<div class="community-trending">Trending</div>' : ''}
+                    <div class="community-image-container"></div>
+                </div>
+                <div class="community-card-body">
+                    <h3 class="community-title">${community?.name || 'Unnamed Community'}</h3>
+                    <p class="community-description">${community?.description || 'No description available.'}</p>
+                    
+                    <div class="community-stats">
+                        <div class="stat-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 19a6 6 0 0 0-12 0" />
+                                <circle cx="8" cy="9" r="4" />
+                                <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
+                            </svg>
+                            <span>${community?.memberCount ?? 0} members</span>
+                        </div>
+                        <div class="stat-item">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            <span>${community?.postCount ?? 0} posts</span>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14,2 14,8 20,8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
-                        <span>${community?.postCount ?? 0} posts</span>
+                    
+                    <div class="community-category">${community?.category || 'General'}</div>
+                    
+                    <div class="community-actions">
+                        <button class="view-btn" data-community-id="${community?.id}">View</button>
+                        
+                        ${community.isJoined
+                            ? `<button class="leave-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Leave</button>`
+                            : `<button class="join-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Join</button>`
+                        }
                     </div>
                 </div>
-                
-                <div class="community-category">${community?.category || 'General'}</div>
-                
-                <div class="community-actions">
-                    <button class="view-btn" data-community-id="${community?.id}">View</button>
-                    ${isJoined
-                        ? `<button class="leave-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Leave</button>`
-                        : `<button class="join-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Join</button>`
-                    }
-                </div>
-            </div>
-        `;
+            `;
 
-        // Insert the image element in the community-image-container
-        const imageContainer = communityCard.querySelector('.community-image-container');
-        imageContainer.appendChild(img);
+            const imageContainer = communityCard.querySelector('.community-image-container');
+            imageContainer.appendChild(img);
+            container.appendChild(communityCard);
 
-        container.appendChild(communityCard);
-
-        // Animate in with stagger
-        setTimeout(() => {
-            communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-            communityCard.style.opacity = '1';
-            communityCard.style.transform = 'translateY(0)';
-        }, 100 + (index * 50));
-    });
-
-    // Event listeners
-    container.querySelectorAll('.view-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const communityId = e.target.dataset.communityId;
-            const community = communities.find(c => c.id === communityId);
-            if (community) {
-                showCommunityDetail(community);
-            }
+            setTimeout(() => {
+                communityCard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                communityCard.style.opacity = '1';
+                communityCard.style.transform = 'translateY(0)';
+            }, 100 + (index * 50));
         });
-    });
 
-    container.querySelectorAll('.join-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const communityId = e.target.dataset.communityId;
-            const communityName = e.target.dataset.communityName;
-            await joinCommunity(communityId, communityName, e.target);
+        // Event listeners for community actions
+        container.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const communityId = e.target.dataset.communityId;
+                const community = communities.find(c => c.id === communityId);
+                if (community) {
+                    showCommunityDetail(community);
+                }
+            });
         });
-    });
 
-    container.querySelectorAll('.leave-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const communityId = e.target.dataset.communityId;
-            const communityName = e.target.dataset.communityName;
-            await leaveCommunity(communityId, communityName, e.target);
+        container.querySelectorAll('.join-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const communityId = e.target.dataset.communityId;
+                const communityName = e.target.dataset.communityName;
+                await joinCommunity(communityId, communityName, e.target);
+            });
         });
-    });
-}
 
-    // Join community - FIXED URL
+        container.querySelectorAll('.leave-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const communityId = e.target.dataset.communityId;
+                const communityName = e.target.dataset.communityName;
+                await leaveCommunity(communityId, communityName, e.target);
+            });
+        });
+    }
+
+    // Join community function
     async function joinCommunity(communityId, communityName, button) {
         const originalText = button.textContent;
         button.textContent = 'Joining...';
         button.disabled = true;
 
         try {
-            // FIXED: Added missing slash before 'communities'
             const response = await fetch(`${API_BASE_URL}/communities/join`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
@@ -379,7 +428,6 @@ window.fetch = async (...args) => {
 
             await handleApiResponse(response, `Failed to join ${communityName}`);
             showNotification(`Successfully joined ${communityName}!`, 'success');
-            // Refresh both lists
             await Promise.all([fetchAllCommunities(), fetchJoinedCommunities()]);
         } catch (error) {
             console.error("Error joining community:", error);
@@ -390,7 +438,7 @@ window.fetch = async (...args) => {
         }
     }
 
-    // Leave community
+    // Leave community function
     async function leaveCommunity(communityId, communityName, button) {
         const originalText = button.textContent;
         button.textContent = 'Leaving...';
@@ -404,7 +452,6 @@ window.fetch = async (...args) => {
 
             await handleApiResponse(response, `Failed to leave ${communityName}`);
             showNotification(`Successfully left ${communityName}!`, 'success');
-            // Refresh both lists
             await Promise.all([fetchAllCommunities(), fetchJoinedCommunities()]);
         } catch (error) {
             console.error("Error leaving community:", error);
@@ -418,25 +465,20 @@ window.fetch = async (...args) => {
     // Show community detail view
     function showCommunityDetail(community) {
         currentCommunityId = community.id;
-        //console.log(community);
         
-        // Update community info
         communityName.textContent = community.name;
         communityDescription.textContent = community.description || 'No description available.';
         communityMembers.textContent = `${community.memberCount || 0} members`;
         communityPosts.textContent = `${community.postCount || 0} posts`;
         communityCategory.textContent = community.category || 'General';
 
-        // Check if user is already a member
         const isJoined = joinedCommunities.some(c => c.id === community.id);
         joinCommunityBtn.textContent = isJoined ? 'Leave Community' : 'Join Community';
         joinCommunityBtn.className = isJoined ? 'join-btn leave-btn' : 'join-btn';
 
-        // Hide overview and show detail
         communitiesOverview.style.display = 'none';
         communityDetail.style.display = 'block';
 
-        // Load community content
         loadCommunityContent(community.id);
     }
 
@@ -477,7 +519,6 @@ window.fetch = async (...args) => {
         members.forEach(member => {
             const memberItem = document.createElement('div');
             memberItem.className = 'member-item';
-            //console.log(member);
             
             const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
             const roleClass = (member.role || 'student').toLowerCase();
@@ -525,7 +566,6 @@ window.fetch = async (...args) => {
             const announcementItem = document.createElement('div');
             announcementItem.className = 'announcement-item';
 
-            // Determine announcement type based on content or random for demo
             const types = ['Workshop', 'Event', 'Job'];
             const type = announcement.type || types[Math.floor(Math.random() * types.length)];
 
@@ -553,15 +593,12 @@ window.fetch = async (...args) => {
     async function loadCommunityPosts(communityId) {
         try {
             showLoadingState(postsList, 'posts');
-            console.log("community id : ${communityId}");
-            
             const response = await fetch(`${API_BASE_URL}/communities/${communityId}/posts`, { headers: getAuthHeaders() });
             const posts = await handleApiResponse(response, "Failed to load posts");
-            console.log(posts);
             
             if (posts && posts.length > 0) {
                 renderPosts(posts);
-                communityPosts.textContent = `${posts.length} Posts`
+                communityPosts.textContent = `${posts.length} Posts`;
                 postsTabCount.textContent = `(${posts.length})`;
             } else {
                 renderEmptyState(postsList, 'No posts yet', 'Be the first to start a conversation!');
@@ -602,7 +639,6 @@ window.fetch = async (...args) => {
                         </svg>
                         ${post.likesCount || 0}
                     </button>
-                    
                 </div>
             `;
 
@@ -658,11 +694,9 @@ window.fetch = async (...args) => {
             tab.addEventListener('click', () => {
                 const tabType = tab.dataset.tab;
 
-                // Update active tab
                 communityTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                // Update active panel
                 tabPanels.forEach(panel => panel.classList.remove('active'));
                 document.getElementById(`${tabType}CommunitiesPanel`).classList.add('active');
             });
@@ -673,42 +707,44 @@ window.fetch = async (...args) => {
             tab.addEventListener('click', () => {
                 const contentType = tab.dataset.content;
 
-                // Update active tab
                 contentTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
-                // Update active panel
                 contentPanels.forEach(panel => panel.classList.remove('active'));
                 document.getElementById(`${contentType}Panel`).classList.add('active');
             });
         });
 
         // Back to communities button
-        backToCommunities.addEventListener('click', () => {
-            communityDetail.style.display = 'none';
-            communitiesOverview.style.display = 'block';
-            currentCommunityId = null;
-        });
+        if (backToCommunities) {
+            backToCommunities.addEventListener('click', () => {
+                communityDetail.style.display = 'none';
+                communitiesOverview.style.display = 'block';
+                currentCommunityId = null;
+            });
+        }
 
         // Join/Leave community button in detail view
-        joinCommunityBtn.addEventListener('click', async () => {
-            if (!currentCommunityId) return;
+        if (joinCommunityBtn) {
+            joinCommunityBtn.addEventListener('click', async () => {
+                if (!currentCommunityId) return;
 
-            const community = allCommunities.find(c => c.id === currentCommunityId);
-            if (!community) return;
+                const community = allCommunities.find(c => c.id === currentCommunityId);
+                if (!community) return;
 
-            const isJoined = joinedCommunities.some(c => c.id === currentCommunityId);
+                const isJoined = joinedCommunities.some(c => c.id === currentCommunityId);
 
-            if (isJoined) {
-                await leaveCommunity(currentCommunityId, community.name, joinCommunityBtn);
-                joinCommunityBtn.textContent = 'Join Community';
-                joinCommunityBtn.className = 'join-btn';
-            } else {
-                await joinCommunity(currentCommunityId, community.name, joinCommunityBtn);
-                joinCommunityBtn.textContent = 'Leave Community';
-                joinCommunityBtn.className = 'join-btn leave-btn';
-            }
-        });
+                if (isJoined) {
+                    await leaveCommunity(currentCommunityId, community.name, joinCommunityBtn);
+                    joinCommunityBtn.textContent = 'Join Community';
+                    joinCommunityBtn.className = 'join-btn';
+                } else {
+                    await joinCommunity(currentCommunityId, community.name, joinCommunityBtn);
+                    joinCommunityBtn.textContent = 'Leave Community';
+                    joinCommunityBtn.className = 'join-btn leave-btn';
+                }
+            });
+        }
 
         // Search functionality
         if (communitySearch) {
@@ -738,4 +774,4 @@ window.fetch = async (...args) => {
 
     // Initialize the page
     await initializePage();
-});
+})

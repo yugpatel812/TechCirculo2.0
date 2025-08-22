@@ -85,7 +85,7 @@ public class PostController {
         }
         
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<CommunityPostDto> posts = postService.getPostsByUser(user.getId(), pageable);
+        Page<CommunityPostDto> posts = postService.getPostsByUser(user.getId(), pageable, user.getId());
         return ResponseEntity.ok(posts);
     }
 

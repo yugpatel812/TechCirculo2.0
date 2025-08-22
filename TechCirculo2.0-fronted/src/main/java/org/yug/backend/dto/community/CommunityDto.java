@@ -22,4 +22,5 @@ public class CommunityDto {
 
     private String role;           // from user_communities
     private LocalDateTime joinedAt; // from user_communities
+   
 }

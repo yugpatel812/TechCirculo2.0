@@ -2,6 +2,222 @@
 document.addEventListener("DOMContentLoaded", function () {
     const API_BASE_URL = "http://localhost:8084"; // API base URL, consistent with other JS files
 
+    // Mobile Navigation Functionality
+    function initializeMobileNavigation() {
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        if (!hamburgerBtn || !sidebar || !sidebarOverlay) {
+            console.warn('Mobile navigation elements not found');
+            return;
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const isActive = sidebar.classList.contains('active');
+            
+            if (isActive) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        }
+
+        // Open sidebar
+        function openSidebar() {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+            hamburgerBtn.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            
+            // Add escape key listener
+            document.addEventListener('keydown', handleEscapeKey);
+        }
+
+        // Close sidebar
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+            hamburgerBtn.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+            
+            // Remove escape key listener
+            document.removeEventListener('keydown', handleEscapeKey);
+        }
+
+        // Handle escape key
+        function handleEscapeKey(e) {
+            if (e.key === 'Escape') {
+                closeSidebar();
+            }
+        }
+
+        // Handle window resize
+        function handleResize() {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        }
+
+        // Event listeners
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
+        });
+
+        sidebarOverlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar when clicking nav links on mobile
+        const navLinks = sidebar.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', handleResize);
+
+        // Prevent sidebar from closing when clicking inside it
+        sidebar.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Close sidebar on swipe gesture (optional enhancement)
+        let startX = null;
+        let startY = null;
+
+        sidebar.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        sidebar.addEventListener('touchmove', (e) => {
+            if (!startX || !startY) return;
+
+            const deltaX = e.touches[0].clientX - startX;
+            const deltaY = e.touches[0].clientY - startY;
+
+            // If swiping left and it's a horizontal swipe
+            if (deltaX < -50 && Math.abs(deltaY) < Math.abs(deltaX)) {
+                closeSidebar();
+            }
+        }, { passive: true });
+
+        sidebar.addEventListener('touchend', () => {
+            startX = null;
+            startY = null;
+        }, { passive: true });
+    }
+
+    // Enhanced search functionality for mobile
+    function enhanceMobileSearch() {
+        const searchInput = document.getElementById('searchInput');
+        if (!searchInput) return;
+
+        // Add mobile-friendly search behavior
+        searchInput.addEventListener('focus', () => {
+            // On mobile, scroll the search input into view
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    searchInput.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 300); // Wait for virtual keyboard
+            }
+        });
+
+        // Clear search on escape
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                searchInput.blur();
+            }
+        });
+    }
+
+    // Enhanced filter tabs for mobile
+    function enhanceMobileFilterTabs() {
+        const filterTabs = document.querySelector('.filter-tabs');
+        if (!filterTabs) return;
+
+        // Scroll active tab into view on mobile
+        function scrollActiveTabIntoView() {
+            if (window.innerWidth <= 768) {
+                const activeTab = filterTabs.querySelector('.filter-tab.active');
+                if (activeTab) {
+                    activeTab.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                    });
+                }
+            }
+        }
+
+        // Listen for tab changes
+        filterTabs.addEventListener('click', (e) => {
+            if (e.target.closest('.filter-tab')) {
+                setTimeout(scrollActiveTabIntoView, 100);
+            }
+        });
+    }
+
+    // Optimize touch interactions
+    function optimizeTouchInteractions() {
+        // Add touch feedback to interactive elements
+        const interactiveElements = document.querySelectorAll(
+            '.announcement-card, .bookmark-btn, .filter-tab, .filter-select, .search-box input'
+        );
+
+        interactiveElements.forEach(element => {
+            element.addEventListener('touchstart', () => {
+                element.style.transform = 'scale(0.98)';
+            }, { passive: true });
+
+            element.addEventListener('touchend', () => {
+                setTimeout(() => {
+                    element.style.transform = '';
+                }, 100);
+            }, { passive: true });
+
+            element.addEventListener('touchcancel', () => {
+                element.style.transform = '';
+            }, { passive: true });
+        });
+    }
+
+    // Initialize all mobile enhancements
+    function initializeMobileEnhancements() {
+        initializeMobileNavigation();
+        enhanceMobileSearch();
+        enhanceMobileFilterTabs();
+        optimizeTouchInteractions();
+    }
+
+    // Additional utility functions for responsive behavior
+    function isMobile() {
+        return window.innerWidth <= 768;
+    }
+
+    function isTablet() {
+        return window.innerWidth > 768 && window.innerWidth <= 1024;
+    }
+
+    function isDesktop() {
+        return window.innerWidth > 1024;
+    }
+
+    // Export functions if needed
+    window.mobileUtils = {
+        isMobile,
+        isTablet,
+        isDesktop
+    };
+
     // Helper to get auth headers
     function getAuthHeaders() {
         const token = localStorage.getItem("token");
@@ -25,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
             element.style.pointerEvents = 'auto';
         }
     }
-
+    
     // Enhanced notification system
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
@@ -84,20 +300,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const userProfileImage = document.getElementById("user-profile-image");
         const greetingText = document.getElementById("greeting-text");
 
-        //console.log("Fetching user profile...");
-        
-
         // Show loading states
         const profileElements = [userProfileName, userProfileImage, greetingText];
         profileElements.forEach(el => el && showLoading(el));
 
         try {
             const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
-           // console.log("Profile API response status:", response.status);
             
             if (response.ok) {
                 const userData = await response.json();
-                //console.log("User data received:", userData);
                 
                 if (userProfileName) {
                     userProfileName.textContent = userData.name || "User";
@@ -112,8 +323,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (greetingText) {
                     greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
                 }
-                
-                //showNotification("Profile loaded successfully!", 'success');
             } else {
                 const errorData = await response.json().catch(() => ({}));
                 console.warn("Failed to fetch user profile:", errorData.message || response.statusText);
@@ -164,9 +373,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initialize the page
     async function initializePage() {
-       // console.log("Initializing page...");
+        // Initialize mobile enhancements FIRST
+        initializeMobileEnhancements();
         
-        // Fetch user profile first
+        // Fetch user profile
         await fetchUserProfile();
         
         // Then initialize other components
@@ -199,7 +409,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             
             // Fallback to static announcements
-           // console.log("Using static announcements as fallback");
             initializeStaticAnnouncements();
             renderAnnouncements();
             
@@ -261,6 +470,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 announcementCard.style.transform = 'translateY(0)';
             }, 100 + (index * 50));
         });
+
+        // Re-apply touch interactions for newly created elements
+        if (window.innerWidth <= 768) {
+            optimizeTouchInteractions();
+        }
     }
 
     // Create announcement card element
@@ -474,6 +688,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const message = announcement.read ? 'Marked as read!' : 'Marked as unread!';
                 showNotification(message, 'success');
                 filterAnnouncements();
+                updateUrgentBadge(); // Update badge when read status changes
             } else {
                 const errorData = await response.json();
                 showNotification(`Failed to update read status: ${errorData.message || response.statusText}`, 'error');
@@ -485,6 +700,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const message = announcement.read ? 'Marked as read!' : 'Marked as unread!';
             showNotification(message, 'success');
             filterAnnouncements();
+            updateUrgentBadge(); // Update badge when read status changes
         }
     }
 

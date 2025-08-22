@@ -1,386 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      TechCirculo - A central point where education and collaboration meet
-    </title>
-    <link rel="stylesheet" href="css/landing.css" />
-  </head>
-  <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-      <div class="nav-content">
-        <div class="logo">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
-            />
-            <path
-              d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
-            />
-            <path d="M19 11h2m-1 -1v2" />
-          </svg>
-          <span>TechCirculo</span>
-        </div>
-        <div class="nav-links">
-          <a href="#features">Features</a>
-          <a href="#communities">Communities</a>
-          <a href="#testimonials">Testimonials</a>
-          <a href="SignIn.html" class="cta-button">Login</a>
-        </div>
-      </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-content">
-        <h1 id="hero-heading"></h1>
-        <p>
-          Join TechCirculo to collaborate, learn, and grow with fellow students
-          and professionals in your university's tech ecosystem.
-        </p>
-        <div class="hero-buttons">
-          <a href="SignIn.html" class="primary-button">Get Started</a>
-          <a href="#features" class="secondary-button">Learn More</a>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    TechCirculo - A central point where education and collaboration meets precision
+  </title>
+  <link rel="stylesheet" href="css/landing.css" />
+</head>
+
+<body>
+  <!-- Floating Navigation -->
+  <nav class="navbar">
+    <div class="nav-content">
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z" />
+          <path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+          <path d="M19 11h2m-1 -1v2" />
+        </svg>
+        TechCirculo
+      </div>
+      <ul class="nav-menu">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#communities">Communities</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <a href="SignIn.html" class="nav-cta">Sign In</a>
+      <button class="mobile-toggle">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content reveal">
+        <div class="hero-badge">
+          ✨ Now with AI-powered matching
+        </div>
+        <h1>Where Innovation Meets Collaboration</h1>
+        <p class="hero-subtitle">Connect with brilliant minds, build amazing projects, and accelerate your tech journey
+          in university communities worldwide.</p>
+        <div class="hero-actions">
+          <a href="SignIn.html" class="btn-primary">
+            Start Journey
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 17L17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </a>
+          <a href="#communities" class="btn-secondary">Explore Communities</a>
         </div>
         <div class="hero-stats">
-          <div class="stat">
-            <span class="stat-number" data-target="10000">0</span>
-            <span class="stat-label">Active Users</span>
+          <div class="stat-item">
+            <span class="stat-number" data-target="50000">0</span>
+            <span class="stat-label">Active Builders</span>
           </div>
-          <div class="stat">
-            <span class="stat-number" data-target="50">0</span>
-            <span class="stat-label">Communities</span>
+          <div class="stat-item">
+            <span class="stat-number" data-target="200">0</span>
+            <span class="stat-label">Universities</span>
           </div>
-          <div class="stat">
-            <span class="stat-number" data-target="100">0</span>
-            <span class="stat-label">Daily Events</span>
+          <div class="stat-item">
+            <span class="stat-number" data-target="1000">0</span>
+            <span class="stat-label">Projects Born</span>
           </div>
         </div>
       </div>
-      <div class="hero-image">
-        <img
-          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop"
-          alt="Students collaborating"
-        />
+      <div class="hero-visual reveal">
+  <div class="floating-cards">
+
+    <!-- Card 1 -->
+    <div class="floating-card">
+      <div class="card-icon">🤝</div>
+      <div class="card-title">Community Engagement</div>
+      <div class="card-desc">
+        Join and create tech-focused communities to collaborate and grow together.
       </div>
-    </section>
+    </div>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
-      <h2>Why Choose TechCirculo?</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M14 19a6 6 0 0 0-12 0" />
-              <circle cx="8" cy="9" r="4" />
-              <path d="M22 19a6 6 0 0 0-6-6 4 4 0 1 0 0-8" />
-            </svg>
-          </div>
-          <h3>Exclusive University Network</h3>
-          <p>
-            Connect with verified students and faculty from your university's
-            tech community.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
-              />
-            </svg>
-          </div>
-          <h3>Real-time Collaboration</h3>
-          <p>
-            Engage in discussions, share resources, and collaborate on projects
-            in real-time.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"
-              />
-            </svg>
-          </div>
-          <h3>Knowledge Sharing</h3>
-          <p>
-            Access a vast library of resources, tutorials, and learning
-            materials.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-          </div>
-          <h3>Mentorship Opportunities</h3>
-          <p>
-            Connect with industry professionals and experienced peers for
-            guidance.
-          </p>
-        </div>
+    <!-- Card 2 -->
+    <div class="floating-card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Real-Time Interactions</div>
+      <div class="card-desc">
+        Get instant notifications, announcements, and updates with WebSocket-powered communication.
       </div>
-    </section>
-    <!-- Communities Section -->
-    <section id="communities" class="communities">
-      <h2>Trending Communities</h2>
-      <div class="community-slider">
-        <button class="slide-btn prev-btn">&#10094;</button>
-        <div class="communities-grid-wrapper">
-          <div class="communities-grid">
-            <div class="community-card">
-              <img
-                src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=300&h=200&fit=crop"
-                alt="Web Development"
-              />
-              <div class="community-content">
+    </div>
+
+   
+
+    <!-- Card 4 -->
+    <div class="floating-card">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Scalable Platform</div>
+      <div class="card-desc">
+        Built to support thousands of students across multiple universities with secure access.
+      </div>
+    </div>
+
+    
+  </div>
+</div>
+
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="features-header reveal">
+      <span class="section-badge">Features</span>
+      <h2>Everything you need to thrive</h2>
+      <p class="features-subtitle">Powerful tools and connections designed for the next generation of tech innovators
+      </p>
+    </div>
+    <div class="bento-grid reveal">
+      <div class="bento-item bento-item-1">
+        <div class="bento-icon">🎯</div>
+        <h3 class="bento-title">Smart Matching</h3>
+        <p class="bento-desc">AI-powered algorithm connects you with the right people and opportunities</p>
+      </div>
+      <div class="bento-item bento-item-2">
+        <div class="bento-icon">💬</div>
+        <h3 class="bento-title">Real-time Chat</h3>
+        <p class="bento-desc">Instant messaging with voice, video, and screen sharing capabilities</p>
+      </div>
+      <div class="bento-item bento-item-3">
+        <div class="bento-icon">🏆</div>
+        <h3 class="bento-title">Achievement System</h3>
+        <p class="bento-desc">Track progress and earn recognition for contributions</p>
+      </div>
+      <div class="bento-item bento-item-4">
+        <div class="bento-icon">📊</div>
+        <h3 class="bento-title">Analytics Dashboard</h3>
+        <p class="bento-desc">Insights into your network growth and project impact</p>
+      </div>
+      <div class="bento-item bento-item-5">
+        <div class="bento-icon">🔒</div>
+        <h3 class="bento-title">Privacy First</h3>
+        <p class="bento-desc">University-verified accounts with granular privacy controls</p>
+      </div>
+      <div class="bento-item bento-item-6">
+        <div class="bento-icon">🌐</div>
+        <h3 class="bento-title">Global Network</h3>
+        <p class="bento-desc">Connect across universities and time zones seamlessly</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Communities Section -->
+  <section id="communities" class="communities">
+    <div class="communities-container">
+      <div class="communities-header reveal">
+        <h2>Thriving Communities</h2>
+        <p class="communities-subtitle">Join specialized communities where innovation happens every day</p>
+      </div>
+      <div class="communities-carousel">
+        <div class="communities-track">
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">AI</div>
+              <div class="community-info">
+                <h3>AI & Machine Learning</h3>
+                <div class="community-members">12,450 members</div>
+              </div>
+            </div>
+            <p class="community-desc">Exploring the frontiers of artificial intelligence with cutting-edge research and
+              practical applications.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>2.3k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>150+</strong>
+                Active projects
+              </div>
+            </div>
+          </div>
+
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">WD</div>
+              <div class="community-info">
                 <h3>Web Development</h3>
-                <p>2.4k members</p>
+                <div class="community-members">8,920 members</div>
               </div>
             </div>
+            <p class="community-desc">Building the future web with modern frameworks, tools, and best practices.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>1.8k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>300+</strong>
+                Active projects
+              </div>
+            </div>
+          </div>
 
-            <div class="community-card">
-              <img
-                src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=300&h=200&fit=crop"
-                alt="Mobile Development"
-              />
-              <div class="community-content">
-                <h3>Mobile Development</h3>
-                <p>1.8k members</p>
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">CS</div>
+              <div class="community-info">
+                <h3>Cybersecurity</h3>
+                <div class="community-members">15,600 members</div>
               </div>
             </div>
-            <div class="community-card">
-              <img
-                src="https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YW5kcm9pZHxlbnwwfHwwfHx8MA%3D%3D"
-                alt="Android Development"
-              />
-              <div class="community-content">
-                <h3>Android Development</h3>
-                <p>1.8k members</p>
+            <p class="community-desc">Defending the digital world through ethical hacking and security research.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>3.1k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>89</strong>
+                Active projects
               </div>
             </div>
-            <div class="community-card">
-              <img
-                src="https://plus.unsplash.com/premium_photo-1663023612721-e588768ef403?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8d2ViJTIwZGV2fGVufDB8fDB8fHww"
-                alt="MERN Development"
-              />
-              <div class="community-content">
-                <h3>MERN Stack Development</h3>
-                <p>4.8k members</p>
-              </div>
-            </div>
-            <div class="community-card">
-              <img
-                src="https://plus.unsplash.com/premium_photo-1661877737564-3dfd7282efcb?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y3liZXJzZWN1cml0eXxlbnwwfHwwfHx8MA%3D%3D"
-                alt="CyberSecurity"
-              />
-              <div class="community-content">
-                <h3>CyberSecurity</h3>
-                <p>8.8k members</p>
-              </div>
-            </div>
-            <div class="community-card">
-              <img
-                src="https://plus.unsplash.com/premium_photo-1688678097425-00bba1629e32?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGNsb3VkJTIwZW5naW5lZXJpbmd8ZW58MHx8MHx8fDA%3D"
-                alt="Cloud Enginnering"
-              />
-              <div class="community-content">
-                <h3>Cloud Engineering</h3>
-                <p>7.8k members</p>
-              </div>
-            </div>
-            <div class="community-card">
-              <img
-                src="https://plus.unsplash.com/premium_photo-1661878265739-da90bc1af051?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZGF0YSUyMHNjaWVuY2V8ZW58MHx8MHx8fDA%3D"
-                alt="Data Science"
-              />
-              <div class="community-content">
+          </div>
+
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">DS</div>
+              <div class="community-info">
                 <h3>Data Science</h3>
-                <p>5.8k members</p>
+                <div class="community-members">11,200 members</div>
               </div>
             </div>
-            <div class="community-card">
-              <img
-                src="https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YWl8ZW58MHx8MHx8fDA%3D"
-                alt="Artificial Inteligence"
-              />
-              <div class="community-content">
-                <h3>Artificial Inteligence</h3>
-                <p>1.8k members</p>
+            <p class="community-desc">Extracting insights from data to solve real-world problems and drive decisions.
+            </p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>1.9k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>200+</strong>
+                Active projects
+              </div>
+            </div>
+          </div>
+
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">MB</div>
+              <div class="community-info">
+                <h3>Mobile Dev</h3>
+                <div class="community-members">7,850 members</div>
+              </div>
+            </div>
+            <p class="community-desc">Creating amazing mobile experiences for iOS, Android, and cross-platform apps.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>1.2k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>120+</strong>
+                Active projects
+              </div>
+            </div>
+          </div>
+
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">BC</div>
+              <div class="community-info">
+                <h3>Blockchain</h3>
+                <div class="community-members">9,300 members</div>
+              </div>
+            </div>
+            <p class="community-desc">Building decentralized applications and exploring Web3 technologies.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>2.5k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>95</strong>
+                Active projects
+              </div>
+            </div>
+          </div>
+
+          <!-- Duplicate for seamless loop -->
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">AI</div>
+              <div class="community-info">
+                <h3>AI & Machine Learning</h3>
+                <div class="community-members">12,450 members</div>
+              </div>
+            </div>
+            <p class="community-desc">Exploring the frontiers of artificial intelligence with cutting-edge research and
+              practical applications.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>2.3k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>150+</strong>
+                Active projects
+              </div>
+            </div>
+          </div>
+
+          <div class="community-card">
+            <div class="community-header">
+              <div class="community-avatar">WD</div>
+              <div class="community-info">
+                <h3>Web Development</h3>
+                <div class="community-members">8,920 members</div>
+              </div>
+            </div>
+            <p class="community-desc">Building the future web with modern frameworks, tools, and best practices.</p>
+            <div class="community-stats">
+              <div class="stat">
+                <strong>1.8k</strong>
+                Posts this week
+              </div>
+              <div class="stat">
+                <strong>300+</strong>
+                Active projects
               </div>
             </div>
           </div>
         </div>
-        <button class="slide-btn next-btn">&#10095;</button>
       </div>
-    </section>
-    <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials">
-      <h2>What Our Users Say</h2>
-      <div class="testimonials-grid">
-        <div class="testimonial-card">
-          <img
-            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop"
-            alt="Sarah Johnson"
-          />
-          <p>
-            "TechCirculo helped me connect with like-minded developers and land
-            my dream internship!"
-          </p>
-          <div class="testimonial-author">
-            <strong>Sarah Johnson</strong>
-            <span>Computer Science, Final Year</span>
-          </div>
-        </div>
+    </div>
+  </section>
 
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="testimonials">
+    <div class="testimonials-container">
+      <div class="testimonials-header reveal">
+        <span class="section-badge">Success Stories</span>
+        <h2>What our community says</h2>
+      </div>
+      <div class="testimonials-grid reveal">
         <div class="testimonial-card">
-          <img
-            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
-            alt="Michael Chen"
-          />
-          <p>
-            "The mentorship I received through TechCirculo was invaluable for my
-            career growth."
-          </p>
+          <div class="quote-icon">"</div>
+          <p class="testimonial-text">TechCirculo transformed my university experience. I found my co-founder here and
+            we built a startup that got accepted into Y Combinator. The connections I made are invaluable.</p>
           <div class="testimonial-author">
-            <strong>Michael Chen</strong>
-            <span>Software Engineer, Alumni</span>
+            <div class="author-avatar">A</div>
+            <div class="author-info">
+              <h4>Alex Chen</h4>
+              <div class="author-role">CS Major, Stanford • YC Founder</div>
+            </div>
           </div>
         </div>
 
         <div class="testimonial-card">
-          <img
-            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop"
-            alt="Emily Rodriguez"
-          />
-          <p>
-            "As a teacher, I love how TechCirculo facilitates meaningful
-            interactions with students."
-          </p>
+          <div class="quote-icon">"</div>
+          <p class="testimonial-text">As an international student, TechCirculo helped me integrate into the tech
+            community quickly. The mentorship program connected me with industry professionals who guided my career
+            path.</p>
           <div class="testimonial-author">
-            <strong>Emily Rodriguez</strong>
-            <span>Assistant Professor</span>
+            <div class="author-avatar">P</div>
+            <div class="author-info">
+              <h4>Priya Sharma</h4>
+              <div class="author-role">Data Science, MIT • Google SWE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="quote-icon">"</div>
+          <p class="testimonial-text">The collaborative environment is incredible. I've contributed to open source
+            projects, participated in hackathons, and learned from peers across different universities globally.</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">M</div>
+            <div class="author-info">
+              <h4>Marcus Johnson</h4>
+              <div class="author-role">Computer Engineering, Berkeley • OSS Maintainer</div>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-      <div class="cta-content">
-        <h2>Ready to Join Your University's Tech Community?</h2>
-        <p>Start connecting, learning, and growing with TechCirculo today.</p>
-        <a href="SignIn.html" class="primary-button">Get Started Now</a>
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-container reveal">
+      <h2>Ready to join the future?</h2>
+      <p class="cta-subtitle">Connect with brilliant minds, build groundbreaking projects, and accelerate your tech
+        career today.</p>
+      <div class="cta-actions">
+        <a href="#" class="btn-primary">Get Started</a>
+        <a href="#" class="btn-secondary">Schedule Demo</a>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <div class="logo">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
-              />
-              <path
-                d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
-              />
-              <path d="M19 11h2m-1 -1v2" />
-            </svg>
-            <span>TechCirculo</span>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-main">
+        <div class="footer-brand">
+          <h3>TechCirculo</h3>
+          <p>Empowering the next generation of tech innovators through meaningful connections and collaborative learning
+            experiences.</p>
+          <div class="social-links">
+            <a href="#" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
+              </svg>
+            </a>
+            <a href="#" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
+              </svg>
+            </a>
+            <a href="#" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+            </a>
+            <a href="#" class="social-link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.739.099.118.112.223.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.001 12.017z" />
+              </svg>
+            </a>
           </div>
-          <p>A central point where education and collaboration meet</p>
         </div>
-
         <div class="footer-section">
-          <h4>Quick Links</h4>
-          <a href="#features">Features</a>
-          <a href="#communities">Communities</a>
-          <a href="#testimonials">Testimonials</a>
+          <h4>Product</h4>
+          <a href="#">Features</a>
+          <a href="#">Communities</a>
+          <a href="#">Pricing</a>
+          <a href="#">Mobile App</a>
         </div>
-
         <div class="footer-section">
-          <h4>Contact</h4>
-          <p>Email: support@techcirculo.com</p>
-          <p>Phone: (555) 123-4567</p>
+          <h4>Resources</h4>
+          <a href="#">Documentation</a>
+          <a href="#">Help Center</a>
+          <a href="#">Blog</a>
+          <a href="#">API</a>
+        </div>
+        <div class="footer-section">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Careers</a>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2025 TechCirculo. All rights reserved.</p>
+        <p>&copy; 2025 TechCirculo. All rights reserved. Built with ❤️ for the tech community.</p>
       </div>
-    </footer>
-    <script src="js/landing.js"></script>
-  </body>
+    </div>
+  </footer>
+
+  <script src="js/landing.js"></script>
+</body>
+
 </html>

@@ -85,7 +85,8 @@ Page<Post> findWithAdvancedFilters(@Param("query") String query,
 
     // Posts by community with pagination
     Page<Post> findByCommunityId(UUID communityId, Pageable pageable);
-    
+    void deleteByCommunityIdAndAuthorId(UUID communityId, UUID authorId);
+
     // Hidden/Visible posts
     Page<Post> findByIsHiddenFalse(Pageable pageable);
     
@@ -115,4 +116,15 @@ Page<Post> findWithAdvancedFilters(@Param("query") String query,
            "WHERE pl.userId = :userId OR pb.userId = :userId OR c.author.id = :userId " +
            "ORDER BY p.createdAt DESC")
     Page<Post> findPostsWithUserActivity(@Param("userId") UUID userId, Pageable pageable);
+
+    @Query("""
+    SELECT p
+    FROM Post p
+    JOIN FETCH p.author a
+    LEFT JOIN FETCH a.profile pr
+    JOIN FETCH p.community c
+    WHERE a.id = :authorId
+""")
+Page<Post> findByAuthorIdWithDetails(@Param("authorId") UUID authorId, Pageable pageable);
+
 }

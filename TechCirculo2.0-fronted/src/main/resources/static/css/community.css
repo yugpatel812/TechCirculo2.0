@@ -976,3 +976,337 @@
         gap: 8px;
     }
 }
+
+/* Hamburger Menu Styles */
+.hamburger {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: var(--surface-color);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    box-shadow: var(--shadow-md);
+}
+
+.hamburger:hover {
+    background: var(--background-color);
+    border-color: var(--primary-color);
+}
+
+.hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--text-color);
+    border-radius: 2px;
+    transition: var(--transition);
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    /* Show hamburger menu */
+    .hamburger {
+        display: flex;
+    }
+
+    /* Hide sidebar by default on mobile */
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+        box-shadow: var(--shadow-xl);
+        width: 280px;
+    }
+
+    /* Show sidebar when active */
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    /* Adjust main content */
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Adjust header */
+    .header {
+        padding-left: 4rem; /* Space for hamburger */
+        margin-left: 0;
+    }
+
+    /* Adjust communities overview */
+    .communities-overview {
+        margin-top: 8rem; /* More space for fixed hamburger */
+    }
+
+    /* Make search responsive */
+    .search {
+        flex: 1;
+        max-width: none;
+    }
+
+    .search input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* User menu adjustments */
+    .user-menu {
+        gap: 0.5rem;
+    }
+
+    .user-profile .user-details {
+        display: none; /* Hide user details on very small screens */
+    }
+
+    .user-profile {
+        gap: 0.5rem;
+    }
+
+    /* Community cards adjustments */
+    .community-card-body {
+        padding: 1rem;
+    }
+
+    .community-card-body .community-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .view-btn, .join-btn, .leave-btn {
+        width: 100%;
+    }
+
+    /* Community detail adjustments */
+    .community-header {
+        padding: 1.5rem;
+    }
+
+    .community-info h1 {
+        font-size: 1.5rem;
+    }
+
+    /* Content tabs scrollable */
+    .content-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .content-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Chat container height adjustment */
+    .chat-container {
+        height: 400px;
+    }
+
+    /* Message adjustments */
+    .chat-message {
+        margin-bottom: 1rem;
+    }
+
+    .message-content {
+        padding: 10px 12px;
+    }
+
+    /* Input adjustments */
+    .chat-input input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* Member, announcement, and post item adjustments */
+    .member-item,
+    .announcement-item,
+    .post-item {
+        padding: 1rem;
+    }
+
+    .announcement-header,
+    .post-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    /* Stats adjustments */
+    .community-header .community-stats {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .communities-header .text-content p {
+        font-size: 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .hamburger {
+        top: 0.75rem;
+        left: 0.75rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .header {
+        padding: 1rem 0.75rem 1rem 3.5rem;
+    }
+
+    .main-content {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .communities-overview {
+        margin-top: 7rem;
+    }
+
+    .communities-header .icon-wrapper {
+        width: 50px;
+        height: 50px;
+    }
+
+    .communities-header .text-content h1 {
+        font-size: 1.75rem;
+    }
+
+    .community-tabs {
+        padding: 4px;
+    }
+
+    .community-tab {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+
+    .content-tab {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+    }
+
+    .content-tab svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Hide some less important elements on very small screens */
+    .community-trending {
+        display: none;
+    }
+
+    .member-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+    }
+
+    .view-profile-btn {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+
+    /* Simplify post actions */
+    .post-actions {
+        justify-content: space-between;
+    }
+
+    .post-action {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 4px;
+    }
+
+    /* Make chat messages more compact */
+    .message-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+
+    .chat-input {
+        padding: 1rem;
+    }
+
+    .send-btn {
+        padding: 10px 12px;
+    }
+}
+
+/* Landscape mobile adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .chat-container {
+        height: 300px;
+    }
+    
+    .communities-overview {
+        margin-top: 6rem;
+    }
+}
+/* Add this to your Community.css to fix z-index issues */
+
+/* Ensure hamburger is always visible above everything */
+.hamburger {
+    z-index: 1002 !important; /* Higher than sidebar overlay */
+}
+
+/* Ensure sidebar stays below hamburger but above overlay */
+.sidebar {
+    z-index: 1001;
+}
+
+/* Ensure overlay stays below sidebar */
+.sidebar-overlay {
+    z-index: 1000;
+}

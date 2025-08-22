@@ -106,6 +106,7 @@ public class ProfileService {
                 .linkedinUrl(profile.getLinkedinUrl())
                 .githubUrl(profile.getGithubUrl())
                 .leetcodeUrl(profile.getLeetcodeUrl())
+                .role(profile.getUser() != null ? profile.getUser().getRole().name() : null)
                 .build();
     }
 }

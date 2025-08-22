@@ -17,6 +17,54 @@ function getAuthHeadersMultipart() {
     "Authorization": `Bearer ${token}` // browser sets boundary
   };
 }
+// Add this to the beginning of your profile.js file, after the DOMContentLoaded event listener
+
+// Hamburger Menu Functionality
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const sidebar = document.querySelector('.sidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const body = document.body;
+
+function toggleSidebar() {
+  hamburgerBtn.classList.toggle('active');
+  sidebar.classList.toggle('active');
+  sidebarOverlay.classList.toggle('active');
+  body.classList.toggle('sidebar-open');
+}
+
+function closeSidebar() {
+  hamburgerBtn.classList.remove('active');
+  sidebar.classList.remove('active');
+  sidebarOverlay.classList.remove('active');
+  body.classList.remove('sidebar-open');
+}
+
+// Event Listeners
+hamburgerBtn.addEventListener('click', toggleSidebar);
+sidebarOverlay.addEventListener('click', closeSidebar);
+
+// Close sidebar when clicking on navigation links (better UX on mobile)
+const sidebarLinks = sidebar.querySelectorAll('nav a');
+sidebarLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    // Small delay to allow navigation to start
+    setTimeout(closeSidebar, 150);
+  });
+});
+
+// Close sidebar on window resize if screen becomes large
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 1024) {
+    closeSidebar();
+  }
+});
+
+// Close sidebar on escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+    closeSidebar();
+  }
+});
 
   // Enhanced notification system
   function showNotification(message, type = 'success') {
@@ -114,13 +162,17 @@ function getAuthHeadersMultipart() {
   const communityList = document.getElementById("community-list");
   const joinCommunityBtn = document.getElementById("join-community-btn");
   const postList = document.getElementById("post-list");
-
+  
+  const userBadge = document.querySelector(".badge-student")
+  //console.log(userBadge);
+  
   /* --- Profile Data Fetching and Display --- */
   async function fetchAndDisplayProfile() {
     try {
       // ✅ Updated to match backend endpoint: GET /profile
       const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
       const userData = await response.json();
+      console.log("user data",userData);
       
       if (response.ok) {
         displayName.textContent = userData.name || "Guest User";
@@ -129,7 +181,14 @@ function getAuthHeadersMultipart() {
         displayMajor.textContent = userData.major || "Computer Science";
         displayLocation.textContent = userData.location || "San Francisco, CA";
         displayBio.textContent = userData.bio || "Passionate computer science student interested in web development, AI, and cybersecurity.";
+       if (userBadge) {
+  userBadge.textContent = userData.role || "Member";
+}
 
+        //console.log(userBadge.textContent);
+        
+        
+        
         // Backend returns profilePicUrl field
         profilePicDisplay.src = userData.profilePicUrl || "https://via.placeholder.com/120x120?text=GU";
         editProfilePhoto.src = userData.profilePicUrl || "https://via.placeholder.com/80x80?text=GU";
@@ -182,72 +241,30 @@ function getAuthHeadersMultipart() {
     try {
       const response = await fetch(`${API_BASE_URL}/communities/join`, { headers: getAuthHeaders() });
       const communities = await response.json();
-      console.log(communities);
+      console.log("community data",communities);
       
       communityList.innerHTML = "";
       if (response.ok && communities && communities.length > 0) {
         communities.forEach(community => {
+          //console.log(community.joinedAt);
+          
           const li = document.createElement("li");
           li.className = "community-item";
           li.innerHTML = `
             <div class="community-info">
               <div class="community-name">${community.name}</div>
-              <div class="community-meta">
-  ${community.role || 'Member'} • ${community.joinedAt 
-      ? new Date(community.joinedAt).toLocaleDateString() 
-      : 'Recently'}
-</div>
-
+              <div class="community-meta">${community.role || 'Member'} • ${community.joinedAt? new Date(community.joinedAt).toLocaleDateString() : 'Recently'}</div>
             </div>
           `;
           communityList.appendChild(li);
         });
       } else {
         // Static fallback
-        communityList.innerHTML = `
-          <li class="community-item">
-            <div class="community-info">
-              <div class="community-name">Web Development</div>
-              <div class="community-meta">Member • Sept 2023</div>
-            </div>
-          </li>
-          <li class="community-item">
-            <div class="community-info">
-              <div class="community-name">AI/ML Research</div>
-              <div class="community-meta">Member • Oct 2023</div>
-            </div>
-          </li>
-          <li class="community-item">
-            <div class="community-info">
-              <div class="community-name">Cybersecurity</div>
-              <div class="community-meta">Member • Nov 2023</div>
-            </div>
-          </li>
-        `;
+       communityList.innerHTML = `<li class="post-item">No joined communities</li>`;
       }
     } catch (error) {
       console.error("Error fetching user communities:", error);
-      // Static fallback
-      communityList.innerHTML = `
-        <li class="community-item">
-          <div class="community-info">
-            <div class="community-name">Web Development</div>
-            <div class="community-meta">Member • Sept 2023</div>
-          </div>
-        </li>
-        <li class="community-item">
-          <div class="community-info">
-            <div class="community-name">AI/ML Research</div>
-            <div class="community-meta">Member • Oct 2023</div>
-          </div>
-        </li>
-        <li class="community-item">
-          <div class="community-info">
-            <div class="community-name">Cybersecurity</div>
-            <div class="community-meta">Member • Nov 2023</div>
-          </div>
-        </li>
-      `;
+      communityList.innerHTML = `<li class="post-item">error</li>`;
     }
   }
 
@@ -258,7 +275,8 @@ async function fetchUserPosts() {
     });
     const data = await response.json(); // Spring Page object
     const posts = data.content; // Extract list
-
+    console.log("posts",posts);
+    
     postList.innerHTML = "";
 
     if (response.ok && posts && posts.length > 0) {
@@ -267,7 +285,7 @@ async function fetchUserPosts() {
         li.className = "post-item";
         li.innerHTML = `
           <div class="post-title">${post.title}</div>
-          <div class="post-meta">${post.timeAgo || 'Recently'} • ${post.comments || 0} comments</div>
+          <div class="post-meta">${new Date(post.createdAt).toLocaleDateString()|| 'Recently'} • ${post.likesCount || 0} Likes</div>
         `;
         postList.appendChild(li);
       });

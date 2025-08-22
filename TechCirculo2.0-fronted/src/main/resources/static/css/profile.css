@@ -957,3 +957,238 @@ img {
   overflow-x: hidden;
   box-sizing: border-box;
 }
+
+/* Mobile Hamburger Menu Styles */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1100;
+  background: var(--surface-color);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  width: 48px;
+  height: 48px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+}
+
+.hamburger:hover {
+  background: var(--background-color);
+  border-color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+.hamburger.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.hamburger span {
+  width: 20px;
+  height: 2px;
+  background: var(--text-color);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.hamburger.active span {
+  background: white;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Responsive Sidebar Styles */
+@media (max-width: 1024px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 280px;
+    box-shadow: var(--shadow-2xl);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* Adjust header padding for hamburger button */
+  .header {
+    padding-left: 4rem;
+  }
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 768px) {
+  .hamburger {
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 44px;
+    height: 44px;
+  }
+
+  .sidebar {
+    width: 260px;
+  }
+
+  .header {
+    padding-left: 3.5rem;
+    padding-right: 1rem;
+  }
+
+  .header-left .page-title h1 {
+    font-size: 1.75rem;
+  }
+
+  .edit-profile-btn {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+  }
+
+  .edit-profile-btn span {
+    display: none;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .hamburger {
+    top: 0.5rem;
+    left: 0.5rem;
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebar {
+    width: 240px;
+  }
+
+  .header {
+    padding-left: 3rem;
+    padding-right: 0.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .header-left .page-title h1 {
+    font-size: 1.5rem;
+  }
+
+  .header-left .page-title p {
+    font-size: 0.875rem;
+  }
+
+  .edit-profile-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  /* Make sidebar full width on very small screens */
+  .sidebar {
+    width: 100vw;
+    max-width: 280px;
+  }
+}
+
+/* Ensure sidebar content is properly styled on mobile */
+@media (max-width: 1024px) {
+  .sidebar .logo {
+    padding: 1.5rem 1rem;
+  }
+
+  .sidebar nav {
+    padding: 0 1rem 1rem;
+  }
+
+  .sidebar nav a {
+    padding: 0.875rem 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Fix modal z-index to appear above sidebar */
+.modal-overlay {
+  z-index: 1200;
+}
+
+/* Prevent body scroll when sidebar is open on mobile */
+body.sidebar-open {
+  overflow: hidden;
+}
+
+/* Smooth transitions for better UX */
+.dashboard {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Additional responsive fixes for profile content */
+@media (max-width: 1024px) {
+  .profile-content {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-content {
+    padding: 0 0.75rem;
+  }
+  
+  .profile-section {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-content {
+    padding: 0 0.5rem;
+  }
+}

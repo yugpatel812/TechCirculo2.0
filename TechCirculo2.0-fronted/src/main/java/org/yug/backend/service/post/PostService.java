@@ -62,11 +62,11 @@ public class PostService {
             .imageUrl(post.getImageUrl())
             .authorId(post.getAuthor().getId())
             .authorName(post.getAuthor().getUsername())
-            .authorRole(authorRole)  // 👈 added
-            .authorProfileUrl(authorProfileUrl)  // 👈 added
+            .authorRole(post.getAuthor().getRole().name())  
+            .authorProfileUrl(post.getAuthor().getProfile().getProfilePicUrl()) 
             .communityId(post.getCommunity().getId())
             .communityName(post.getCommunity().getName())
-            .communityImageUrl(communityImageUrl) // 👈 added
+            .communityImageUrl(post.getCommunity().getImageUrl()) // 👈 added
             .likesCount(post.getLikesCount() != null ? post.getLikesCount() : 0)
             .commentsCount((int) commentsCount)
             .createdAt(post.getCreatedAt())
@@ -115,12 +115,10 @@ public class PostService {
     }
 
     // Get posts by specific user
-    public Page<CommunityPostDto> getPostsByUser(UUID userId, Pageable pageable) {
-        return getPostsByUser(userId, pageable, null);
-    }
-
+    
     public Page<CommunityPostDto> getPostsByUser(UUID userId, Pageable pageable, UUID currentUserId) {
-        Page<Post> posts = postRepository.findByAuthorId(userId, pageable);
+        Page<Post> posts = postRepository.findByAuthorIdWithDetails(userId, pageable);
+
         
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));

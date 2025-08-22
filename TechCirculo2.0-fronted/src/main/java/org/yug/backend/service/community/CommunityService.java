@@ -111,23 +111,24 @@ public class CommunityService {
 
     // ✅ Get joined communities
     public List<CommunityDto> getJoinedCommunities(UUID userId) {
-        List<UserCommunity> relations = userCommunityRepository.findByUserId(userId);
+    List<UserCommunity> relations = userCommunityRepository.findByUserId(userId);
 
-        return relations.stream()
-            .map(rel -> communityRepository.findById(rel.getCommunityId())
-                    .map(community -> CommunityDto.builder()
-                            .id(community.getId())
-                            .name(community.getName())
-                            .description(community.getDescription())
-                            .imageUrl(community.getImageUrl())
-                            .memberCount(community.getMemberCount() != null ? community.getMemberCount() : 0L)
-                            .role(rel.getRole() != null ? rel.getRole() : "Member")
-                            .joinedAt(rel.getJoinedAt())
-                            .build())
-                    .orElse(null))
-            .filter(c -> c != null)
-            .toList();
-    }
+    return relations.stream()
+        .map(rel -> communityRepository.findById(rel.getCommunityId())
+                .map(community -> CommunityDto.builder()
+                        .id(community.getId())
+                        .name(community.getName())
+                        .description(community.getDescription())
+                        .imageUrl(community.getImageUrl())
+                        .memberCount(community.getMemberCount() != null ? community.getMemberCount() : 0L)
+                        .role(rel.getRole() != null ? rel.getRole() : "Member")
+                        .joinedAt(rel.getJoinedAt())
+                        .isJoined(true)   // ✅ always true here
+                        .build())
+                .orElse(null))
+        .filter(Objects::nonNull)
+        .toList();
+}
 
     // ✅ Create a new community (method overloads)
     public CommunityDto createCommunity(String name, String description, String imageUrl) {
@@ -188,22 +189,25 @@ public void joinCommunity(UUID userId, UUID communityId) {
     communityRepository.save(community);
 }
 
+@Transactional
+public void leaveCommunity(UUID userId, UUID communityId) {
+    UserCommunity relation = userCommunityRepository.findByUserIdAndCommunityId(userId, communityId)
+            .orElseThrow(() -> new IllegalArgumentException("User not in community"));
 
-    // ✅ Leave community
-    @Transactional
-    public void leaveCommunity(UUID userId, UUID communityId) {
-        UserCommunity relation = userCommunityRepository.findByUserIdAndCommunityId(userId, communityId)
-                .orElseThrow(() -> new IllegalArgumentException("User not in community"));
+    // ✅ delete user's posts in that community
+    postRepository.deleteByCommunityIdAndAuthorId(communityId, userId);
 
-        userCommunityRepository.delete(relation);
+    // delete the relation
+    userCommunityRepository.delete(relation);
 
-        Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new IllegalArgumentException("Community not found"));
+    Community community = communityRepository.findById(communityId)
+            .orElseThrow(() -> new IllegalArgumentException("Community not found"));
 
-        long count = userCommunityRepository.countByCommunityId(communityId);
-        community.setMemberCount(count);
-        communityRepository.save(community);
-    }
+    long count = userCommunityRepository.countByCommunityId(communityId);
+    community.setMemberCount(count);
+    communityRepository.save(community);
+}
+
 
     // ✅ UPDATED - Get posts by community (now actually fetches from database)
     public List<CommunityPostDto> getPostsByCommunity(UUID communityId) {
