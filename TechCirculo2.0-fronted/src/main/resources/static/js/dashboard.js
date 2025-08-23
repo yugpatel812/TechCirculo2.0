@@ -424,6 +424,7 @@ document.addEventListener('DOMContentLoaded', initializeHamburgerMenu);
         postElement.className = 'post';
         postElement.style.opacity = '0';
         postElement.style.transform = 'translateY(30px)';
+        console.log(post);
         
         // Determine join button state
         const isJoined = post.owner === true;

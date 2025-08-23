@@ -1,27 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>University Login System</title>
-    <link rel="stylesheet" href="css/SignIn.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="form-container" id="loginForm">
-        <div class="form-header">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="school-icon"
-          >
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>University Login System</title>
+  <link rel="stylesheet" href="css/SignIn.css" />
+</head>
+
+<body>
+  <div class="container">
+    <!-- Login Form -->
+    <div class="form-container" id="loginForm">
+      <div class="form-header">
+        <div class="logo">
+          <svg class="school-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
             <path d="m4 6 8-4 8 4" />
             <path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2" />
             <path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" />
@@ -29,305 +23,690 @@
             <path d="M6 5v17" />
             <circle cx="12" cy="9" r="2" />
           </svg>
-          <h1>Welcome Back To TechCirculo</h1>
-          <p>Sign in</p>
         </div>
-
-        <div class="error-message" id="loginError" style="display: none;"></div>
-
-        <form id="loginFormElement">
-          <div class="form-group">
-            <label for="loginRole">Role</label>
-            <select id="loginRole" required>
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="alumni">Alumni</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="loginEmail">Email</label>
-            <input
-              type="email"
-              id="loginEmail"
-              placeholder="...@paruluniversity.ac.in"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="loginPassword">Password</label>
-            <input
-              type="password"
-              id="loginPassword"
-              required
-              placeholder="Enter 6-digit password"
-            />
-          </div>
-
-          <button type="submit">Sign In</button>
-        </form>
-        
-        <form action="/oauth2/authorization/google" method="GET">
-          <button type="submit" class="login-with-google-btn">
-            <img src="images/google_logo.png" alt="Google logo" style="width: 20px; height: 20px;">
-            <p>Sign in with Google</p>
-          </button>
-        </form>
-
-        <p class="switch-form">
-          Don't have an account?
-          <a href="#" onclick="toggleForm('register')">Register</a>
-        </p>
+        <h1>Welcome Back</h1>
+        <p>Sign in to your TechCirculo account</p>
       </div>
 
-      <div class="form-container hidden" id="registerForm">
-        <div class="form-header">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="school-icon"
-          >
-            <path d="m4 6 8-4 8 4" />
-            <path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2" />
-            <path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" />
-            <path d="M18 5v17" />
-            <path d="M6 5v17" />
-            <circle cx="12" cy="9" r="2" />
-          </svg>
-          <h1>Create Account</h1>
-          <p>
-            Welcome To TechCirculo-A central point where education and
-            collaboration meet
-          </p>
+      <div class="error-message" id="loginError" style="display: none;"></div>
+      <div class="success-message" id="loginSuccess" style="display: none;"></div>
+
+      <form id="loginFormElement">
+        <div class="form-group">
+          <label for="loginRole">Role</label>
+          <select id="loginRole" required>
+            <option value="">Select your role</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="alumni">Alumni</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
 
-        <div class="error-message" id="registerError" style="display: none;"></div>
-
-        <form id="registerFormElement">
-          <div class="form-group">
-            <label for="registerRole">Role</label>
-            <select id="registerRole" required>
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="alumni">Alumni</option>
-              <option value="admin">Admin</option>
-            </select>
+        <div class="form-group">
+          <label for="loginEmail">University Email</label>
+          <div class="input-wrapper">
+            <input type="email" id="loginEmail" placeholder="your.name@paruluniversity.ac.in" required>
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="registerEmail">Email</label>
-            <input type="email" id="registerEmail" required />
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <svg class="input-icon password-toggle" onclick="togglePassword('loginPassword')"
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
           </div>
+        </div>
 
-          <div class="form-group">
-            <label for="registerPassword">Password</label>
-            <input type="password" id="registerPassword" required />
-          </div>
+        <button type="submit" id="loginBtn">
+          Sign In
+        </button>
+      </form>
 
-          <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <input type="password" id="confirmPassword" required />
-          </div>
-
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" required />
-          </div>
-
-          <button type="submit">Create Account</button>
-        </form>
-
-        <p class="switch-form">
-          Already have an account?
-          <a href="#" onclick="toggleForm('login')">Sign in</a>
-        </p>
+      <div class="divider">
+        <span>or continue with</span>
       </div>
+
+      <form action="/oauth2/authorization/google" method="GET">
+        <button type="submit" class="google-btn">
+          <img
+            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyLjU2IDEyLjI1QzIyLjU2IDExLjQ3IDIyLjQ5IDEwLjcyIDIyLjM2IDEwSDEyVjE0LjI2SDE3LjkyQzE3LjY2IDE1LjYgMTYuOTIgMTYuNzQgMTUuODQgMTcuNVYyMC4yNkgxOS4yOEMyMS4zNiAxOC42IDIyLjU2IDE1LjY1IDIyLjU2IDEyLjI1WiIgZmlsbD0iIzQyODVGNCIvPgo8cGF0aCBkPSJNMTIgMjJDMTUuMDQgMjIgMTcuNTYgMjAuOTIgMTkuMjggMTguNzRMMTUuODQgMTYuNUMxNC43IDE3LjI2IDEzLjIgMTcuNjYgMTIgMTcuNjZDOS4wNCAxNy42NiA2LjU2IDE1LjY2IDUuNjQgMTMuMkgyQzkuOTIgMjEuMjYgMTIgMjJaIiBmaWxsPSIjMzRBODUzIi8+CjxwYXRoIGQ9Ik01LjY0IDEzLjJDNS4zNiAxMi42IDUuMTIgMTEuOTIgNS4xMiAxMS4yQzUuMTIgMTAuNDggNS4zNiA5LjggNS42NCA5LjJWNi40Mkg5LjI4QzkuMjggNi40MiA5LjI4IDYuNDIgOS4yOCA2LjQyWiIgZmlsbD0iI0ZCQkMwNSIvPgo8cGF0aCBkPSJNMTIgNC42NkMxMy4zMiA0LjY2IDE0LjUyIDUuMTQgMTUuNDQgNi4wMkwxOC40IDMuMDZDMTcuNTYgMi4yNiAxNS4wNCAxIDEyIDFDOS45MiAxIDcuOTIgMS44NiA1LjY0IDMuMjBWNi40Mkg5LjI4QzEwLjIgMy44IDEyIDQuNjYgMTIgNC42NloiIGZpbGw9IiNFQTQzMzUiLz4KPC9zdmc+"
+            class="google-icon" alt="Google">
+          Continue with Google
+        </button>
+      </form>
+
+      <p class="switch-form">
+        Don't have an account?
+        <a href="#" onclick="toggleForm('register')">Create Account</a>
+      </p>
     </div>
 
-   <script>
-  // Auto-detect backend URL (Works for both local & deployed environments)
-  const BASE_URL = "http://localhost:8084/auth";
-  console.log("Using Backend URL:", BASE_URL);
+    <!-- Register Form -->
+    <div class="form-container hidden" id="registerForm">
+      <div class="form-header">
+        <div class="logo">
+          <svg class="school-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2">
+            <path d="m4 6 8-4 8 4" />
+            <path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2" />
+            <path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4" />
+            <path d="M18 5v17" />
+            <path d="M6 5v17" />
+            <circle cx="12" cy="9" r="2" />
+          </svg>
+        </div>
+        <h1>Join TechCirculo</h1>
+        <p>Create your account and start your educational journey</p>
+      </div>
 
-  // In-memory token storage (fallback for localStorage issues)
-  let authToken = null;
+      <div class="error-message" id="registerError"></div>
+      <div class="success-message" id="registerSuccess"></div>
 
-  function storeToken(token) {
-    authToken = token;
-    try {
-      if (typeof Storage !== "undefined") {
-        localStorage.setItem("token", token);
-        console.log("Token stored in localStorage");
+      <form id="registerFormElement">
+        <div class="form-group">
+          <label for="registerRole">Role</label>
+          <select id="registerRole" required>
+            
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="alumni">Alumni</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-wrapper">
+            <input type="text" id="username" placeholder="Choose a unique username" required>
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">University Email</label>
+          <div class="input-wrapper">
+            <input type="email" id="registerEmail" placeholder="your.name@paruluniversity.ac.in" required>
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="registerPassword" placeholder="Create a strong password" required>
+            <svg class="input-icon password-toggle" onclick="togglePassword('registerPassword')"
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </div>
+          <div class="strength-meter">
+            <div class="strength-meter-fill" id="strengthMeter"></div>
+          </div>
+          <div class="validation-info" id="passwordValidation">
+            <strong>Password Requirements:</strong>
+            <ul class="validation-list">
+              <li id="lengthCheck" class="invalid">At least 6 characters</li>
+              <li id="upperCheck" class="invalid">One uppercase letter</li>
+              <li id="lowerCheck" class="invalid">One lowercase letter</li>
+              <li id="numberCheck" class="invalid">One number</li>
+              <li id="specialCheck" class="invalid">One special character (!@#$%^&*)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
+            <svg class="input-icon password-toggle" onclick="togglePassword('confirmPassword')"
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </div>
+        </div>
+
+        <button type="submit" id="registerBtn">
+          Create Account
+        </button>
+      </form>
+
+      <p class="switch-form">
+        Already have an account?
+        <a href="#" onclick="toggleForm('login')">Sign In</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const BASE_URL = "http://localhost:8084/auth";
+    const UNIVERSITY_EMAIL_DOMAIN = "@paruluniversity.ac.in";
+
+    // Token management
+    let authToken = null;
+
+    function storeToken(token) {
+      authToken = token;
+      try {
+        if (typeof Storage !== "undefined") {
+          localStorage.setItem("token", token);
+        }
+      } catch (error) {
+        console.warn("localStorage not available:", error);
       }
-    } catch (error) {
-      console.warn("localStorage not available, using memory storage:", error);
     }
-  }
 
-  function getToken() {
-    try {
-      if (typeof Storage !== "undefined" && localStorage.getItem("token")) {
-        return localStorage.getItem("token");
+    function getToken() {
+      try {
+        if (typeof Storage !== "undefined" && localStorage.getItem("token")) {
+          return localStorage.getItem("token");
+        }
+      } catch (error) {
+        console.warn("localStorage access failed:", error);
       }
-    } catch (error) {
-      console.warn("localStorage access failed:", error);
+      return authToken;
     }
-    return authToken;
-  }
 
-  function clearToken() {
-    authToken = null;
-    try {
-      if (typeof Storage !== "undefined") {
-        localStorage.removeItem("token");
+    function clearToken() {
+      authToken = null;
+      try {
+        if (typeof Storage !== "undefined") {
+          localStorage.removeItem("token");
+        }
+      } catch (error) {
+        console.warn("localStorage access failed:", error);
       }
-    } catch (error) {
-      console.warn("localStorage access failed:", error);
     }
-  }
 
-  async function apiRequest(endpoint, method, body) {
-    try {
-      const requestOptions = {
-        method,
-        headers: { "Content-Type": "application/json" }
+    // API request function
+    async function apiRequest(endpoint, method, body) {
+      try {
+        const requestOptions = {
+          method,
+          headers: { "Content-Type": "application/json" }
+        };
+
+        if (method !== "GET" && body) {
+          requestOptions.body = JSON.stringify(body);
+        }
+
+        const response = await fetch(`${BASE_URL}/${endpoint}`, requestOptions);
+
+        if (!response.ok) {
+          let errorMessage;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || `HTTP error ${response.status}`;
+          } catch {
+            errorMessage = `HTTP error ${response.status}`;
+          }
+          throw new Error(errorMessage);
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error("API Request Error:", error);
+        if (error.name === "TypeError" && error.message.includes("fetch")) {
+          throw new Error("Network error: Unable to connect to server.");
+        }
+        throw error;
+      }
+    }
+
+    // Form toggle function
+    function toggleForm(type) {
+      const loginForm = document.getElementById("loginForm");
+      const registerForm = document.getElementById("registerForm");
+
+      if (type === "register") {
+        loginForm.classList.add("hidden");
+        registerForm.classList.remove("hidden");
+      } else {
+        registerForm.classList.add("hidden");
+        loginForm.classList.remove("hidden");
+      }
+
+      // Clear messages when switching forms
+      hideAllMessages();
+    }
+
+    // Message functions
+    function showMessage(elementId, message, type = 'error') {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.textContent = message;
+        element.style.display = "block";
+        setTimeout(() => {
+          element.style.display = "none";
+        }, 5000);
+      }
+    }
+
+    function hideMessage(elementId) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.style.display = "none";
+      }
+    }
+
+    function hideAllMessages() {
+      ['loginError', 'loginSuccess', 'registerError', 'registerSuccess'].forEach(hideMessage);
+    }
+
+    // Password toggle function
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+      input.setAttribute('type', type);
+    }
+
+    // Email validation
+    function validateEmail(email) {
+      if (!email.endsWith(UNIVERSITY_EMAIL_DOMAIN)) {
+        return `Email must end with ${UNIVERSITY_EMAIL_DOMAIN}`;
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return "Please enter a valid email address";
+      }
+      return null;
+    }
+
+    // Password validation
+    function validatePassword(password) {
+      const validations = {
+        length: password.length >= 6,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
       };
 
-      if (method !== "GET" && body) {
-        requestOptions.body = JSON.stringify(body);
-      }
-
-      const response = await fetch(`${BASE_URL}/${endpoint}`, requestOptions);
-
-      if (!response.ok) {
-        let errorMessage;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || `HTTP error ${response.status}`;
-        } catch {
-          errorMessage = `HTTP error ${response.status}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("API Request Error:", error);
-      if (error.name === "TypeError" && error.message.includes("fetch")) {
-        throw new Error("Network error: Unable to connect to server.");
-      }
-      throw error;
+      return validations;
     }
-  }
 
-  function toggleForm(type) {
-    document.getElementById("loginForm").classList.toggle("hidden", type === "register");
-    document.getElementById("registerForm").classList.toggle("hidden", type !== "register");
-  }
+    function updatePasswordValidation(password) {
+      const validations = validatePassword(password);
+      const checks = {
+        lengthCheck: validations.length,
+        upperCheck: validations.upper,
+        lowerCheck: validations.lower,
+        numberCheck: validations.number,
+        specialCheck: validations.special
+      };
 
-  function showError(element, message) {
-    if (element) {
-      element.textContent = message;
-      element.style.display = "block";
-    }
-  }
-
-  function hideError(element) {
-    if (element) {
-      element.style.display = "none";
-    }
-  }
-
-  // ✅ Fixed redirect function
-  function redirectToDashboard() {
-    console.log("Redirecting to dashboard...");
-    window.location.href = "/dashboard.html"; // Static file path
-  }
-
-  document.addEventListener("DOMContentLoaded", function () {
-    const loginFormElement = document.getElementById("loginFormElement");
-    if (loginFormElement) {
-      loginFormElement.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const loginError = document.getElementById("loginError");
-        hideError(loginError);
-
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
-        const role = document.getElementById("loginRole").value.toUpperCase();
-
-        const submitButton = e.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = "Signing In...";
-        submitButton.disabled = true;
-
-        try {
-          const data = await apiRequest("login", "POST", { email, password, role });
-
-          if (data.token) {
-            storeToken(data.token);
-            alert("Login Successful!");
-            redirectToDashboard();
-          } else {
-            throw new Error("No token received from server");
-          }
-        } catch (error) {
-          showError(loginError, error.message || "Login failed. Please try again.");
-        } finally {
-          submitButton.textContent = originalText;
-          submitButton.disabled = false;
+      // Update visual indicators
+      Object.entries(checks).forEach(([id, isValid]) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.className = isValid ? 'valid' : 'invalid';
         }
       });
+
+      // Update strength meter
+      const validCount = Object.values(validations).filter(Boolean).length;
+      const strengthMeter = document.getElementById('strengthMeter');
+
+      strengthMeter.className = 'strength-meter-fill';
+      if (validCount >= 5) {
+        strengthMeter.classList.add('strength-strong');
+      } else if (validCount >= 4) {
+        strengthMeter.classList.add('strength-good');
+      } else if (validCount >= 2) {
+        strengthMeter.classList.add('strength-fair');
+      } else if (validCount >= 1) {
+        strengthMeter.classList.add('strength-weak');
+      }
+
+      return Object.values(validations).every(Boolean);
     }
 
-    const registerFormElement = document.getElementById("registerFormElement");
-    if (registerFormElement) {
-      registerFormElement.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const registerError = document.getElementById("registerError");
-        hideError(registerError);
+    function redirectToDashboard() {
+      console.log("Redirecting to dashboard...");
+      window.location.href = "/dashboard.html";
+    }
 
-        const email = document.getElementById("registerEmail").value;
-        const password = document.getElementById("registerPassword").value;
-        const confirmPassword = document.getElementById("confirmPassword").value;
-        const role = document.getElementById("registerRole").value.toUpperCase();
-        const username = document.getElementById("username").value;
+    // Form submission handlers
+    function setButtonLoading(buttonId, isLoading, originalText) {
+      const button = document.getElementById(buttonId);
+      if (button) {
+        if (isLoading) {
+          button.innerHTML = '<span class="loading-spinner"></span>' + (originalText.replace('Sign In', 'Signing In...').replace('Create Account', 'Creating Account...'));
+          button.disabled = true;
+        } else {
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }
+      }
+    }
 
-        const submitButton = e.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = "Creating Account...";
-        submitButton.disabled = true;
+    // Initialize form handlers
+    document.addEventListener("DOMContentLoaded", function () {
+      // Password strength validation for register form
+      const registerPassword = document.getElementById('registerPassword');
+      if (registerPassword) {
+        registerPassword.addEventListener('input', function () {
+          updatePasswordValidation(this.value);
+        });
+      }
 
-        if (password !== confirmPassword) {
-          showError(registerError, "Passwords do not match");
-          submitButton.textContent = originalText;
-          submitButton.disabled = false;
+      // Login form handler
+      const loginFormElement = document.getElementById("loginFormElement");
+      if (loginFormElement) {
+        loginFormElement.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          hideAllMessages();
+
+          const email = document.getElementById("loginEmail").value.trim();
+          const password = document.getElementById("loginPassword").value;
+          const role = document.getElementById("loginRole").value;
+
+          // Validation
+          if (!role) {
+            showMessage('loginError', 'Please select your role');
+            return;
+          }
+
+          const emailError = validateEmail(email);
+          if (emailError) {
+            showMessage('loginError', emailError);
+            return;
+          }
+
+          if (password.length < 6) {
+            showMessage('loginError', 'Password must be at least 6 characters long');
+            return;
+          }
+
+          const originalText = 'Sign In';
+          setButtonLoading('loginBtn', true, originalText);
+
+          try {
+            const data = await apiRequest("login", "POST", {
+              email,
+              password,
+              role: role.toUpperCase()
+            });
+
+            if (data.token) {
+              storeToken(data.token);
+              showMessage('loginSuccess', 'Login successful! Redirecting...', 'success');
+              setTimeout(() => {
+                redirectToDashboard();
+              }, 1500);
+            } else {
+              throw new Error("No token received from server");
+            }
+          } catch (error) {
+            showMessage('loginError', error.message || "Login failed. Please try again.");
+          } finally {
+            setButtonLoading('loginBtn', false, originalText);
+          }
+        });
+      }
+
+      // Register form handler
+      const registerFormElement = document.getElementById("registerFormElement");
+      if (registerFormElement) {
+        registerFormElement.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          hideAllMessages();
+
+          const email = document.getElementById("registerEmail").value.trim();
+          const password = document.getElementById("registerPassword").value;
+          const confirmPassword = document.getElementById("confirmPassword").value;
+          const role = document.getElementById("registerRole").value;
+          const username = document.getElementById("username").value.trim();
+
+          // Validation
+          if (!role) {
+            showMessage('registerError', 'Please select your role');
+            return;
+          }
+
+          if (!username) {
+            showMessage('registerError', 'Username is required');
+            return;
+          }
+
+          if (username.length < 3) {
+            showMessage('registerError', 'Username must be at least 3 characters long');
+            return;
+          }
+
+          const emailError = validateEmail(email);
+          if (emailError) {
+            showMessage('registerError', emailError);
+            return;
+          }
+
+          if (!updatePasswordValidation(password)) {
+            showMessage('registerError', 'Password does not meet all requirements');
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            showMessage('registerError', 'Passwords do not match');
+            return;
+          }
+
+          const originalText = 'Create Account';
+          setButtonLoading('registerBtn', true, originalText);
+
+          try {
+            await apiRequest("register", "POST", {
+              email,
+              password,
+              username,
+              role: role.toUpperCase()
+            });
+
+            showMessage('registerSuccess', 'Registration successful! Please sign in with your credentials.', 'success');
+
+            // Clear form
+            registerFormElement.reset();
+
+            // Switch to login form after 2 seconds
+            setTimeout(() => {
+              toggleForm('login');
+            }, 2000);
+
+          } catch (error) {
+            showMessage('registerError', error.message || "Registration failed. Please try again.");
+          } finally {
+            setButtonLoading('registerBtn', false, originalText);
+          }
+        });
+      }
+
+      // Real-time email validation
+      const emailInputs = ['loginEmail', 'registerEmail'];
+      emailInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+          input.addEventListener('blur', function () {
+            const email = this.value.trim();
+            if (email) {
+              const error = validateEmail(email);
+              if (error) {
+                this.style.borderColor = '#dc2626';
+                this.style.boxShadow = '0 0 0 4px rgba(220, 38, 38, 0.1)';
+              } else {
+                this.style.borderColor = '#16a34a';
+                this.style.boxShadow = '0 0 0 4px rgba(22, 163, 74, 0.1)';
+              }
+            }
+          });
+
+          input.addEventListener('input', function () {
+            // Reset border color on input
+            this.style.borderColor = '#e5e7eb';
+            this.style.boxShadow = 'none';
+          });
+        }
+      });
+
+      // Real-time password confirmation validation
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const registerPasswordInput = document.getElementById('registerPassword');
+
+      if (confirmPasswordInput && registerPasswordInput) {
+        const validatePasswordMatch = () => {
+          const password = registerPasswordInput.value;
+          const confirmPassword = confirmPasswordInput.value;
+
+          if (confirmPassword && password !== confirmPassword) {
+            confirmPasswordInput.style.borderColor = '#dc2626';
+            confirmPasswordInput.style.boxShadow = '0 0 0 4px rgba(220, 38, 38, 0.1)';
+          } else if (confirmPassword && password === confirmPassword) {
+            confirmPasswordInput.style.borderColor = '#16a34a';
+            confirmPasswordInput.style.boxShadow = '0 0 0 4px rgba(22, 163, 74, 0.1)';
+          } else {
+            confirmPasswordInput.style.borderColor = '#e5e7eb';
+            confirmPasswordInput.style.boxShadow = 'none';
+          }
+        };
+
+        confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+        registerPasswordInput.addEventListener('input', validatePasswordMatch);
+      }
+
+      // Username validation
+      const usernameInput = document.getElementById('username');
+      if (usernameInput) {
+        usernameInput.addEventListener('input', function () {
+          const username = this.value.trim();
+          // Remove special characters except underscore and dash
+          this.value = username.replace(/[^a-zA-Z0-9_-]/g, '');
+        });
+
+        usernameInput.addEventListener('blur', function () {
+          const username = this.value.trim();
+          if (username) {
+            if (username.length < 3) {
+              this.style.borderColor = '#dc2626';
+              this.style.boxShadow = '0 0 0 4px rgba(220, 38, 38, 0.1)';
+            } else {
+              this.style.borderColor = '#16a34a';
+              this.style.boxShadow = '0 0 0 4px rgba(22, 163, 74, 0.1)';
+            }
+          }
+        });
+      }
+
+      // Auto-format email domain
+      const autoFormatEmail = (inputId) => {
+        const input = document.getElementById(inputId);
+        if (input) {
+          input.addEventListener('blur', function () {
+            let email = this.value.trim();
+            if (email && !email.includes('@')) {
+              this.value = email + UNIVERSITY_EMAIL_DOMAIN;
+            }
+          });
+        }
+      };
+
+      autoFormatEmail('loginEmail');
+      autoFormatEmail('registerEmail');
+    });
+
+    // Additional utility functions
+    function showSuccessAnimation() {
+      // Add success animation class to form container
+      const activeForm = document.querySelector('.form-container:not(.hidden)');
+      if (activeForm) {
+        activeForm.style.transform = 'scale(1.02)';
+        activeForm.style.boxShadow = '0 25px 50px rgba(22, 163, 74, 0.2)';
+
+        setTimeout(() => {
+          activeForm.style.transform = '';
+          activeForm.style.boxShadow = '';
+        }, 300);
+      }
+    }
+
+    // Prevent form submission on Enter if validation fails
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const activeElement = document.activeElement;
+        const form = activeElement.closest('form');
+
+        if (form) {
+          // Let the form handle the submission naturally
           return;
         }
+      }
+    });
 
-        try {
-          await apiRequest("register", "POST", { email, password, username, role });
-          alert("Registration Successful! Please log in.");
-          toggleForm("login");
-        } catch (error) {
-          showError(registerError, error.message || "Registration failed. Please try again.");
-        } finally {
-          submitButton.textContent = originalText;
-          submitButton.disabled = false;
-        }
+    // Add smooth transitions for form elements
+    function addFocusEffects() {
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function () {
+          this.parentElement.style.transform = 'translateY(-1px)';
+        });
+
+        input.addEventListener('blur', function () {
+          this.parentElement.style.transform = '';
+        });
       });
     }
-  });
-</script>
 
-  </body>
+    // Initialize focus effects
+    document.addEventListener('DOMContentLoaded', addFocusEffects);
+
+    // Add keyboard navigation support
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Tab') {
+        // Ensure proper tab order
+        const focusableElements = document.querySelectorAll(
+          'input:not([disabled]), select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+
+        const visibleElements = Array.from(focusableElements).filter(el => {
+          return el.offsetParent !== null && !el.closest('.hidden');
+        });
+
+        const currentIndex = visibleElements.indexOf(document.activeElement);
+
+        if (e.shiftKey) {
+          // Shift+Tab - go backward
+          if (currentIndex === 0) {
+            e.preventDefault();
+            visibleElements[visibleElements.length - 1].focus();
+          }
+        } else {
+          // Tab - go forward
+          if (currentIndex === visibleElements.length - 1) {
+            e.preventDefault();
+            visibleElements[0].focus();
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+
 </html>
