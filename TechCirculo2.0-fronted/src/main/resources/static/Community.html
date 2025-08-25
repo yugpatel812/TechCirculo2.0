@@ -7,6 +7,251 @@
   <link rel="stylesheet" href="css/Dashboard.css" />
   <link rel="stylesheet" href="css/Community.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Profile Modal CSS -->
+  <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .profile-modal {
+      background: white;
+      border-radius: 20px;
+      padding: 0;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      transform: translateY(50px) scale(0.9);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .modal-overlay.active .profile-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 30px 20px;
+      text-align: center;
+      position: relative;
+      color: white;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.2);
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .profile-name {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-university {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 15px;
+    }
+
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(46, 204, 113, 0.2);
+      border: 1px solid rgba(46, 204, 113, 0.3);
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #2ecc71;
+      backdrop-filter: blur(10px);
+    }
+
+    .verification-badge::before {
+      content: "✓";
+      margin-right: 6px;
+      font-weight: bold;
+    }
+
+    .profile-content {
+      padding: 30px;
+    }
+
+    .info-section {
+      margin-bottom: 25px;
+    }
+
+    .info-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .info-title::before {
+      content: "";
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin-right: 12px;
+      border-radius: 2px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #495057;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .social-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .social-link.linkedin:hover {
+      border-color: #0077b5;
+      background: rgba(0, 119, 181, 0.1);
+      color: #0077b5;
+    }
+
+    .social-link.github:hover {
+      border-color: #333;
+      background: rgba(51, 51, 51, 0.1);
+      color: #333;
+    }
+
+    .social-link.leetcode:hover {
+      border-color: #ffa116;
+      background: rgba(255, 161, 22, 0.1);
+      color: #ffa116;
+    }
+
+    .social-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 50px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-state {
+      text-align: center;
+      padding: 50px;
+      color: #e74c3c;
+    }
+
+    @media (max-width: 768px) {
+      .profile-modal {
+        width: 95%;
+        margin: 20px;
+      }
+
+      .profile-content {
+        padding: 20px;
+      }
+
+      .social-links {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="dashboard">
@@ -363,6 +608,18 @@
       </div>
     </section>
   </main>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal-overlay">
+  <div class="profile-modal">
+    <div class="profile-header">
+      <button class="close-btn" onclick="closeProfileModal()">&times;</button>
+      <div id="profileContent">
+        <!-- Content will be loaded here -->
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="js/Community.js"></script>

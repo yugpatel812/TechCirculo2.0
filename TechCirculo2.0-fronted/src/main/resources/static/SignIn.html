@@ -458,7 +458,7 @@
               throw new Error("No token received from server");
             }
           } catch (error) {
-            showMessage('loginError', error.message || "Login failed. Please try again.");
+            showMessage('loginError',"Login failed. Please enter correct role,email and password try again.");
           } finally {
             setButtonLoading('loginBtn', false, originalText);
           }

@@ -39,6 +39,18 @@ public class ProfileController {
         ProfileResponse response = profileService.getUserProfile(userDetails.getUsername());
         return ResponseEntity.ok(response);
     }
+    // ✅ Get any user's profile by username (for viewing other members)
+@GetMapping("/{username}")
+public ResponseEntity<ProfileResponse> getUserProfileByUsername(
+        @PathVariable String username,
+        @AuthenticationPrincipal UserDetails userDetails) {
+    try {
+        ProfileResponse response = profileService.getUserProfile(username);
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        return ResponseEntity.notFound().build();
+    }
+}
 
     // ✅ Update only personal info (name, university, profilePic)
     @PutMapping("/personal-info")

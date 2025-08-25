@@ -169,6 +169,142 @@ document.addEventListener("DOMContentLoaded", async function () {
             throw new Error("Server returned non-JSON response. Check if backend is running correctly.");
         }
     }
+    
+// Show user profile modal
+async function showUserProfile(username) {
+    const modal = document.getElementById('profileModal');
+    const content = document.getElementById('profileContent');
+    
+    // Show modal with loading state
+    modal.classList.add('active');
+    content.innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+    `;
+
+    try {
+        // Note: You might need to modify this endpoint to fetch a specific user's profile
+        // Instead of the logged-in user's profile
+        const response = await fetch(`${API_BASE_URL}/profile/${username}`, {
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const profileData = await response.json();
+        renderProfileContent(profileData);
+
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        content.innerHTML = `
+            <div class="error-state">
+                <h3>Unable to load profile</h3>
+                <p>Please try again later</p>
+            </div>
+        `;
+    }
+}
+
+// Render profile content
+function renderProfileContent(profile) {
+    const content = document.getElementById('profileContent');
+    console.log(profile);
+    
+    // Generate initials for avatar if no profile pic
+    const initials = profile.name 
+        ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase()
+        : 'U';
+
+    content.innerHTML = `
+        <div class="profile-avatar">
+            ${profile.profilePicUrl
+                ? `<img src="${profile.profilePicUrl}" alt="${profile.name || 'User'}" onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                   <div style="display:none">${initials}</div>`
+                : initials
+            }
+        </div>
+        <div class="profile-name">${profile.name || 'Unknown User'}</div>
+        <div class="profile-university">${profile.university || 'University not specified'}</div>
+        <div class="verification-badge">Verified by TechCirculo</div>
+    `;
+
+    // Add profile details section
+    const modal = content.closest('.profile-modal');
+    const existingContent = modal.querySelector('.profile-content');
+    if (existingContent) {
+        existingContent.remove();
+    }
+
+    const profileContentDiv = document.createElement('div');
+    profileContentDiv.className = 'profile-content';
+    
+    let socialLinksHtml = '';
+    if (profile.linkedinUrl || profile.githubUrl || profile.leetcodeUrl) {
+        socialLinksHtml = `
+            <div class="info-section">
+                <div class="info-title">Social Links</div>
+                <div class="social-links">
+                    ${profile.linkedinUrl ? `
+                        <a href="${profile.linkedinUrl}" target="_blank" class="social-link linkedin">
+                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                            LinkedIn
+                        </a>
+                    ` : ''}
+                    ${profile.githubUrl ? `
+                        <a href="${profile.githubUrl}" target="_blank" class="social-link github">
+                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                            GitHub
+                        </a>
+                    ` : ''}
+                    ${profile.leetcodeurl ? `
+                        <a href="${profile.leetcodeUrl}" target="_blank" class="social-link leetcode">
+                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.814 2.133 8.038-.074l3.927-3.926c.031-.031.063-.042.094-.074a1.367 1.367 0 0 0-.492-2.258 1.378 1.378 0 0 0-1.513.492l-3.927 3.926a2.827 2.827 0 0 1-3.981.007l-4.316-4.232-.039-.037a2.66 2.66 0 0 1-.577-.79 2.786 2.786 0 0 1-.174-.53 2.739 2.739 0 0 1-.062-1.367 2.75 2.75 0 0 1 .631-1.109l3.854-4.126 5.406-5.788a1.372 1.372 0 0 0-.438-.96 1.378 1.378 0 0 0-1.513.492z"/>
+                            </svg>
+                            LeetCode
+                        </a>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+    //console.log(socialLinksHtml);
+    
+    profileContentDiv.innerHTML = socialLinksHtml || `
+        <div class="info-section">
+            <p style="text-align: center; color: #6c757d; font-style: italic;">No additional information available</p>
+        </div>
+    `;
+
+    modal.appendChild(profileContentDiv);
+}
+
+// Close modal
+function closeProfileModal() {
+    const modal = document.getElementById('profileModal');
+    modal.classList.remove('active');
+}
+
+// Close modal when clicking outside
+document.getElementById('profileModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeProfileModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeProfileModal();
+    }
+});
 
     // DOM Elements
     const communityTabs = document.querySelectorAll('.community-tab');
@@ -512,31 +648,46 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
+    
+
+
     // Render members list
-    function renderMembers(members) {
-        membersList.innerHTML = '';
+   // Updated renderMembers function with profile modal integration
+function renderMembers(members) {
+    membersList.innerHTML = '';
 
-        members.forEach(member => {
-            const memberItem = document.createElement('div');
-            memberItem.className = 'member-item';
-            
-            const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
-            const roleClass = (member.role || 'student').toLowerCase();
+    members.forEach(member => {
+        const memberItem = document.createElement('div');
+        memberItem.className = 'member-item';
+        // Add username as data attribute for profile fetching
+        memberItem.setAttribute('data-username', member.username || member.email || member.id);
+        
+        const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+        const roleClass = (member.role || 'student').toLowerCase();
 
-            memberItem.innerHTML = `
-                <div class="member-avatar">${initials}</div>
-                <div class="member-info">
-                    <div class="member-name">${member.name || 'Unknown User'}</div>
-                    <div class="member-role">${member.major || 'No department specified'}</div>
-                </div>
-                <div class="member-badge ${roleClass}">${member.role || 'Student'}</div>
-                <a href="profile.html"><button class="view-profile-btn">View Profile</button></a>
-            `;
+        memberItem.innerHTML = `
+            <div class="member-avatar">${initials}</div>
+            <div class="member-info">
+                <div class="member-name">${member.name || 'Unknown User'}</div>
+                <div class="member-role">${member.major || 'No department specified'}</div>
+            </div>
+            <div class="member-badge ${roleClass}">${member.role || 'Student'}</div>
+            <button class="view-profile-btn" data-username="${member.username || member.email || member.id}">
+    View Profile
+</button>
 
-            membersList.appendChild(memberItem);
-        });
-    }
+        `;
+         const btn = memberItem.querySelector('.view-profile-btn');
+btn.addEventListener('click', () => {
+    showUserProfile(member.username || member.email || member.id);
+});
 
+
+        membersList.appendChild(memberItem);
+    });
+}
+
+   
     // Load community announcements
     async function loadCommunityAnnouncements(communityId) {
         try {
