@@ -23,7 +23,6 @@ public class PostDto {
     private String authorName;
 
     // Likes
-    private long likeCount;       // total likes
-    private boolean likedByMe;    // if current user liked
-
+    private long likeCount;     // total likes
+    private boolean likedByMe;  // if current user liked
 }

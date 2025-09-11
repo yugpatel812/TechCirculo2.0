@@ -36,53 +36,69 @@ public class PostService {
 
     // Convert Post entity to DTO with user context
     private CommunityPostDto toPostDto(Post post, UUID currentUserId) {
-    boolean isLiked = false;
-    boolean isBookmarked = false;
-    boolean isOwner = false;
+        boolean isLiked = false;
+        boolean isBookmarked = false;
+        boolean isOwner = false;
 
-    if (currentUserId != null) {
-        isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
-        isBookmarked = postBookmarkRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
-        isOwner = post.getAuthor().getId().equals(currentUserId);
+        if (currentUserId != null) {
+            isLiked = postLikeRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
+            isBookmarked = postBookmarkRepository.existsByPostIdAndUserId(post.getId(), currentUserId);
+            isOwner = post.getAuthor().getId().equals(currentUserId);
+        }
+
+        long commentsCount = commentRepository.countByPostId(post.getId());
+
+        // safe extra fields
+        String communityImageUrl = post.getCommunity().getImageUrl(); 
+        String communityName = post.getCommunity().getName();
+        UUID communityId = post.getCommunity().getId();
+
+        String authorRole = post.getAuthor().getRole() != null ? post.getAuthor().getRole().name() : null;
+        String authorProfileUrl = (post.getAuthor().getProfile() != null)
+                ? post.getAuthor().getProfile().getProfilePicUrl()
+                : null;
+
+        return CommunityPostDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+
+                // author details
+                .authorId(post.getAuthor().getId())
+                .authorName(post.getAuthor().getUsername())
+                .authorRole(authorRole)
+                .authorProfileUrl(authorProfileUrl)
+
+                // community details
+                .communityId(communityId)
+                .communityName(communityName)
+                .communityImageUrl(communityImageUrl)
+
+                // likes/comments
+                .likesCount(post.getLikesCount() == null ? 0 : post.getLikesCount())
+                .commentsCount((int) commentsCount)
+
+                // timestamps
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+
+                // tags
+                .tags(post.getTags())
+
+                // ownership/bookmarks/likes
+                .likedByMe(isLiked)
+.bookmarked(isBookmarked)
+.owner(isOwner)
+
+
+                .build();
     }
-
-    long commentsCount = commentRepository.countByPostId(post.getId());
-
-    // 🔥 Extra fields
-    String communityImageUrl = post.getCommunity().getImageUrl();  // assuming Community entity has imageUrl
-    String authorRole = post.getAuthor().getRole().name(); // from User entity
-    String authorProfileUrl = (post.getAuthor().getProfile() != null) 
-            ? post.getAuthor().getProfile().getProfilePicUrl() 
-            : null;
-
-    return CommunityPostDto.builder()
-            .id(post.getId())
-            .title(post.getTitle())
-            .content(post.getContent())
-            .imageUrl(post.getImageUrl())
-            .authorId(post.getAuthor().getId())
-            .authorName(post.getAuthor().getUsername())
-            .authorRole(post.getAuthor().getRole().name())  
-            .authorProfileUrl(post.getAuthor().getProfile().getProfilePicUrl()) 
-            .communityId(post.getCommunity().getId())
-            .communityName(post.getCommunity().getName())
-            .communityImageUrl(post.getCommunity().getImageUrl()) // 👈 added
-            .likesCount(post.getLikesCount() != null ? post.getLikesCount() : 0)
-            .commentsCount((int) commentsCount)
-            .createdAt(post.getCreatedAt())
-            .updatedAt(post.getUpdatedAt())
-            .tags(post.getTags())
-            .isLiked(isLiked)
-            .isBookmarked(isBookmarked)
-            .isOwner(isOwner)
-            .build();
-}
-
 
     // Convert Post entity to DTO without user context
     private CommunityPostDto toPostDto(Post post) {
         long commentsCount = commentRepository.countByPostId(post.getId());
-        
+
         return CommunityPostDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -97,16 +113,16 @@ public class PostService {
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .tags(post.getTags())
-                .isLiked(false)
-                .isBookmarked(false)
-                .isOwner(false)
+                .likedByMe(false)
+                .bookmarked(false)
+                .owner(false)
                 .build();
     }
 
     // Get all posts with pagination and user context
     public Page<CommunityPostDto> getAllPosts(Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findAll(pageable);
-        
+
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));
         } else {
@@ -115,11 +131,10 @@ public class PostService {
     }
 
     // Get posts by specific user
-    
+
     public Page<CommunityPostDto> getPostsByUser(UUID userId, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findByAuthorIdWithDetails(userId, pageable);
 
-        
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));
         } else {
@@ -130,7 +145,7 @@ public class PostService {
     // Get single post by ID
     public CommunityPostDto getPostById(UUID postId, UUID currentUserId) {
         Optional<Post> post = postRepository.findById(postId);
-        
+
         if (post.isPresent()) {
             if (currentUserId != null) {
                 return toPostDto(post.get(), currentUserId);
@@ -149,7 +164,7 @@ public class PostService {
 
     public List<CommunityPostDto> getPostsByCommunity(UUID communityId, UUID currentUserId) {
         List<Post> posts = postRepository.findByCommunityId(communityId);
-        
+
         if (currentUserId != null) {
             return posts.stream().map(post -> toPostDto(post, currentUserId)).collect(Collectors.toList());
         } else {
@@ -163,23 +178,23 @@ public class PostService {
         // Validate community exists
         Community community = communityRepository.findById(communityId)
                 .orElseThrow(() -> new IllegalArgumentException("Community not found"));
-        
+
         // Validate user is a member of the community
         boolean isMember = userCommunityRepository.existsByUserIdAndCommunityId(userId, communityId);
         if (!isMember) {
             throw new IllegalStateException("User must be a member of the community to post");
         }
-        
+
         // Get user details
         User author = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        
+
         // Create post
         Post post = new Post(community, author, request.getTitle(), request.getContent(), request.getImageUrl());
         if (request.getTags() != null && !request.getTags().isEmpty()) {
             post.setTags(request.getTags());
         }
-        
+
         Post savedPost = postRepository.save(post);
         return toPostDto(savedPost, userId);
     }
@@ -189,12 +204,12 @@ public class PostService {
     public CommunityPostDto updatePost(UUID postId, UUID userId, PostUpdateRequest request) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         // Check if user is the author
         if (!post.getAuthor().getId().equals(userId)) {
             throw new IllegalStateException("You can only update your own posts");
         }
-        
+
         // Update fields
         if (request.getTitle() != null && !request.getTitle().isEmpty()) {
             post.setTitle(request.getTitle());
@@ -209,7 +224,7 @@ public class PostService {
             post.setTags(request.getTags());
         }
         post.setUpdatedAt(LocalDateTime.now());
-        
+
         Post updatedPost = postRepository.save(post);
         return toPostDto(updatedPost, userId);
     }
@@ -219,18 +234,18 @@ public class PostService {
     public void deletePost(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         // Check if user is the author or admin
         if (!post.getAuthor().getId().equals(userId)) {
             throw new IllegalStateException("You can only delete your own posts");
         }
-        
+
         // Delete associated data first
         postLikeRepository.deleteByPostId(postId);
         postBookmarkRepository.deleteByPostId(postId);
         postReportRepository.deleteByPostId(postId);
         commentRepository.deleteByPostId(postId);
-        
+
         // Delete the post
         postRepository.delete(post);
     }
@@ -240,9 +255,9 @@ public class PostService {
     public boolean toggleLike(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
-        
+
         if (existingLike.isPresent()) {
             // Unlike
             postLikeRepository.delete(existingLike.get());
@@ -263,7 +278,7 @@ public class PostService {
     // Get likes for a post
     public List<PostLikeDto> getPostLikes(UUID postId) {
         List<PostLike> likes = postLikeRepository.findByPostId(postId);
-        
+
         return likes.stream().map(like -> {
             User user = userRepository.findById(like.getUserId()).orElse(null);
             return PostLikeDto.builder()
@@ -278,7 +293,7 @@ public class PostService {
     public Page<CommunityPostDto> searchPosts(String query, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
                 query, query, pageable);
-        
+
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));
         } else {
@@ -290,7 +305,7 @@ public class PostService {
     public List<CommunityPostDto> getTrendingPosts(int limit, UUID currentUserId) {
         LocalDateTime weekAgo = LocalDateTime.now().minusDays(7);
         List<Post> posts = postRepository.findTrendingPosts(weekAgo, PageRequest.of(0, limit));
-        
+
         if (currentUserId != null) {
             return posts.stream().map(post -> toPostDto(post, currentUserId)).collect(Collectors.toList());
         } else {
@@ -301,7 +316,7 @@ public class PostService {
     // Get posts by tag
     public Page<CommunityPostDto> getPostsByTag(String tag, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findByTagsContainingIgnoreCase(tag, pageable);
-        
+
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));
         } else {
@@ -312,7 +327,7 @@ public class PostService {
     // Get popular tags
     public List<String> getPopularTags(int limit) {
         List<String> allTags = postRepository.findAllTags();
-        
+
         Map<String, Integer> tagCounts = new HashMap<>();
         for (String tagString : allTags) {
             if (tagString != null && !tagString.isEmpty()) {
@@ -325,7 +340,7 @@ public class PostService {
                 }
             }
         }
-        
+
         return tagCounts.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .limit(limit)
@@ -338,20 +353,20 @@ public class PostService {
     public void reportPost(UUID postId, UUID userId, String reason) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         // Check if user already reported this post
         boolean alreadyReported = postReportRepository.existsByPostIdAndUserId(postId, userId);
         if (alreadyReported) {
             throw new IllegalStateException("You have already reported this post");
         }
-        
+
         PostReport report = new PostReport();
         report.setPostId(postId);
         report.setUserId(userId);
         report.setReason(reason);
         report.setStatus("PENDING");
         report.setCreatedAt(LocalDateTime.now());
-        
+
         postReportRepository.save(report);
     }
 
@@ -360,9 +375,9 @@ public class PostService {
     public boolean toggleBookmark(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         Optional<PostBookmark> existingBookmark = postBookmarkRepository.findByPostIdAndUserId(postId, userId);
-        
+
         if (existingBookmark.isPresent()) {
             // Remove bookmark
             postBookmarkRepository.delete(existingBookmark.get());
@@ -384,7 +399,7 @@ public class PostService {
         if (bookmarkedPostIds.isEmpty()) {
             return Page.empty();
         }
-        
+
         Page<Post> posts = postRepository.findByIdIn(bookmarkedPostIds, pageable);
         return posts.map(post -> toPostDto(post, userId));
     }
@@ -393,12 +408,12 @@ public class PostService {
     public PostStatsDto getPostStats(UUID postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         long likesCount = postLikeRepository.countByPostId(postId);
         long commentsCount = commentRepository.countByPostId(postId);
         long bookmarksCount = postBookmarkRepository.countByPostId(postId);
         long reportsCount = postReportRepository.countByPostId(postId);
-        
+
         return PostStatsDto.builder()
                 .postId(postId)
                 .likesCount(likesCount)
@@ -412,11 +427,11 @@ public class PostService {
     // Get posts feed for user (posts from joined communities)
     public Page<CommunityPostDto> getUserFeed(UUID userId, Pageable pageable) {
         List<UUID> joinedCommunityIds = userCommunityRepository.findCommunityIdsByUserId(userId);
-        
+
         if (joinedCommunityIds.isEmpty()) {
             return Page.empty();
         }
-        
+
         Page<Post> posts = postRepository.findByCommunityIdIn(joinedCommunityIds, pageable);
         return posts.map(post -> toPostDto(post, userId));
     }
@@ -424,14 +439,14 @@ public class PostService {
     // Get recent posts by user's followed communities
     public List<CommunityPostDto> getRecentPostsFromFollowedCommunities(UUID userId, int limit) {
         List<UUID> joinedCommunityIds = userCommunityRepository.findCommunityIdsByUserId(userId);
-        
+
         if (joinedCommunityIds.isEmpty()) {
             return new ArrayList<>();
         }
-        
+
         Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
         List<Post> posts = postRepository.findByCommunityIdIn(joinedCommunityIds, pageable).getContent();
-        
+
         return posts.stream()
                 .map(post -> toPostDto(post, userId))
                 .collect(Collectors.toList());
@@ -442,15 +457,15 @@ public class PostService {
         // Simple recommendation: posts from communities similar to ones user joined
         List<UUID> joinedCommunityIds = userCommunityRepository.findCommunityIdsByUserId(userId);
         List<UUID> likedPostIds = postLikeRepository.findPostIdsByUserId(userId);
-        
+
         if (joinedCommunityIds.isEmpty()) {
             // If user hasn't joined any communities, show trending posts
             return getTrendingPosts(limit, userId);
         }
-        
+
         Pageable pageable = PageRequest.of(0, limit, Sort.by("likesCount").descending());
         List<Post> posts = postRepository.findByCommunityIdInAndIdNotIn(joinedCommunityIds, likedPostIds, pageable);
-        
+
         return posts.stream()
                 .map(post -> toPostDto(post, userId))
                 .collect(Collectors.toList());
@@ -460,14 +475,14 @@ public class PostService {
     public PostEngagementDto getPostEngagement(UUID postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         long likesCount = postLikeRepository.countByPostId(postId);
         long commentsCount = commentRepository.countByPostId(postId);
         long bookmarksCount = postBookmarkRepository.countByPostId(postId);
-        
+
         // Calculate engagement rate (likes + comments + bookmarks)
         long totalEngagement = likesCount + commentsCount + bookmarksCount;
-        
+
         return PostEngagementDto.builder()
                 .postId(postId)
                 .likesCount(likesCount)
@@ -491,12 +506,12 @@ public class PostService {
     public void hidePost(UUID postId, UUID adminUserId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        
+
         // Add a hidden flag or status to Post model if needed
         // post.setHidden(true);
         // post.setHiddenBy(adminUserId);
         // post.setHiddenAt(LocalDateTime.now());
-        
+
         postRepository.save(post);
     }
 
@@ -514,7 +529,7 @@ public class PostService {
     public List<CommunityPostDto> getMostDiscussedPosts(int limit, UUID currentUserId) {
         Pageable pageable = PageRequest.of(0, limit);
         List<Post> posts = postRepository.findMostDiscussedPosts(pageable);
-        
+
         if (currentUserId != null) {
             return posts.stream().map(post -> toPostDto(post, currentUserId)).collect(Collectors.toList());
         } else {
@@ -523,9 +538,10 @@ public class PostService {
     }
 
     // Get posts by multiple communities
-    public Page<CommunityPostDto> getPostsByMultipleCommunities(List<UUID> communityIds, Pageable pageable, UUID currentUserId) {
+    public Page<CommunityPostDto> getPostsByMultipleCommunities(List<UUID> communityIds, Pageable pageable,
+            UUID currentUserId) {
         Page<Post> posts = postRepository.findByCommunityIdIn(communityIds, pageable);
-        
+
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));
         } else {
@@ -534,12 +550,12 @@ public class PostService {
     }
 
     // Advanced search with filters
-    public Page<CommunityPostDto> advancedSearchPosts(String query, List<UUID> communityIds, 
-                                                     LocalDateTime fromDate, LocalDateTime toDate,
-                                                     List<String> tags, Pageable pageable, UUID currentUserId) {
+    public Page<CommunityPostDto> advancedSearchPosts(String query, List<UUID> communityIds,
+            LocalDateTime fromDate, LocalDateTime toDate,
+            List<String> tags, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findWithAdvancedFilters(
-            query, communityIds, fromDate, toDate, tags, pageable);
-        
+                query, communityIds, fromDate, toDate, tags, pageable);
+
         if (currentUserId != null) {
             return posts.map(post -> toPostDto(post, currentUserId));
         } else {

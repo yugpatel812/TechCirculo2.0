@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const hamburgerBtn = document.getElementById('hamburgerBtn');
         const sidebar = document.querySelector('.sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
-        
+
         // Check if elements exist before adding listeners
         if (!hamburgerBtn || !sidebar || !sidebarOverlay) {
             console.error('Hamburger menu elements not found');
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             hamburgerBtn.classList.toggle('active');
             sidebar.classList.toggle('active');
             sidebarOverlay.classList.toggle('active');
-            
+
             // Prevent body scroll when sidebar is open
             if (sidebar.classList.contains('active')) {
                 document.body.style.overflow = 'hidden';
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 document.body.style.overflow = '';
             }
         }
-        
+
         // Close sidebar
         function closeSidebar() {
             hamburgerBtn.classList.remove('active');
@@ -51,11 +51,11 @@ document.addEventListener("DOMContentLoaded", async function () {
             sidebarOverlay.classList.remove('active');
             document.body.style.overflow = '';
         }
-        
+
         // Event listeners
         hamburgerBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', closeSidebar);
-        
+
         // Close sidebar when clicking on sidebar links (on mobile)
         const sidebarLinks = document.querySelectorAll('.sidebar nav a');
         sidebarLinks.forEach(link => {
@@ -65,14 +65,14 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
             });
         });
-        
+
         // Handle window resize
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 closeSidebar();
             }
         });
-        
+
         // Close sidebar on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && sidebar.classList.contains('active')) {
@@ -92,8 +92,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             top: 2rem;
             right: 2rem;
             background: ${type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' :
-            type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' :
-                'linear-gradient(135deg, #f59e0b, #d97706)'};
+                type === 'error' ? 'linear-gradient(135deg, #ef4444, #dc2626)' :
+                    'linear-gradient(135deg, #f59e0b, #d97706)'};
             color: white;
             padding: 1.25rem 1.75rem;
             border-radius: 16px;
@@ -139,13 +139,13 @@ document.addEventListener("DOMContentLoaded", async function () {
         const headers = {
             "Content-Type": "application/json"
         };
-        
+
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         } else {
             console.warn("No authentication token found");
         }
-        
+
         return headers;
     }
 
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
             throw new Error(errorMessage);
         }
-        
+
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
             return await response.json();
@@ -169,12 +169,12 @@ document.addEventListener("DOMContentLoaded", async function () {
             throw new Error("Server returned non-JSON response. Check if backend is running correctly.");
         }
     }
-    
+
     // Show user profile modal
     async function showUserProfile(username) {
         const modal = document.getElementById('profileModal');
         const content = document.getElementById('profileContent');
-        
+
         // Show modal with loading state
         modal.classList.add('active');
         content.innerHTML = `
@@ -212,19 +212,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     function renderProfileContent(profile) {
         const content = document.getElementById('profileContent');
         console.log(profile);
-        
+
         // Generate initials for avatar if no profile pic
-        const initials = profile.name 
+        const initials = profile.name
             ? profile.name.split(' ').map(n => n[0]).join('').toUpperCase()
             : 'U';
 
         content.innerHTML = `
             <div class="profile-avatar">
                 ${profile.profilePicUrl
-                    ? `<img src="${profile.profilePicUrl}" alt="${profile.name || 'User'}" onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                ? `<img src="${profile.profilePicUrl}" alt="${profile.name || 'User'}" onerror="this.style.display='none'; this.nextSibling.style.display='block';">
                        <div style="display:none">${initials}</div>`
-                    : initials
-                }
+                : initials
+            }
             </div>
             <div class="profile-name">${profile.name || 'Unknown User'}</div>
             <div class="profile-university">${profile.university || 'University not specified'}</div>
@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         const profileContentDiv = document.createElement('div');
         profileContentDiv.className = 'profile-content';
-        
+
         let socialLinksHtml = '';
         if (profile.linkedinUrl || profile.githubUrl || profile.leetcodeUrl) {
             socialLinksHtml = `
@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 </div>
             `;
         }
-        
+
         profileContentDiv.innerHTML = socialLinksHtml || `
             <div class="info-section">
                 <p style="text-align: center; color: #6c757d; font-style: italic;">No additional information available</p>
@@ -327,7 +327,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             // FIXED: Initialize hamburger menu first
             initializeHamburgerMenu();
-            
+
             await fetchUserProfile();
             await fetchAllCommunities();
             await fetchJoinedCommunities();
@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             showNotification("Failed to initialize page. Please check if the backend server is running.", 'error');
         }
     }
-    
+
     // Fetch user profile for header
     async function fetchUserProfile() {
         const userProfileName = document.getElementById("user-profile-name");
@@ -347,19 +347,19 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             const response = await fetch(`${API_BASE_URL}/profile`, { headers: getAuthHeaders() });
             const userData = await handleApiResponse(response, "Failed to fetch user profile");
-            
+
             if (userProfileName) {
                 userProfileName.textContent = userData.name || "User";
             }
-            
+
             if (userProfileImage) {
                 userProfileImage.src = userData.profilePicUrl || "/images/profile_pic.png";
-                userProfileImage.onerror = function() {
+                userProfileImage.onerror = function () {
                     this.src = "/images/profile_pic.png";
                     console.log("Failed to load profile image, using fallback");
                 };
             }
-            
+
             if (greetingText) {
                 greetingText.textContent = `Welcome, ${userData.name || "User"}!`;
             }
@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (userProfileName) userProfileName.textContent = "Guest";
             if (userProfileImage) {
                 userProfileImage.src = "/images/profile_pic.png";
-                userProfileImage.onerror = function() {
+                userProfileImage.onerror = function () {
                     this.src = "https://via.placeholder.com/44x44?text=G";
                 };
             }
@@ -444,7 +444,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             img.src = community?.imageUrl || defaultImage;
             img.alt = community?.name || 'Community';
-            
+
             communityCard.innerHTML = `
                 <div class="community-card-header">
                     ${isTrending ? '<div class="community-trending">Trending</div>' : ''}
@@ -480,9 +480,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                         <button class="view-btn" data-community-id="${community?.id}">View</button>
                         
                         ${community.isJoined
-                            ? `<button class="leave-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Leave</button>`
-                            : `<button class="join-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Join</button>`
-                        }
+                    ? `<button class="leave-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Leave</button>`
+                    : `<button class="join-btn" data-community-id="${community?.id}" data-community-name="${community?.name}">Join</button>`
+                }
                     </div>
                 </div>
             `;
@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Show community detail view
     function showCommunityDetail(community) {
         currentCommunityId = community.id;
-        
+
         communityName.textContent = community.name;
         communityDescription.textContent = community.description || 'No description available.';
         communityMembers.textContent = `${community.memberCount || 0} members`;
@@ -636,7 +636,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             memberItem.className = 'member-item';
             // Add username as data attribute for profile fetching
             memberItem.setAttribute('data-username', member.username || member.email || member.id);
-            
+
             const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
             const roleClass = (member.role || 'student').toLowerCase();
 
@@ -651,7 +651,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     View Profile
                 </button>
             `;
-             
+
             const btn = memberItem.querySelector('.view-profile-btn');
             btn.addEventListener('click', () => {
                 showUserProfile(member.username || member.email || member.id);
@@ -719,6 +719,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             showLoadingState(postsList, 'posts');
             const response = await fetch(`${API_BASE_URL}/communities/${communityId}/posts`, { headers: getAuthHeaders() });
             const posts = await handleApiResponse(response, "Failed to load posts");
+            console.log(communityId);
+            //console.log(token);
+            
             
             if (posts && posts.length > 0) {
                 renderPosts(posts);
@@ -742,27 +745,50 @@ document.addEventListener("DOMContentLoaded", async function () {
         posts.forEach(post => {
             const postItem = document.createElement('div');
             postItem.className = 'post-item';
+            console.log(post);
 
             const authorInitials = post.authorName ? post.authorName.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
             const timeAgo = post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'Recently';
 
             postItem.innerHTML = `
                 <div class="post-header">
-                    <div class="post-author-avatar">${authorInitials}</div>
-                    <div class="post-author-info">
-                        <div class="post-author-name">${post.authorName || 'Anonymous'}</div>
-                        <div class="post-time">${timeAgo}</div>
+                <div class="post-meta">
+                    <div class="author-info">
+                        <img src="${post.authorProfileUrl || '/images/profile_pic.png'}" 
+                             alt="${post.authorName || 'User'}" 
+                             class="author-avatar"
+                             onerror="this.src='/images/profile_pic.png'">
+                        <div class="author-details">
+                            <span class="author-name">${post.authorName || 'Anonymous'}</span>
+                            <span class="author-role">${post.authorRole}</span>
+                        </div>
+                    </div>
+                    <div class="post-time">
+                        ${post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ''}
                     </div>
                 </div>
-                <div class="post-title">${post.title}</div>
-                <div class="post-content">${post.content || post.description}</div>
+            </div>
+
+            ${post.imageUrl ? `<img src="${post.imageUrl}" 
+                 alt="${post.title}" 
+                 class="post-image"
+                 onerror="this.style.display='none'">` : ''}
+                 
+            <div class="post-content">
+                <h3 class="post-title">${post.title}</h3>
+                <p class="post-text">${post.content}</p>
+                
                 <div class="post-actions">
-                    <button class="post-action like-action">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                        ${post.likesCount || 0}
-                    </button>
+                    <div class="action-buttons">
+                        <button class="action-btn like-btn ${post.isLiked ? 'liked' : ''}" data-post-id="${post.id}">
+                            <svg fill="${post.isLiked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            <span class="like-count">${post.likeCount || 0}</span>
+                        </button>
+                        
+                       
+                    </div>
                 </div>
             `;
 
@@ -898,20 +924,20 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // FIXED: Make profile modal functions globally accessible
     // Close modal function - now globally accessible
-    window.closeProfileModal = function() {
+    window.closeProfileModal = function () {
         const modal = document.getElementById('profileModal');
         modal.classList.remove('active');
     };
 
     // Close modal when clicking outside
-    document.getElementById('profileModal').addEventListener('click', function(e) {
+    document.getElementById('profileModal').addEventListener('click', function (e) {
         if (e.target === this) {
             window.closeProfileModal();
         }
     });
 
     // Close modal with Escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             window.closeProfileModal();
         }

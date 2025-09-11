@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,21 +16,31 @@ public class CommunityPostDto {
     private String title;
     private String content;
     private String imageUrl;
+
+    // Author details
     private UUID authorId;
     private String authorName;
-     private String authorRole;     // 👈 NEW (from User table)
-    private String authorProfileUrl; // 👈 NEW (from Profile table)
+    private String authorRole;
+    private String authorProfileUrl;
+
+    // Community details
     private UUID communityId;
     private String communityName;
-    private String communityImageUrl; // 👈 NEW (from Community table)
+    private String communityImageUrl;
+
+    // Engagement
     private Integer likesCount;
     private Integer commentsCount;
+
+    // Time
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // Tags
     private String tags;
-    
-    // New fields for enhanced functionality
-    private boolean isLiked;
-    private boolean isBookmarked;
-    private boolean isOwner;
+
+    // User context fields (⚡ rename them!)
+    private boolean likedByMe;
+    private boolean bookmarked;
+    private boolean owner;
 }

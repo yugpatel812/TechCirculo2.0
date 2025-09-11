@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechCirculo - Circulo Points Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <link rel="stylesheet" href="css/analytics.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+             <div class="logo">
+      <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+      >
+        <path
+                d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"
+        />
+        <path
+                d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
+        />
+        <path d="M19 11h2m-1 -1v2" />
+      </svg>
+      <span>TechCirculo - Real time Analysis</span>
+    </div>
+            
+            <div class="header-controls">
+                <div class="datetime">
+                    <div id="currentDateTime"></div>
+                </div>
+                
+                <button class="notification-bell" onclick="toggleNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">7</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-content">
+            <div class="filter-group">
+                <label class="filter-label">Date Range</label>
+                <select class="filter-input" id="dateRange">
+                    <option value="7d">Last 7 days</option>
+                    <option value="30d" selected>Last 30 days</option>
+                    <option value="90d">Last 90 days</option>
+                    <option value="1y">Last year</option>
+                    <option value="custom">Custom range</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Role</label>
+                <select class="filter-input" id="roleFilter">
+                    <option value="all">All Roles</option>
+                    <option value="student">Students</option>
+                    <option value="teacher">Teachers</option>
+                    <option value="alumni">Alumni</option>
+                    <option value="admin">Admins</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Community</label>
+                <select class="filter-input" id="communityFilter">
+                    <option value="all">All Communities</option>
+                    <option value="web-dev">Web Development</option>
+                    <option value="data-science">Data Science</option>
+                    <option value="mobile-dev">Mobile Development</option>
+                    <option value="ai-ml">AI & Machine Learning</option>
+                    <option value="cybersecurity">Cybersecurity</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Search</label>
+                <input type="text" class="filter-input" placeholder="Search users..." id="userSearch">
+            </div>
+            
+            <div class="export-buttons">
+                <button class="btn btn-secondary" onclick="exportData('pdf')">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </button>
+                <button class="btn btn-secondary" onclick="exportData('excel')">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button class="btn btn-secondary" onclick="exportData('csv')">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- KPI Dashboard -->
+        <!-- KPI Dashboard -->
+<div class="kpi-grid">
+
+    <!-- Card 1 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">127</div>
+                <div class="kpi-label">New Registrations (7d)</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, #ec4899, #db2777);">
+                <i class="fas fa-user-plus"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+18.3% weekly growth</span>
+        </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">2,847,650</div>
+                <div class="kpi-label">Total Points Earned</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, var(--accent-green), #34d399);">
+                <i class="fas fa-coins"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+12.5% from last month</span>
+        </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">89.2%</div>
+                <div class="kpi-label">Response Rate</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, #84cc16, #65a30d);">
+                <i class="fas fa-reply"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>Excellent status</span>
+        </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">1,247</div>
+                <div class="kpi-label">Active Users (30d)</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, var(--primary-blue), #3b82f6);">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+8.3% from last month</span>
+        </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">Students</div>
+                <div class="kpi-label">Top Performing Role (60%)</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, var(--accent-purple), #a855f7);">
+                <i class="fas fa-trophy"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+3.2% increase</span>
+        </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">342</div>
+                <div class="kpi-label">Awards Distributed</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, var(--primary-gold), #fbbf24);">
+                <i class="fas fa-medal"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+15.7% from last month</span>
+        </div>
+    </div>
+
+    <!-- Card 7 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">Web Dev</div>
+                <div class="kpi-label">Most Active Community (428 members)</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, #06b6d4, #0891b2);">
+                <i class="fas fa-code"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+22 new members</span>
+        </div>
+    </div>
+
+    <!-- Card 8 -->
+    <div class="glass-card kpi-card">
+        <div class="kpi-header">
+            <div>
+                <div class="kpi-value">24.5m</div>
+                <div class="kpi-label">Avg. Session Duration</div>
+            </div>
+            <div class="kpi-icon" style="background: linear-gradient(45deg, #f97316, #ea580c);">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <div class="kpi-change positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+4.8% improvement</span>
+        </div>
+    </div>
+
+</div>
+
+
+        <!-- Leaderboard Section -->
+        <div class="leaderboard-container">
+            <div class="leaderboard-header">
+                <h2 class="leaderboard-title">Leaderboard</h2>
+                <div class="leaderboard-controls">
+                    <select class="filter-input" id="leaderboardSort">
+                        <option value="points">Sort by Points</option>
+                        <option value="activity">Sort by Activity</option>
+                        <option value="joined">Sort by Join Date</option>
+                    </select>
+                    <select class="filter-input" id="leaderboardLimit">
+                        <option value="10">Show 10</option>
+                        <option value="25" selected>Show 25</option>
+                        <option value="50">Show 50</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tab-container">
+                <div class="tab-nav">
+                    <button class="tab-btn active" onclick="switchTab('global')">Global</button>
+                    <button class="tab-btn" onclick="switchTab('students')">Students</button>
+                    <button class="tab-btn" onclick="switchTab('teachers')">Teachers</button>
+                    <button class="tab-btn" onclick="switchTab('alumni')">Alumni</button>
+                    <button class="tab-btn" onclick="switchTab('community')">Community Leaders</button>
+                </div>
+
+                <div class="glass-card">
+                    <table class="leaderboard-table" id="leaderboardTable">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Points</th>
+                                <th>Streak</th>
+                                <th>Level</th>
+                                <th>Last Active</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboardBody">
+                            <!-- Dynamic content will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <h2 class="section-title" style="font-family: 'Poppins', sans-serif; font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem; color: var(--gray-900);">Analytics & Insights</h2>
+            
+            <div class="charts-grid">
+                <div class="glass-card chart-container">
+                    <h3 class="chart-title">Monthly Points Distribution</h3>
+                    <div class="chart-canvas">
+                        <canvas id="monthlyPointsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-container">
+                    <h3 class="chart-title">Role Distribution</h3>
+                    <div class="chart-canvas">
+                        <canvas id="roleDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-container">
+                    <h3 class="chart-title">Activity Trends</h3>
+                    <div class="chart-canvas">
+                        <canvas id="activityTrendsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-container">
+                    <h3 class="chart-title">Community Engagement</h3>
+                    <div class="chart-canvas">
+                        <canvas id="communityEngagementChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-container">
+                    <h3 class="chart-title">User Growth</h3>
+                    <div class="chart-canvas">
+                        <canvas id="userGrowthChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card chart-container">
+                    <h3 class="chart-title">Activity Heatmap</h3>
+                    <div class="chart-canvas">
+                        <canvas id="activityHeatmapChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+    <!-- User Profile Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">User Profile</h3>
+                <button class="close-btn" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <div id="userProfileContent">
+                <!-- Dynamic user profile content -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/analytics.js"></script>
+</body>
+</html>
+                
+
+            
