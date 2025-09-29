@@ -31,6 +31,7 @@ public class PostReport {
     private String reason;
     
     @Column
+    @Builder.Default
     private String status = "PENDING"; // PENDING, REVIEWED, RESOLVED
     
     @Column(name = "admin_notes")

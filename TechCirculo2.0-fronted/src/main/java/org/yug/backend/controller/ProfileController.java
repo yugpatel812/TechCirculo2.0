@@ -85,8 +85,7 @@ public ResponseEntity<?> updateProfilePic(
         Path filePath = uploadPath.resolve(fileName);
         file.transferTo(filePath.toFile());
 
-        // ✅ Build full URL using request info
-        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+        // ✅ Build relative URL for file access
         String fileUrl =  "/uploads/profile-pics/" + fileName;
 
         ProfileResponse response = profileService.updateProfilePic(userDetails.getUsername(), fileUrl);

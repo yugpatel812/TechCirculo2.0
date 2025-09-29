@@ -12,7 +12,6 @@ import org.yug.backend.model.UserCommunity;
 import org.yug.backend.model.post.Post;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 

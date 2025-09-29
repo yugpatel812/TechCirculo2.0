@@ -36,6 +36,7 @@ public class Comment {
     private UUID parentCommentId; // For nested comments/replies
     
     @Column(name = "likes_count")
+    @Builder.Default
     private Integer likesCount = 0;
     
     @Column(name = "created_at")

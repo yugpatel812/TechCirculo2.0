@@ -34,8 +34,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String email = oAuth2User.getAttribute("email");
         logger.info("Email from OAuth2: {}", email); //
 
-        // Validate email domain (as per your existing logic)
-        if (!email.endsWith("@paruluniversity.ac.in")) { //
+        // Validate email is not null and has valid domain
+        if (email == null || !email.endsWith("@paruluniversity.ac.in")) { //
             throw new OAuth2AuthenticationException("Invalid email domain");
         }
 

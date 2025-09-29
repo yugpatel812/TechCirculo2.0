@@ -2,7 +2,6 @@ package org.yug.backend.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +22,6 @@ import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.UserRepository;
 import org.yug.backend.dto.post.PostLikeDto;
 import org.yug.backend.dto.post.PostStatsDto;
-import org.yug.backend.model.post.PostLike;
-import org.yug.backend.model.post.PostReport;
-import org.yug.backend.model.post.PostBookmark;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

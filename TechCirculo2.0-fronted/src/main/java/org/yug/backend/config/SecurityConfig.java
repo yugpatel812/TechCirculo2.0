@@ -43,6 +43,9 @@ public class SecurityConfig {
                 // ✅ Allow auth endpoints
                 .requestMatchers("/auth/**").permitAll()
 
+                // ✅ Allow public analytics endpoints (for dashboard)
+                .requestMatchers("/api/analytics/**").permitAll()
+
                 // 🔒 Require JWT for all API calls
                 .requestMatchers("/api/**").authenticated()
 

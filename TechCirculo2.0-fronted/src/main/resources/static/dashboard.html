@@ -13,16 +13,17 @@
 <body>
   <div class="dashboard">
     <!-- Hamburger Menu Button -->
-        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle Menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
         
-        <!-- Sidebar Overlay -->
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="logo">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -76,6 +77,17 @@
           Annoucements
           <span class="badge">0</span>
         </a>
+        <a href="analytics.html">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 3v18h18" />
+    <path d="M18 17V9" />
+    <path d="M13 17V5" />
+    <path d="M8 17v-3" />
+  </svg>
+  Analytics
+  <span class="badge">New</span>
+</a>
       </nav>
     </aside>
 
@@ -130,6 +142,16 @@
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m6 9 6 6 6-6" />
           </svg>
+        </button>
+        
+        <!-- Test Points Button -->
+        <button id="testPointsBtn" class="create-post-btn" style="margin-left: 10px; background: #28a745;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          Test Points (+10)
         </button>
       </div>
 
@@ -265,7 +287,64 @@
     </main>
   </div>
 
-  <script src="js/dashboard.js"></script>
+  <!-- Include Points API Service -->
+   <script src="js/dashboard.js"></script>
+   <script src="js/points-api.js"></script>
+
+  <!-- Use updated dashboard with points integration -->
+  <script src="js/dashboard-with-points.js"></script> 
+  
+  
+  
+  <script>
+    // Test Points Button Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const testPointsBtn = document.getElementById('testPointsBtn');
+      
+      if (testPointsBtn) {
+        testPointsBtn.addEventListener('click', async function() {
+          try {
+            console.log('Testing points award...');
+            
+            // Disable button temporarily
+            testPointsBtn.disabled = true;
+            testPointsBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/></svg> Awarding...';
+            
+            // Award points using the activity endpoint
+            const response = await fetch('/api/points/award-activity', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({
+                activityType: 'TEST_ACTION',
+                description: 'Testing WebSocket real-time points update',
+              })
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              console.log('Points awarded successfully:', result);
+              
+              // Re-enable button after short delay
+              setTimeout(() => {
+                testPointsBtn.disabled = false;
+                testPointsBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Test Points (+10)';
+              }, 2000);
+            } else {
+              throw new Error('Failed to award points');
+            }
+          } catch (error) {
+            console.error('Error awarding test points:', error);
+            testPointsBtn.disabled = false;
+            testPointsBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Test Points (+10)';
+            alert('Failed to award points: ' + error.message);
+          }
+        });
+      }
+    });
+  </script>
 </body>
 
 </html>

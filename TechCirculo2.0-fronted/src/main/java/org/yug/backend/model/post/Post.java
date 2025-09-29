@@ -40,6 +40,7 @@ public class Post {
     private String imageUrl;
     
     @Column(name = "likes_count")
+    @Builder.Default
     private Integer likesCount = 0;
     
     @Column(name = "created_at")
@@ -53,9 +54,11 @@ public class Post {
     private String tags; // Comma-separated tags
     
     @Column(name = "is_pinned")
+    @Builder.Default
     private Boolean isPinned = false;
     
     @Column(name = "is_hidden")
+    @Builder.Default
     private Boolean isHidden = false;
     
     @Column(name = "hidden_by")

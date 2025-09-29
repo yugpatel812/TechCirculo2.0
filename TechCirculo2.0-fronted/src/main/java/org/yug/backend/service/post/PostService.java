@@ -253,7 +253,7 @@ public class PostService {
     // Toggle like on a post
     @Transactional
     public boolean toggleLike(UUID postId, UUID userId) {
-        Post post = postRepository.findById(postId)
+        postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndUserId(postId, userId);
@@ -351,7 +351,7 @@ public class PostService {
     // Report a post
     @Transactional
     public void reportPost(UUID postId, UUID userId, String reason) {
-        Post post = postRepository.findById(postId)
+        postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         // Check if user already reported this post
@@ -373,7 +373,7 @@ public class PostService {
     // Toggle bookmark on a post
     @Transactional
     public boolean toggleBookmark(UUID postId, UUID userId) {
-        Post post = postRepository.findById(postId)
+        postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         Optional<PostBookmark> existingBookmark = postBookmarkRepository.findByPostIdAndUserId(postId, userId);
@@ -406,7 +406,7 @@ public class PostService {
 
     // Get post statistics
     public PostStatsDto getPostStats(UUID postId) {
-        Post post = postRepository.findById(postId)
+        postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         long likesCount = postLikeRepository.countByPostId(postId);

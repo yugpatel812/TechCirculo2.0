@@ -29,16 +29,25 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     })();
 
-    // Initialize Hamburger Menu - Fixed Version
-   // Initialize Hamburger Menu - Fixed Version
+    // Initialize Hamburger Menu - Fixed Version with Debug
 function initializeHamburgerMenu() {
+    console.log('🍔 Initializing hamburger menu...');
+    
     const hamburgerBtn = document.getElementById('hamburgerBtn');
-    const sidebar = document.querySelector('.sidebar'); // Changed from getElementById to querySelector
+    const sidebar = document.querySelector('.sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    console.log('🔍 Elements found:', {
+        hamburgerBtn: !!hamburgerBtn,
+        sidebar: !!sidebar,
+        sidebarOverlay: !!sidebarOverlay,
+        hamburgerDisplay: hamburgerBtn ? window.getComputedStyle(hamburgerBtn).display : 'N/A',
+        screenWidth: window.innerWidth
+    });
 
     // Check if elements exist before adding event listeners
     if (!hamburgerBtn || !sidebar || !sidebarOverlay) {
-        console.warn('Hamburger menu elements not found:', {
+        console.error('❌ Hamburger menu elements not found:', {
             hamburgerBtn: !!hamburgerBtn,
             sidebar: !!sidebar,
             sidebarOverlay: !!sidebarOverlay
@@ -47,14 +56,29 @@ function initializeHamburgerMenu() {
     }
 
     function toggleSidebar() {
+        console.log('🔄 Toggling sidebar...');
         hamburgerBtn.classList.toggle('active');
         sidebar.classList.toggle('open');
         sidebarOverlay.classList.toggle('active');
+        document.body.classList.toggle('sidebar-open');
+        
+        console.log('📊 Sidebar state:', {
+            hamburgerActive: hamburgerBtn.classList.contains('active'),
+            sidebarOpen: sidebar.classList.contains('open'),
+            overlayActive: sidebarOverlay.classList.contains('active')
+        });
     }
 
-    hamburgerBtn.addEventListener('click', toggleSidebar);
+    // Remove any existing event listeners to prevent duplicates
+    hamburgerBtn.removeEventListener('click', toggleSidebar);
+    hamburgerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('🍔 Hamburger clicked!');
+        toggleSidebar();
+    });
     
     sidebarOverlay.addEventListener('click', () => {
+        console.log('🌫️ Overlay clicked!');
         if (sidebar.classList.contains('open')) {
             toggleSidebar();
         }
@@ -62,10 +86,12 @@ function initializeHamburgerMenu() {
 
     // Auto-close on nav click (mobile)
     const navLinks = sidebar.querySelectorAll('nav a');
+    console.log(`🔗 Found ${navLinks.length} navigation links`);
     if (navLinks.length > 0) {
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
                 if (window.innerWidth <= 1024 && sidebar.classList.contains('open')) {
+                    console.log('🔗 Nav link clicked, closing sidebar');
                     toggleSidebar();
                 }
             });
@@ -75,15 +101,23 @@ function initializeHamburgerMenu() {
     // Auto-close on resize
     window.addEventListener('resize', () => {
         if (window.innerWidth > 1024 && sidebar.classList.contains('open')) {
+            console.log('📱➡️💻 Resized to desktop, closing sidebar');
             toggleSidebar();
         }
     });
 
-    console.log('Hamburger menu initialized successfully');
+    console.log('✅ Hamburger menu initialized successfully');
+    
+    // Check if hamburger is visible after initialization
+    setTimeout(() => {
+        const isVisible = window.getComputedStyle(hamburgerBtn).display !== 'none';
+        console.log(`🍔 Hamburger visibility check: ${isVisible ? 'VISIBLE' : 'HIDDEN'} (${window.getComputedStyle(hamburgerBtn).display})`);
+        
+        if (!isVisible && window.innerWidth <= 1024) {
+            console.warn('⚠️ Hamburger should be visible on mobile but is hidden!');
+        }
+    }, 100);
 }
-
-// Make sure to call this function when the DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeHamburgerMenu);
 
     // Enhanced notification system
     function showNotification(message, type = 'success') {
