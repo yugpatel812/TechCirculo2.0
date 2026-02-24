@@ -1,33 +1,57 @@
 package org.yug.backend.service.profile;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class FileStorageService {
 
-    private final String UPLOAD_DIR = "uploads/profile-pics/";
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
-    public String save(MultipartFile file) {
+
+    public String saveFile(MultipartFile file, String subDir) {
         try {
-            // Ensure upload directory exists
-            Path uploadPath = Paths.get(UPLOAD_DIR);
+            // Validate file type
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("Only image files are allowed");
+            }
+
+            // Create upload directory path
+            Path uploadPath = Path.of(uploadDir, subDir);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Save file with unique name
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
-            file.transferTo(filePath.toFile());
+            // Generate unique filename
+            String originalFilename = file.getOriginalFilename();
+            String extension = ".jpg";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = UUID.randomUUID().toString() + extension;
 
-            // Return relative URL for frontend (e.g. /uploads/profile-pics/12345_pic.jpg)
-            return "/uploads/profile-pics/" + fileName;
+            // Save file
+            Path filePath = uploadPath.resolve(filename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Return relative URL (e.g., /uploads/posts/uuid.jpg)
+            // Note: uploadDir is usually "./uploads", so we want to return "/uploads/subDir/filename"
+            // We strip the leading dot if present for the URL
+            String normalizedUploadDir = uploadDir.startsWith("./") ? uploadDir.substring(1) : uploadDir;
+            if (!normalizedUploadDir.startsWith("/")) {
+                normalizedUploadDir = "/" + normalizedUploadDir;
+            }
+            
+            return normalizedUploadDir + "/" + subDir + "/" + filename;
 
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);

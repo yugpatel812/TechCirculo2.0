@@ -14,16 +14,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // Map /uploads/profile-pics/** → your configured profile pics folder
+        // Since application.yml defines spring.web.resources.static-locations: classpath:/static/,file:uploads/
+        // Spring Boot automatically maps /** to these locations.
+        // No manual mapping needed for /uploads/** as it's handled by Spring Boot defaults.
+
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + uploadDir + "/");
-        
-        // Map /uploads/posts/** → posts images folder (in project root)
-        registry.addResourceHandler("/uploads/posts/**")
-                .addResourceLocations("file:" + System.getProperty("user.dir") + "/uploads/posts/");
-                
-        // General uploads mapping (fallback) - also in project root
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + System.getProperty("user.dir") + "/uploads/");
+                .addResourceLocations("file:uploads/");
     }
 }

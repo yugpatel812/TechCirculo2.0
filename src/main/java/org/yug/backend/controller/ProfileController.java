@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.yug.backend.dto.profile.*;
+import org.yug.backend.service.profile.FileStorageService;
 import org.yug.backend.service.profile.ProfileService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,8 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class ProfileController {
 
     private final ProfileService profileService;
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    private final FileStorageService fileStorageService;
 
     // ✅ Get logged-in user's profile
     @GetMapping
@@ -74,27 +74,15 @@ public ResponseEntity<ProfileResponse> getUserProfileByUsername(
 @PostMapping(value = "/profile-pic", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 public ResponseEntity<?> updateProfilePic(
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam("file") MultipartFile file,
-        HttpServletRequest request) { // <-- inject request to build URL
-
-    String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-    Path uploadPath = Paths.get(uploadDir, "profile-pics");
+        @RequestParam("file") MultipartFile file) {
 
     try {
-        Files.createDirectories(uploadPath); // ensure folder exists
-        Path filePath = uploadPath.resolve(fileName);
-        file.transferTo(filePath.toFile());
-
-        // ✅ Build relative URL for file access
-        String fileUrl =  "/uploads/profile-pics/" + fileName;
+        // ✅ Use unified FileStorageService
+        String fileUrl = fileStorageService.saveFile(file, "profile-pics");
 
         ProfileResponse response = profileService.updateProfilePic(userDetails.getUsername(), fileUrl);
-
         return ResponseEntity.ok(response);
 
-    } catch (IOException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "File upload failed: " + e.getMessage()));
     } catch (Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", "Unexpected error: " + e.getMessage()));

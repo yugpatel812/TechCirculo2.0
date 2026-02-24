@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.yug.backend.dto.community.*;
 import org.yug.backend.dto.post.PostCreateRequest;
 import org.yug.backend.service.community.CommunityService;
+import org.yug.backend.service.profile.FileStorageService;
 import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.UserRepository;
 // Add these imports to your CommunityController.java
@@ -36,6 +37,9 @@ public class CommunityController {
 
     @Autowired
     private CommunityService communityService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Autowired
     private UserRepository userRepository;
@@ -171,16 +175,8 @@ public ResponseEntity<?> createPost(
         // Handle image upload if present
         String imageUrl = null;
         if (image != null && !image.isEmpty()) {
-            try {
-                imageUrl = saveUploadedFile(image);
-                logger.info("Image saved with URL: {}", imageUrl);
-            } catch (IOException e) {
-                logger.error("Error saving image: ", e);
-                return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "message", "Failed to save image: " + e.getMessage()
-                ));
-            }
+            imageUrl = fileStorageService.saveFile(image, "posts");
+            logger.info("Image saved with URL: {}", imageUrl);
         }
         
         // Create PostCreateRequest
@@ -215,44 +211,6 @@ public ResponseEntity<?> createPost(
             "message", "An error occurred while creating the post"
         ));
     }
-}
-
-// Add this helper method to your CommunityController class
-private String saveUploadedFile(MultipartFile file) throws IOException {
-    // Validate file type
-    String contentType = file.getContentType();
-    if (contentType == null || !contentType.startsWith("image/")) {
-        throw new IllegalArgumentException("Only image files are allowed");
-    }
-    
-    // Validate file size (already configured in properties, but double-check)
-    if (file.getSize() > 10 * 1024 * 1024) { // 10MB
-        throw new IllegalArgumentException("File size should be less than 10MB");
-    }
-
-    // Create uploads directory relative to your project root
-    String baseDir = System.getProperty("user.dir"); // Get project root directory
-    String uploadDir = baseDir + "/uploads/posts"; // Subfolder for posts
-    Path uploadPath = Paths.get(uploadDir);
-    if (!Files.exists(uploadPath)) {
-        Files.createDirectories(uploadPath);
-        logger.info("Created upload directory: {}", uploadPath.toAbsolutePath());
-    }
-
-    // Generate unique filename
-    String originalFilename = file.getOriginalFilename();
-    String extension = originalFilename != null ? 
-        originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
-    String filename = UUID.randomUUID().toString() + extension;
-
-    // Save file
-    Path filePath = uploadPath.resolve(filename);
-    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-    
-    logger.info("File saved to: {}", filePath.toAbsolutePath());
-
-    // Return URL path that matches your WebConfig mapping
-    return "/uploads/posts/" + filename;
 }
 
     @GetMapping("/{communityId}/announcements")

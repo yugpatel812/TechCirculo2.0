@@ -18,6 +18,7 @@ import org.yug.backend.dto.community.*;
 import org.yug.backend.dto.post.PostCreateRequest;
 import org.yug.backend.dto.post.PostUpdateRequest;
 import org.yug.backend.service.post.PostService;
+import org.yug.backend.service.profile.FileStorageService;
 import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.UserRepository;
 import org.yug.backend.dto.post.PostLikeDto;
@@ -38,6 +39,9 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Autowired
     private UserRepository userRepository;
@@ -160,15 +164,7 @@ public class PostController {
             // Handle image upload
             String imageUrl = null;
             if (image != null && !image.isEmpty()) {
-                try {
-                    imageUrl = saveUploadedFile(image);
-                } catch (IOException e) {
-                    logger.error("Error saving image: ", e);
-                    return ResponseEntity.badRequest().body(Map.of(
-                        "status", "error",
-                        "message", "Failed to save image: " + e.getMessage()
-                    ));
-                }
+                imageUrl = fileStorageService.saveFile(image, "posts");
             }
             
             // Create PostCreateRequest
@@ -218,15 +214,7 @@ public class PostController {
             // Handle image upload
             String imageUrl = null;
             if (image != null && !image.isEmpty()) {
-                try {
-                    imageUrl = saveUploadedFile(image);
-                } catch (IOException e) {
-                    logger.error("Error saving image: ", e);
-                    return ResponseEntity.badRequest().body(Map.of(
-                        "status", "error",
-                        "message", "Failed to save image: " + e.getMessage()
-                    ));
-                }
+                imageUrl = fileStorageService.saveFile(image, "posts");
             }
 
             PostUpdateRequest request = PostUpdateRequest.builder()
@@ -470,7 +458,6 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    // Get post statistics
     @GetMapping("/{postId}/stats")
     public ResponseEntity<PostStatsDto> getPostStats(@PathVariable UUID postId) {
         try {
@@ -480,39 +467,5 @@ public class PostController {
             logger.error("Error getting post stats: ", e);
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    // Helper method to save uploaded files
-    private String saveUploadedFile(MultipartFile file) throws IOException {
-        // Validate file type
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new IllegalArgumentException("Only image files are allowed");
-        }
-        
-        // Validate file size (10MB limit)
-        if (file.getSize() > 10 * 1024 * 1024) {
-            throw new IllegalArgumentException("File size should be less than 10MB");
-        }
-
-        // Create uploads directory
-        String baseDir = System.getProperty("user.dir");
-        String uploadDir = baseDir + "/uploads/posts";
-        Path uploadPath = Paths.get(uploadDir);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        // Generate unique filename
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null ? 
-            originalFilename.substring(originalFilename.lastIndexOf(".")) : ".jpg";
-        String filename = UUID.randomUUID().toString() + extension;
-
-        // Save file
-        Path filePath = uploadPath.resolve(filename);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return "/uploads/posts/" + filename;
     }
 }
