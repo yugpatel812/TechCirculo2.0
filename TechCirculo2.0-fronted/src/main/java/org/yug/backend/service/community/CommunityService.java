@@ -72,8 +72,8 @@ public class CommunityService {
                 .imageUrl(post.getImageUrl())
                 .authorId(post.getAuthor().getId())
                 .authorName(post.getAuthor().getUsername()) // or getFullName() if you have that field
-                .likesCount(post.getLikesCount() != null ? post.getLikesCount() : 0)
-                .commentsCount(0) // You can add this field to Post model later if needed
+                .likesCount((long) (post.getLikesCount() != null ? post.getLikesCount() : 0))
+                .commentsCount(0L) // You can add this field to Post model later if needed
                 .build();
     }
 

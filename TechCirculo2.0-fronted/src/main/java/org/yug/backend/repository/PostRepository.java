@@ -10,6 +10,7 @@ import org.yug.backend.model.post.Post;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -117,14 +118,15 @@ Page<Post> findWithAdvancedFilters(@Param("query") String query,
            "ORDER BY p.createdAt DESC")
     Page<Post> findPostsWithUserActivity(@Param("userId") UUID userId, Pageable pageable);
 
-    @Query("""
-    SELECT p
-    FROM Post p
-    JOIN FETCH p.author a
-    LEFT JOIN FETCH a.profile pr
-    JOIN FETCH p.community c
-    WHERE a.id = :authorId
-""")
-Page<Post> findByAuthorIdWithDetails(@Param("authorId") UUID authorId, Pageable pageable);
+    @Query("SELECT p FROM Post p JOIN FETCH p.author a LEFT JOIN FETCH a.profile JOIN FETCH p.community c WHERE a.id = :authorId")
+    Page<Post> findByAuthorIdWithDetails(@Param("authorId") UUID authorId, Pageable pageable);
 
+    @Query("SELECT p FROM Post p JOIN FETCH p.author a LEFT JOIN FETCH a.profile JOIN FETCH p.community c")
+    Page<Post> findAllWithDetails(Pageable pageable);
+
+    @Query("SELECT p FROM Post p JOIN FETCH p.author a LEFT JOIN FETCH a.profile JOIN FETCH p.community c WHERE c.id = :communityId")
+    List<Post> findByCommunityIdWithDetails(@Param("communityId") UUID communityId);
+
+    @Query("SELECT p FROM Post p JOIN FETCH p.author a LEFT JOIN FETCH a.profile JOIN FETCH p.community c WHERE p.id = :postId")
+    Optional<Post> findByIdWithDetails(@Param("postId") UUID postId);
 }

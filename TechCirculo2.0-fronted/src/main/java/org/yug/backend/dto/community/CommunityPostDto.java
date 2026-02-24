@@ -29,8 +29,8 @@ public class CommunityPostDto {
     private String communityImageUrl;
 
     // Engagement
-    private Integer likesCount;
-    private Integer commentsCount;
+    private Long likesCount;
+    private Long commentsCount;
 
     // Time
     private LocalDateTime createdAt;

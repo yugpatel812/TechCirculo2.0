@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface PostLikeRepository extends JpaRepository<PostLike, UUID> {
     
     boolean existsByPostIdAndUserId(UUID postId, UUID userId);
-    
+
     Optional<PostLike> findByPostIdAndUserId(UUID postId, UUID userId);
     
     List<PostLike> findByPostId(UUID postId);
@@ -27,4 +27,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, UUID> {
     
     @Query("SELECT pl.postId FROM PostLike pl WHERE pl.userId = :userId")
     List<UUID> findPostIdsByUserId(@Param("userId") UUID userId);
+
+    @Query("SELECT pl.postId FROM PostLike pl WHERE pl.userId = :userId AND pl.postId IN :postIds")
+    List<UUID> findPostIdsByUserIdAndPostIdIn(@Param("userId") UUID userId, @Param("postIds") List<UUID> postIds);
 }

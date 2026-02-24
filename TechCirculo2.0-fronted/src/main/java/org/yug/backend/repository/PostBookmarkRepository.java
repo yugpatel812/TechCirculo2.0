@@ -23,4 +23,7 @@ public interface PostBookmarkRepository extends JpaRepository<PostBookmark, UUID
     
     @Query("SELECT pb.postId FROM PostBookmark pb WHERE pb.userId = :userId ORDER BY pb.createdAt DESC")
     List<UUID> findPostIdsByUserId(@Param("userId") UUID userId);
+
+    @Query("SELECT pb.postId FROM PostBookmark pb WHERE pb.userId = :userId AND pb.postId IN :postIds")
+    List<UUID> findPostIdsByUserIdAndPostIdIn(@Param("userId") UUID userId, @Param("postIds") List<UUID> postIds);
 }

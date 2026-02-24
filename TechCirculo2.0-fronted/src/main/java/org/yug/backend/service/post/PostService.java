@@ -34,6 +34,67 @@ public class PostService {
     private final PostReportRepository postReportRepository;
     private final CommentRepository commentRepository;
 
+    // Batch conversion helper
+    private List<CommunityPostDto> toPostDtoList(List<Post> posts, UUID currentUserId) {
+        if (posts.isEmpty()) return Collections.emptyList();
+
+        List<UUID> postIds = posts.stream().map(Post::getId).collect(Collectors.toList());
+
+        Set<UUID> likedPostIds = new HashSet<>();
+        Set<UUID> bookmarkedPostIds = new HashSet<>();
+        if (currentUserId != null) {
+            likedPostIds.addAll(postLikeRepository.findPostIdsByUserIdAndPostIdIn(currentUserId, postIds));
+            bookmarkedPostIds.addAll(postBookmarkRepository.findPostIdsByUserIdAndPostIdIn(currentUserId, postIds));
+        }
+
+        Map<UUID, Long> commentCounts = commentRepository.countCommentsByPostIds(postIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (UUID) row[0],
+                        row -> (Long) row[1]
+                ));
+
+        return posts.stream().map(post -> {
+            CommunityPostDto dto = toPostDtoSimple(post);
+            if (currentUserId != null) {
+                dto.setLikedByMe(likedPostIds.contains(post.getId()));
+                dto.setBookmarked(bookmarkedPostIds.contains(post.getId()));
+                dto.setOwner(post.getAuthor().getId().equals(currentUserId));
+            }
+            dto.setCommentsCount(commentCounts.getOrDefault(post.getId(), 0L));
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    // A lightweight version of toPostDto that doesn't do extra DB lookups
+    private CommunityPostDto toPostDtoSimple(Post post) {
+        String authorRole = post.getAuthor().getRole() != null ? post.getAuthor().getRole().name() : null;
+        String authorProfileUrl = (post.getAuthor().getProfile() != null)
+                ? post.getAuthor().getProfile().getProfilePicUrl()
+                : null;
+
+        return CommunityPostDto.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .imageUrl(post.getImageUrl())
+                .authorId(post.getAuthor().getId())
+                .authorName(post.getAuthor().getUsername())
+                .authorRole(authorRole)
+                .authorProfileUrl(authorProfileUrl)
+                .communityId(post.getCommunity().getId())
+                .communityName(post.getCommunity().getName())
+                .communityImageUrl(post.getCommunity().getImageUrl())
+                .likesCount((long) (post.getLikesCount() == null ? 0 : post.getLikesCount()))
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .tags(post.getTags())
+                .likedByMe(false)
+                .bookmarked(false)
+                .owner(false)
+                .build();
+    }
+
     // Convert Post entity to DTO with user context
     private CommunityPostDto toPostDto(Post post, UUID currentUserId) {
         boolean isLiked = false;
@@ -76,8 +137,8 @@ public class PostService {
                 .communityImageUrl(communityImageUrl)
 
                 // likes/comments
-                .likesCount(post.getLikesCount() == null ? 0 : post.getLikesCount())
-                .commentsCount((int) commentsCount)
+                .likesCount((long) (post.getLikesCount() == null ? 0 : post.getLikesCount()))
+                .commentsCount((long) commentsCount)
 
                 // timestamps
                 .createdAt(post.getCreatedAt())
@@ -108,8 +169,8 @@ public class PostService {
                 .authorName(post.getAuthor().getUsername())
                 .communityId(post.getCommunity().getId())
                 .communityName(post.getCommunity().getName())
-                .likesCount(post.getLikesCount() != null ? post.getLikesCount() : 0)
-                .commentsCount((int) commentsCount)
+                .likesCount((long) (post.getLikesCount() != null ? post.getLikesCount() : 0))
+                .commentsCount((long) commentsCount)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .tags(post.getTags())
@@ -121,30 +182,22 @@ public class PostService {
 
     // Get all posts with pagination and user context
     public Page<CommunityPostDto> getAllPosts(Pageable pageable, UUID currentUserId) {
-        Page<Post> posts = postRepository.findAll(pageable);
-
-        if (currentUserId != null) {
-            return posts.map(post -> toPostDto(post, currentUserId));
-        } else {
-            return posts.map(this::toPostDto);
-        }
+        Page<Post> posts = postRepository.findAllWithDetails(pageable);
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), currentUserId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Get posts by specific user
 
     public Page<CommunityPostDto> getPostsByUser(UUID userId, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findByAuthorIdWithDetails(userId, pageable);
-
-        if (currentUserId != null) {
-            return posts.map(post -> toPostDto(post, currentUserId));
-        } else {
-            return posts.map(this::toPostDto);
-        }
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), currentUserId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Get single post by ID
     public CommunityPostDto getPostById(UUID postId, UUID currentUserId) {
-        Optional<Post> post = postRepository.findById(postId);
+        Optional<Post> post = postRepository.findByIdWithDetails(postId);
 
         if (post.isPresent()) {
             if (currentUserId != null) {
@@ -158,18 +211,13 @@ public class PostService {
 
     // Get posts by community (existing method from CommunityService)
     public List<CommunityPostDto> getPostsByCommunity(UUID communityId) {
-        List<Post> posts = postRepository.findByCommunityId(communityId);
-        return posts.stream().map(this::toPostDto).collect(Collectors.toList());
+        List<Post> posts = postRepository.findByCommunityIdWithDetails(communityId);
+        return toPostDtoList(posts, null);
     }
 
     public List<CommunityPostDto> getPostsByCommunity(UUID communityId, UUID currentUserId) {
-        List<Post> posts = postRepository.findByCommunityId(communityId);
-
-        if (currentUserId != null) {
-            return posts.stream().map(post -> toPostDto(post, currentUserId)).collect(Collectors.toList());
-        } else {
-            return posts.stream().map(this::toPostDto).collect(Collectors.toList());
-        }
+        List<Post> posts = postRepository.findByCommunityIdWithDetails(communityId);
+        return toPostDtoList(posts, currentUserId);
     }
 
     // Create a new post
@@ -293,35 +341,22 @@ public class PostService {
     public Page<CommunityPostDto> searchPosts(String query, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
                 query, query, pageable);
-
-        if (currentUserId != null) {
-            return posts.map(post -> toPostDto(post, currentUserId));
-        } else {
-            return posts.map(this::toPostDto);
-        }
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), currentUserId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Get trending posts (posts with most likes/comments in recent time)
     public List<CommunityPostDto> getTrendingPosts(int limit, UUID currentUserId) {
         LocalDateTime weekAgo = LocalDateTime.now().minusDays(7);
         List<Post> posts = postRepository.findTrendingPosts(weekAgo, PageRequest.of(0, limit));
-
-        if (currentUserId != null) {
-            return posts.stream().map(post -> toPostDto(post, currentUserId)).collect(Collectors.toList());
-        } else {
-            return posts.stream().map(this::toPostDto).collect(Collectors.toList());
-        }
+        return toPostDtoList(posts, currentUserId);
     }
 
     // Get posts by tag
     public Page<CommunityPostDto> getPostsByTag(String tag, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findByTagsContainingIgnoreCase(tag, pageable);
-
-        if (currentUserId != null) {
-            return posts.map(post -> toPostDto(post, currentUserId));
-        } else {
-            return posts.map(this::toPostDto);
-        }
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), currentUserId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Get popular tags
@@ -401,7 +436,8 @@ public class PostService {
         }
 
         Page<Post> posts = postRepository.findByIdIn(bookmarkedPostIds, pageable);
-        return posts.map(post -> toPostDto(post, userId));
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), userId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Get post statistics
@@ -433,7 +469,8 @@ public class PostService {
         }
 
         Page<Post> posts = postRepository.findByCommunityIdIn(joinedCommunityIds, pageable);
-        return posts.map(post -> toPostDto(post, userId));
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), userId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Get recent posts by user's followed communities
@@ -447,9 +484,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
         List<Post> posts = postRepository.findByCommunityIdIn(joinedCommunityIds, pageable).getContent();
 
-        return posts.stream()
-                .map(post -> toPostDto(post, userId))
-                .collect(Collectors.toList());
+        return toPostDtoList(posts, userId);
     }
 
     // Get posts that user might like (recommendation based on user's activity)
@@ -466,9 +501,7 @@ public class PostService {
         Pageable pageable = PageRequest.of(0, limit, Sort.by("likesCount").descending());
         List<Post> posts = postRepository.findByCommunityIdInAndIdNotIn(joinedCommunityIds, likedPostIds, pageable);
 
-        return posts.stream()
-                .map(post -> toPostDto(post, userId))
-                .collect(Collectors.toList());
+        return toPostDtoList(posts, userId);
     }
 
     // Get post engagement metrics for analytics
@@ -529,24 +562,15 @@ public class PostService {
     public List<CommunityPostDto> getMostDiscussedPosts(int limit, UUID currentUserId) {
         Pageable pageable = PageRequest.of(0, limit);
         List<Post> posts = postRepository.findMostDiscussedPosts(pageable);
-
-        if (currentUserId != null) {
-            return posts.stream().map(post -> toPostDto(post, currentUserId)).collect(Collectors.toList());
-        } else {
-            return posts.stream().map(this::toPostDto).collect(Collectors.toList());
-        }
+        return toPostDtoList(posts, currentUserId);
     }
 
     // Get posts by multiple communities
     public Page<CommunityPostDto> getPostsByMultipleCommunities(List<UUID> communityIds, Pageable pageable,
             UUID currentUserId) {
         Page<Post> posts = postRepository.findByCommunityIdIn(communityIds, pageable);
-
-        if (currentUserId != null) {
-            return posts.map(post -> toPostDto(post, currentUserId));
-        } else {
-            return posts.map(this::toPostDto);
-        }
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), currentUserId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 
     // Advanced search with filters
@@ -555,11 +579,7 @@ public class PostService {
             List<String> tags, Pageable pageable, UUID currentUserId) {
         Page<Post> posts = postRepository.findWithAdvancedFilters(
                 query, communityIds, fromDate, toDate, tags, pageable);
-
-        if (currentUserId != null) {
-            return posts.map(post -> toPostDto(post, currentUserId));
-        } else {
-            return posts.map(this::toPostDto);
-        }
+        List<CommunityPostDto> dtos = toPostDtoList(posts.getContent(), currentUserId);
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, posts.getTotalElements());
     }
 }

@@ -36,8 +36,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // ✅ Allow all static files (HTML, CSS, JS, images) without authentication
                 .requestMatchers(
-                    "/", "/index.html", "/SignIn.html", "/dashboard.html", "/community.html", "/profile.html",
-                    "/css/**", "/js/**", "/images/**"
+                    "/", "/index.html", "/SignIn.html", "/dashboard.html","/announcements.html", "/community.html", "/profile.html",
+                    "/css/**", "/js/**", "/images/**" , "/uploads/**"
                 ).permitAll()
 
                 // ✅ Allow auth endpoints

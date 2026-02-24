@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.yug.backend.dto.profile.*;
+import org.yug.backend.mapper.ProfileMapper;
 import org.yug.backend.model.Profile;
 import org.yug.backend.model.auth.User;
 import org.yug.backend.repository.ProfileRepository;
@@ -27,7 +28,6 @@ public class ProfileService {
                 .orElseGet(() -> {
                     Profile newProfile = new Profile();
                     newProfile.setUser(user);
-                    // Set email from User entity as default
                     newProfile.setEmail(user.getEmail());
                     return profileRepository.save(newProfile);
                 });
@@ -35,7 +35,7 @@ public class ProfileService {
 
     public ProfileResponse getUserProfile(String username) {
         Profile profile = getOrCreateProfile(username);
-        return mapToResponse(profile);
+        return ProfileMapper.toResponse(profile);
     }
 
     @Transactional
@@ -51,7 +51,7 @@ public class ProfileService {
         if (request.getProfilePicUrl() != null) profile.setProfilePicUrl(request.getProfilePicUrl());
 
         profileRepository.save(profile);
-        return mapToResponse(profile);
+        return ProfileMapper.toResponse(profile);
     }
 
     @Transactional
@@ -63,7 +63,7 @@ public class ProfileService {
         if (request.getLeetcodeUrl() != null) profile.setLeetcodeUrl(request.getLeetcodeUrl());
 
         profileRepository.save(profile);
-        return mapToResponse(profile);
+        return ProfileMapper.toResponse(profile);
     }
 
     @Transactional
@@ -71,7 +71,7 @@ public class ProfileService {
         Profile profile = getOrCreateProfile(username);
         profile.setProfilePicUrl(fileUrl);
         profileRepository.save(profile);
-        return mapToResponse(profile);
+        return ProfileMapper.toResponse(profile);
     }
 
     @Transactional
@@ -91,22 +91,7 @@ public class ProfileService {
         if (request.getLeetcodeUrl() != null) profile.setLeetcodeUrl(request.getLeetcodeUrl());
 
         profileRepository.save(profile);
-        return mapToResponse(profile);
+        return ProfileMapper.toResponse(profile);
     }
 
-    private ProfileResponse mapToResponse(Profile profile) {
-        return ProfileResponse.builder()
-                .name(profile.getName())
-                .email(profile.getEmail())
-                .university(profile.getUniversity())
-                .major(profile.getMajor())
-                .location(profile.getLocation())
-                .bio(profile.getBio())
-                .profilePicUrl(profile.getProfilePicUrl())
-                .linkedinUrl(profile.getLinkedinUrl())
-                .githubUrl(profile.getGithubUrl())
-                .leetcodeUrl(profile.getLeetcodeUrl())
-                .role(profile.getUser() != null ? profile.getUser().getRole().name() : null)
-                .build();
-    }
 }

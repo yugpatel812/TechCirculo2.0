@@ -8,9 +8,9 @@ spring:
     name: techcirculo-backend
   
   datasource:
-    url: jdbc:mysql://localhost:3306/TechCirculo?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/techcirculo?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: YAmysql@1408
+    password: Jayn@123
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       auto-commit: false
@@ -179,7 +179,7 @@ hikari:
 
 # File storage configuration
 file:
-  upload-dir: C:/Users/Admin/Documents/TechCirculo2.0-fronted/TechCirculo2.0-fronted/uploads
+  upload-dir: ./uploads
 
 # Cache Configuration added under main spring section above
 
